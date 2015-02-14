@@ -1,0 +1,12 @@
+<ion-view view-title="Rounds">
+  <ion-content>
+    <ion-list>
+      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="round in rounds" type="item-text-wrap" href="#/tab/rounds/{{round.id}}">
+        <h2>{{round.name}}</h2>
+        <p>{{round.description}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+      </ion-item>
+      
+    </ion-list>
+  </ion-content>
+</ion-view>

@@ -49,6 +49,50 @@ angular.module('starter.services', [])
   }
 })
 
+.factory('Rounds', function() {
+  // Might use a resource here that returns a JSON array
+
+  // Some fake testing data
+  var rounds = [{
+    id: 0,
+    name: 'Round 1',
+    description: 'Here are the fixtures for Round 1',
+  }, {
+    id: 1,
+    name: 'Round 2',
+    description: 'Here are the fixtures for Round 2',
+  }, {
+    id: 2,
+    name: 'Round 3',
+    description: 'Here are the fixtures for Round 3',
+  }, {
+    id: 3,
+    name: 'Round 4',
+    description: 'Here are the fixtures for Round 4',
+  }, {
+    id: 4,
+    name: 'Round 5',
+    description: 'Here are the fixtures for Round 5',
+  }];
+
+  return {
+    all: function() {
+      return rounds;
+    },
+    remove: function(round) {
+      rounds.splice(rounds.indexOf(round), 1);
+    },
+    get: function(roundId) {
+      for (var i = 0; i < rounds.length; i++) {
+        if (rounds[i].id === parseInt(roundId)) {
+          return rounds[i];
+        }
+      }
+      return null;
+    }
+  }
+})
+
 /**
  * A simple example service that returns some data.
  */

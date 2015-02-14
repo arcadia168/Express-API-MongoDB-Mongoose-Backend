@@ -66,6 +66,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         }
       }
     })
+  
+    .state('tab.rounds', {
+      url: '/rounds',
+      views: {
+        'tab-rounds': {
+          templateUrl: 'templates/tab-rounds.html',
+          controller: 'RoundsCtrl'
+        }
+      }
+    })
+    .state('tab.round-detail', {
+      url: '/rounds/:roundId',
+      views: {
+        'tab-rounds': {
+          templateUrl: 'templates/round-detail.html',
+          controller: 'RoundDetailsCtrl'
+        }
+      }
+    })
 
   .state('tab.friends', {
       url: '/friends',

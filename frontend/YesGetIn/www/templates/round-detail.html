@@ -1,5 +1,5 @@
 <!--
-
+    Load all the details
 -->
 <ion-view view-title="{{round.name}}">
   <ion-content class="padding">
@@ -8,5 +8,11 @@
     </p>
       
       <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
+  
+    <ion-item class="item-remove-animate item-avatar item-icon-right" ng-model=round.fixtures ng-repeat="fixture in round.fixtures" type="item-text-wrap">
+       <h2>{{fixture.name}}</h2>    
+       <p>{{fixture.description}}</p>
+        
+    </ion-item>
   </ion-content>
 </ion-view>

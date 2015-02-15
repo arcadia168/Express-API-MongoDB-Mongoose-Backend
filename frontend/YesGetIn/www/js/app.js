@@ -81,7 +81,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       views: {
         'tab-rounds': {
           templateUrl: 'templates/round-detail.html',
-          controller: 'RoundDetailsCtrl'
+          controller: 'RoundDetailCtrl'
         }
       }
     })

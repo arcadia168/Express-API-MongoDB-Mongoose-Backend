@@ -57,22 +57,112 @@ angular.module('starter.services', [])
     id: 0,
     name: 'Round 1',
     description: 'Here are the fixtures for Round 1',
+    fixtures: [
+        { id: 1,
+          name: 'Fixture 1',
+          description: 'Them vs. Those'
+        },
+        { id: 2,
+          name: 'Fixture 2',
+          description: 'Them vs. Those'
+        },
+        { id: 3,
+          name: 'Fixture 3',
+          description: 'Them vs. Those'
+        },
+        { id: 4,
+          name: 'Fixture 4 ',
+          description: 'Them vs. Those'
+        }
+    ]            
   }, {
     id: 1,
     name: 'Round 2',
     description: 'Here are the fixtures for Round 2',
+        fixtures: [
+        { id: 1,
+          name: 'Fixture 1',
+          description: 'Them vs. Those'
+        },
+        { id: 2,
+          name: 'Fixture 2',
+          description: 'Them vs. Those'
+        },
+        { id: 3,
+          name: 'Fixture 3',
+          description: 'Them vs. Those'
+        },
+        { id: 4,
+          name: 'Fixture 4 ',
+          description: 'Them vs. Those'
+        }
+    ]
   }, {
     id: 2,
     name: 'Round 3',
     description: 'Here are the fixtures for Round 3',
+          fixtures: [
+        { id: 1,
+          name: 'Fixture 1',
+          description: 'Them vs. Those'
+        },
+        { id: 2,
+          name: 'Fixture 2',
+          description: 'Them vs. Those'
+        },
+        { id: 3,
+          name: 'Fixture 3',
+          description: 'Them vs. Those'
+        },
+        { id: 4,
+          name: 'Fixture 4 ',
+          description: 'Them vs. Those'
+        }
+    ]
   }, {
     id: 3,
     name: 'Round 4',
     description: 'Here are the fixtures for Round 4',
+    fixtures: [
+        { id: 1,
+          name: 'Fixture 1',
+          description: 'Them vs. Those'
+        },
+        { id: 2,
+          name: 'Fixture 2',
+          description: 'Them vs. Those'
+        },
+        { id: 3,
+          name: 'Fixture 3',
+          description: 'Them vs. Those'
+        },
+        { id: 4,
+          name: 'Fixture 4 ',
+          description: 'Them vs. Those'
+        }
+    ]
   }, {
     id: 4,
     name: 'Round 5',
     description: 'Here are the fixtures for Round 5',
+          fixtures: [
+        { id: 1,
+          name: 'Fixture 1',
+          description: 'Them vs. Those'
+        },
+        { id: 2,
+          name: 'Fixture 2',
+          description: 'Them vs. Those'
+        },
+        { id: 3,
+          name: 'Fixture 3',
+          description: 'Them vs. Those'
+        },
+        { id: 4,
+          name: 'Fixture 4 ',
+          description: 'Them vs. Those'
+        }
+    ]
   }];
 
   return {

@@ -179,6 +179,11 @@ angular.module('starter.services', [])
         }
       }
       return null;
+    },
+    predict: function(roundid, prediction) {
+        //make a call to server to send predictions away
+        
+        //
     }
   }
 })

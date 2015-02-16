@@ -14,6 +14,9 @@ angular.module('starter.controllers', [])
   $scope.remove = function(round) {
     Rounds.remove(round);
   }
+  $scope.predict = function(roundid, prediction) { //prediction will be left, right, up
+      Rounds.predict(roundid, prediction);
+  }
 })
 
 .controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {

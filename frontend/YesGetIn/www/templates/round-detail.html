@@ -9,7 +9,7 @@
       
       <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
   
-    <ion-item class="item-remove-animate item-avatar item-icon-right" ng-model=round.fixtures ng-repeat="fixture in round.fixtures" type="item-text-wrap">
+    <ion-item class="item-remove-animate item-avatar item-icon-right" ng-model=round.fixtures ng-repeat="fixture in round.fixtures" on-swipe-left="onSwipeLeft(fixture.id)" type="item-text-wrap">
        <h2>{{fixture.name}}</h2>    
        <p>{{fixture.description}}</p>
         

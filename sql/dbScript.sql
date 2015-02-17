@@ -16,10 +16,10 @@ CREATE TABLE Fixture
 idFixture INT NOT NULL AUTO_INCREMENT,
 homeTeam VARCHAR(45) NOT NULL,
 awayTeam VARCHAR(45) NOT NULL,
-date DATETIME NOT NULL,
-result INT NOT NULL,
+fixDate DATETIME NOT NULL,
+fixResult INT NOT NULL,
 PRIMARY KEY (idFixture)
-)
+);
 
 CREATE TABLE Prediction
 (

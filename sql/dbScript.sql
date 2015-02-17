@@ -27,7 +27,7 @@ idPrediction INT NOT NULL AUTO_INCREMENT,
 idFixture INT NOT NULL,
 idUser INT NOT NULL,
 prediction INT NOT NULL,
-predictDate DATETIME DEFAULT GETDATE(),
+predictDate DATETIME NOT NULL,
 PRIMARY KEY (idPrediction),
 FOREIGN KEY (idUser) REFERENCES UserData(idUser),
 FOREIGN KEY (idFixture) REFERENCES Fixture(idFixture) 

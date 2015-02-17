@@ -1,13 +1,14 @@
-CREATE TABLE User
+CREATE TABLE UserData
 (
 idUser INT NOT NULL AUTO_INCREMENT,
-username VARCHAR(30) NOT NULL UNIQUE,
+username VARCHAR(30) NOT NULL,
 password VARCHAR(64) NOT NULL,
 firstName VARCHAR(30) NOT NULL,
 lastName VARCHAR(30) NOT NULL,
 email VARCHAR(60) NOT NULL,
 userScore INT DEFAULT 0,
-PRIMARY KEY (idUser)
+PRIMARY KEY (idUser),
+UNIQUE (username)
 );
 
 CREATE TABLE Fixture
@@ -28,6 +29,6 @@ idUser INT NOT NULL,
 prediction INT NOT NULL,
 predictDate DATETIME DEFAULT GETDATE(),
 PRIMARY KEY (idPrediction),
-FOREIGN KEY (idUser) REFERENCES User(idUser),
+FOREIGN KEY (idUser) REFERENCES UserData(idUser),
 FOREIGN KEY (idFixture) REFERENCES Fixture(idFixture) 
 );

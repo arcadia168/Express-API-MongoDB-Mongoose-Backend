@@ -1,20 +1,21 @@
-CREATE TABLE User
+CREATE TABLE UserData
 (
 idUser INT NOT NULL AUTO_INCREMENT,
-username VARCHAR(30) NOT NULL UNIQUE,
-password VARCHAR(64) NOT NULL,
-firstName VARCHAR(30) NOT NULL,
-lastName VARCHAR(30) NOT NULL,
-email VARCHAR(60) NOT NULL,
+username VARCHAR (30) NOT NULL,
+password VARCHAR (64) NOT NULL,
+firstName VARCHAR (30) NOT NULL,
+lastName VARCHAR (30) NOT NULL,
+email VARCHAR (60) NOT NULL,
 userScore INT DEFAULT 0,
-PRIMARY KEY (idUser)
+PRIMARY KEY (idUser),
+UNIQUE (username)
 );
 
 CREATE TABLE Fixture
 (
 idFixture INT NOT NULL AUTO_INCREMENT,
-homeTeam VARCHAR(45) NOT NULL,
-awayTeam VARCHAR(45) NOT NULL,
+homeTeam VARCHAR (45) NOT NULL,
+awayTeam VARCHAR (45) NOT NULL,
 date DATETIME NOT NULL,
 result INT NOT NULL,
 PRIMARY KEY (idFixture)
@@ -23,11 +24,11 @@ PRIMARY KEY (idFixture)
 CREATE TABLE Prediction
 (
 idPrediction INT NOT NULL AUTO_INCREMENT,
-idFixture INT,
-idUser INT,
+idFixture INT NOT NULL,
+idUser INT NOT NULL,
 prediction INT NOT NULL,
 predictDate DATETIME DEFAULT GETDATE(),
 PRIMARY KEY (idPrediction),
-FOREIGN KEY (idUser) REFERENCES User(idUser),
+FOREIGN KEY (idUser) REFERENCES UserData(idUser),
 FOREIGN KEY (idFixture) REFERENCES Fixture(idFixture) 
 );

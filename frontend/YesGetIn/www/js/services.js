@@ -49,124 +49,34 @@ angular.module('starter.services', [])
   }
 })
 
-.factory('Rounds', function() {
-  // Might use a resource here that returns a JSON array
-
-  // Some fake testing data
-  var rounds = [{
-    id: 0,
-    name: 'Round 1',
-    description: 'Here are the fixtures for Round 1',
-    fixtures: [
-        { id: 1,
-          name: 'Fixture 1',
-          description: 'Them vs. Those'
-        },
-        { id: 2,
-          name: 'Fixture 2',
-          description: 'Them vs. Those'
-        },
-        { id: 3,
-          name: 'Fixture 3',
-          description: 'Them vs. Those'
-        },
-        { id: 4,
-          name: 'Fixture 4 ',
-          description: 'Them vs. Those'
-        }
-    ]            
-  }, {
-    id: 1,
-    name: 'Round 2',
-    description: 'Here are the fixtures for Round 2',
-        fixtures: [
-        { id: 1,
-          name: 'Fixture 1',
-          description: 'Them vs. Those'
-        },
-        { id: 2,
-          name: 'Fixture 2',
-          description: 'Them vs. Those'
-        },
-        { id: 3,
-          name: 'Fixture 3',
-          description: 'Them vs. Those'
-        },
-        { id: 4,
-          name: 'Fixture 4 ',
-          description: 'Them vs. Those'
-        }
-    ]
-  }, {
-    id: 2,
-    name: 'Round 3',
-    description: 'Here are the fixtures for Round 3',
-          fixtures: [
-        { id: 1,
-          name: 'Fixture 1',
-          description: 'Them vs. Those'
-        },
-        { id: 2,
-          name: 'Fixture 2',
-          description: 'Them vs. Those'
-        },
-        { id: 3,
-          name: 'Fixture 3',
-          description: 'Them vs. Those'
-        },
-        { id: 4,
-          name: 'Fixture 4 ',
-          description: 'Them vs. Those'
-        }
-    ]
-  }, {
-    id: 3,
-    name: 'Round 4',
-    description: 'Here are the fixtures for Round 4',
-    fixtures: [
-        { id: 1,
-          name: 'Fixture 1',
-          description: 'Them vs. Those'
-        },
-        { id: 2,
-          name: 'Fixture 2',
-          description: 'Them vs. Those'
-        },
-        { id: 3,
-          name: 'Fixture 3',
-          description: 'Them vs. Those'
-        },
-        { id: 4,
-          name: 'Fixture 4 ',
-          description: 'Them vs. Those'
-        }
-    ]
-  }, {
-    id: 4,
-    name: 'Round 5',
-    description: 'Here are the fixtures for Round 5',
-          fixtures: [
-        { id: 1,
-          name: 'Fixture 1',
-          description: 'Them vs. Those'
-        },
-        { id: 2,
-          name: 'Fixture 2',
-          description: 'Them vs. Those'
-        },
-        { id: 3,
-          name: 'Fixture 3',
-          description: 'Them vs. Those'
-        },
-        { id: 4,
-          name: 'Fixture 4 ',
-          description: 'Them vs. Those'
-        }
-    ]
-  }];
-
-  return {
+.factory('Rounds', ['$http', '$q', function() {   
+    //some sheeeeeet
+        ]
+        return {
     all: function() {
+        
+      //first populate the list of rounds from the server
+      // Might use a resource here that returns a JSON array
+      var deferred = $q.defer();
+
+      //Make a call to the api to populate the rounds variable
+
+      //Implement a http call to the server, just to see if we can connect
+      $http.get('http://nodejs-getin.rhcloud.com:8080').
+      success(function (data) {
+          // this callback will be called asynchronously
+          // when the response is available
+          deferred.resolve(data);
+      }).
+      error(function (data) {
+          // called asynchronously if an error occurs
+          // or server returns response with an error status.
+          console.log("Error while making HTTP call.");
+          deferred.promise;
+      });
+
+      rounds = deferred.promise;
+        
       return rounds;
     },
     remove: function(round) {
@@ -186,7 +96,7 @@ angular.module('starter.services', [])
         //
     }
   }
-})
+}])
 
 /**
  * A simple example service that returns some data.

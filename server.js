@@ -141,7 +141,9 @@ app.get('/', function(req, res) {
   res.send(rounds);
 });
 
-app.listen(8080);
+app.listen(PORT, IPADDRESS, function() {
+  console.log('%s: Node server started on %s:%d ...', Date(Date.now()), IPADDRESS, PORT);
+});
 
 
 

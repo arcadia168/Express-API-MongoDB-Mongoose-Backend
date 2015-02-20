@@ -10,11 +10,11 @@ var app = express();
 var bodyParser = require('body-parser');
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
-//mongoose.connect('mongodb://localhost/nodejs');
-//var db = mongoose.connection;
-//db.on('error', function()
-//  throw new Error('Unable to connect to database');
-//});
+mongoose.connect('mongodb://localhost/nodejs');
+var db = mongoose.connection;
+db.on('error', function(){
+  throw new Error('Unable to connect to database');
+});
 
 //app.configure(function() { // Configure is deprecated
 

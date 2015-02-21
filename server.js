@@ -3,9 +3,9 @@
 var PORT = process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_PORT  || 8080;
 var IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
+var mongoose = require('mongoose');
 var express = require('express');
 var fs = require('fs');
-var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();

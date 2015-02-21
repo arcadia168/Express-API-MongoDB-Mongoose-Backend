@@ -1,4 +1,5 @@
 var mongoose = require('mongoose'),
+require('../models/usermodel');
 User = mongoose.model('User');
 
 exports.addUser = function() {};

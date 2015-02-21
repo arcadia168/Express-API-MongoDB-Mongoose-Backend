@@ -1,4 +1,5 @@
 var mongoose = require('mongoose'),
+require('../models/fixturemodel');
 Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function() {};

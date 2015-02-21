@@ -9,13 +9,14 @@ var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
-require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect('mongodb://localhost/nodejs');
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, "Connection error:"));
+
+require('./routes')(app);
 
 app.use(cors());
 app.use(bodyParser.json()); // for parsing application/json

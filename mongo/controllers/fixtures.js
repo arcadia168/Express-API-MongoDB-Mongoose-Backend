@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-require('../models/fixturemodel');
 var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function(req, res) {
@@ -35,10 +34,8 @@ exports.clearRound = function() {
   });
 };
 
-// homeTeam, awayTeam, round, fixDate, fixResult
-exports.import = function(req, res) {
-  Fixture.create(
-    {"homeTeam": "Oldham", "awayTeam": "Ipswitch", "round": "1"},
+var date = new Date();
+var examples = [{"homeTeam": "Oldham", "awayTeam": "Ipswitch", "round": "1"},
     {"homeTeam": "***REMOVED***teshire", "awayTeam": "Walton", "round": "1"},
     {"homeTeam": "Applestown", "awayTeam": "Oranges", "round": "1"},
     {"homeTeam": "Eggs", "awayTeam": "Cat and Fanny", "round": "1"},
@@ -47,7 +44,11 @@ exports.import = function(req, res) {
     {"homeTeam": "Red Wine", "awayTeam": "White Wine", "round": "2"},
     {"homeTeam": "Chadderfornia", "awayTeam": "Detroyton", "round": "2"},
     {"homeTeam": "Wensleydale", "awayTeam": "The Letter C", "round": "2"},
-    {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"},
+    {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"}];
+    
+// homeTeam, awayTeam, round, fixDate, fixResult
+exports.import = function(req, res) {
+  Fixture.create(array,
     function(err) {
       if(err)
         return console.log(err);

@@ -9,6 +9,9 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
+
+require('./mongo/models/usermodel');
+require('./mongo/models/fixturemodel');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT

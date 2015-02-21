@@ -27,7 +27,7 @@ exports.import = function(req, res) {
     {"homeTeam": "Wensleydale", "awayTeam": "The Letter C", "round": "2"},
     {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"},
     function(err) {
-      if(err) return console.log(err);
+      if(err) return res.send(err);
       return res.send(202);
     });
 };

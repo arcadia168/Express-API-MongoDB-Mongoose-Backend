@@ -9,6 +9,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
+require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect('mongodb://localhost/nodejs');
@@ -16,13 +17,13 @@ var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, "Connection error:"));
 
-require('./routes')(app);
-
 app.use(cors());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.get('/fixtures/import');
+app.get('/', function(req, res)) {
+  res.send('Yes!GetIn!');
+});
 
 app.listen(PORT, IPADDRESS, function() {
   console.log('%s: Node server started on %s:%d ...', Date(Date.now()), IPADDRESS, PORT);

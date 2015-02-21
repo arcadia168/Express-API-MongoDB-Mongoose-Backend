@@ -34,21 +34,19 @@ exports.clearRound = function() {
   });
 };
 
-var date = new Date();
-var examples = [{"homeTeam": "Oldham", "awayTeam": "Ipswitch", "round": "1"},
-    {"homeTeam": "***REMOVED***teshire", "awayTeam": "Walton", "round": "1"},
-    {"homeTeam": "Applestown", "awayTeam": "Oranges", "round": "1"},
-    {"homeTeam": "Eggs", "awayTeam": "Cat and Fanny", "round": "1"},
-    {"homeTeam": "Mancshire", "awayTeam": "Manctown", "round": "1"},
-    {"homeTeam": "London", "awayTeam": "Nodnol", "round": "2"},
-    {"homeTeam": "Red Wine", "awayTeam": "White Wine", "round": "2"},
-    {"homeTeam": "Chadderfornia", "awayTeam": "Detroyton", "round": "2"},
-    {"homeTeam": "Wensleydale", "awayTeam": "The Letter C", "round": "2"},
-    {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"}];
-    
-// homeTeam, awayTeam, round, fixDate, fixResult
-exports.import = function(req, res) {
-  Fixture.create(array,
+var examples = [{"homeTeam":"Oldham", "awayTeam":"Ipswitch","round":"1"},
+    {"homeTeam":"***REMOVED***teshire", "awayTeam":"Walton", "round":"1"},
+    {"homeTeam":"Applestown", "awayTeam":"Oranges", "round":"1"},
+    {"homeTeam":"Eggs", "awayTeam":"Cat and Fanny", "round":"1"},
+    {"homeTeam":"Mancshire", "awayTeam":"Manctown", "round":"1"},
+    {"homeTeam":"London", "awayTeam":"Nodnol", "round":"2"},
+    {"homeTeam":"Red Wine", "awayTeam":"White Wine", "round":"2"},
+    {"homeTeam":"Chadderfornia", "awayTeam":"Detroyton", "round":"2"},
+    {"homeTeam":"Wensleydale", "awayTeam":"The Letter C", "round":"2"},
+    {"homeTeam":"Jerusalem", "awayTeam":"Alpha Centurai", "round":"2"}];
+
+exports.dummyData = function(res, res) {
+    Fixture.create(examples,
     function(err) {
       if(err)
         return console.log(err);

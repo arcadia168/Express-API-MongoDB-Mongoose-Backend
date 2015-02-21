@@ -15,5 +15,5 @@ module.exports = function(app){
     app.delete('/fixtures', fixtures.clearFixtures);
     app.delete('/fixtures/:round', fixtures.clearRound);
     
-    app.get('/fixtures/import', fixtures.import);
+    app.get('/dummy', fixtures.dummyData);
 }

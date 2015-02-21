@@ -5,16 +5,35 @@ var Fixture = mongoose.model('Fixture');
 exports.getFixtures = function(req, res) {
   Fixture.find({}, function(err, results) {
     return res.send(results);
-  });};
+  });
+};
+
 exports.getRound = function(req, res) {
   var round = req.params.round;
-  Fixture.find({'round':round}, function(err, result) {
+  Fixture.find({'round': round}, function(err, result) {
     return res.send(result);
   });
 };
-exports.addFixtures = function() {};
-exports.clearFixtures = function() {};
-exports.clearRound = function() {};
+
+exports.addFixtures = function(req, res) {
+  Fixture.create(req.body, function(err, fixture) {
+    if(err) return console.log(err);
+    return res.send(fixture);
+  });
+};
+
+exports.clearFixtures = function(req, res) {
+  Fixture.remove({}, function(result) {
+    return res.send(result);
+  });
+};
+
+exports.clearRound = function() {
+  var round = req.params.id;
+  Fixture.remove({'round': round}, function(result){
+    return res.send(result);
+  });
+};
 
 // homeTeam, awayTeam, round, fixDate, fixResult
 exports.import = function(req, res) {
@@ -31,7 +50,7 @@ exports.import = function(req, res) {
     {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"},
     function(err) {
       if(err)
-        return res.send('Import failed');
+        return console.log(err);
       return res.send(202);
     }
   );

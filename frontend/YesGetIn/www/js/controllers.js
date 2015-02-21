@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-    .controller('DashCtrl', function($scope) {})
+    .controller('LeagueTableCtrl', function($scope) {})
 
     //.controller('ChatsCtrl', function($scope, Chats) {
     //    $scope.chats = Chats.all();
@@ -70,14 +70,17 @@ angular.module('starter.controllers', [])
         //};
     })
 
-    .controller('DemoTabCtrl', function($scope, $ionicPopup) {
+    .controller('DemoTabCtrl', function($scope, $ionicPopup, $state) {
         //alert("This feature has been disabled for the demo app.");
 
-        $ionicPopup.alert({
-            title: 'Tab not available in demo!',
-            template: 'This thing is a work in progress...'
-        });
-        alertPopup.then(function(res) {
-            $location.path("/yourPath");
-        });
+        $scope.accessDeny = function() {
+            $ionicPopup.alert({
+                title: 'Tab not available in demo!',
+                template: 'This thing is a work in progress...'
+            }).then(function(res) {
+
+                //deflect the user from the tab which has not yet been implemented to a good tab
+                $state.transitionTo("tab.rounds");
+            });
+        }
     });

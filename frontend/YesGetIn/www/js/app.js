@@ -55,17 +55,28 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
             .state('tab', {
                 url: "/tab",
                 abstract: true,
-                templateUrl: "templates/tabs.html"
+                templateUrl: "templates/tabs.html",
+                controller: "DemoTabCtrl"
             })
 
             // Each tab has its own nav history stack:
 
-            .state('tab.dash', {
-                url: '/dash',
+            //.state('tab.dash', {
+            //    url: '/dash',
+            //    views: {
+            //        'tab-dash': {
+            //            templateUrl: 'templates/tab-dash.html',
+            //            controller: 'DemoTabCtrl'//'DashCtrl'
+            //        }
+            //    }
+            //})
+
+            .state('tab.league-table', {
+                url: '/league-table',
                 views: {
                     'tab-dash': {
-                        templateUrl: 'templates/tab-dash.html',
-                        controller: 'DemoTabCtrl'//'DashCtrl'
+                        templateUrl: 'templates/league-table.html',
+                        controller: 'LeagueTableCtrl'
                     }
                 }
             })
@@ -132,7 +143,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
                 views: {
                     'tab-account': {
                         templateUrl: 'templates/tab-account.html',
-                        controller: 'DemoTabCtrl'//'AccountCtrl'
+                        controller: 'AccountCtrl'
                     }
                 }
             });

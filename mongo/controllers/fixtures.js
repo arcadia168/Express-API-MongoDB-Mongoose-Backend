@@ -2,7 +2,10 @@ var mongoose = require('mongoose');
 require('../models/fixturemodel');
 var Fixture = mongoose.model('Fixture');
 
-exports.getFixtures = function() {};
+exports.getFixtures = function(req, res) {
+  Fixture.find({}, function(err, results) {
+    return res.send(results);
+  });};
 exports.getRound = function(req, res) {
   var round = req.params.round;
   Fixture.find({'round':round}, function(err, result) {
@@ -27,7 +30,9 @@ exports.import = function(req, res) {
     {"homeTeam": "Wensleydale", "awayTeam": "The Letter C", "round": "2"},
     {"homeTeam": "Jerusalem", "awayTeam": "Alpha Centurai", "round": "2"},
     function(err) {
-      if(err) return res.send(err);
+      if(err)
+        return res.send('Import failed');
       return res.send(202);
-    });
+    }
+  );
 };

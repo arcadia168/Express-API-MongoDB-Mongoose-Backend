@@ -43,7 +43,7 @@ exports.updatePrediction = function(req, res) {
   var username = req.params.username;
 };
 
-exports.clearPredictions = fucntion(req, res) {
+exports.clearPredictions = function(req, res) {
   User.update({}, {$pull: {'predictions': {}}}, function(err, number) {
     if(err) return console.log(err);
     return res.send(202);

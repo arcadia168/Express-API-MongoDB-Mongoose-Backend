@@ -7,115 +7,137 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
-.run(function($ionicPlatform) {
-  $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if (window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    }
-    if (window.StatusBar) {
-      // org.apache.cordova.statusbar required
-      StatusBar.styleDefault();
-    }
-  });
-})
+    .run(function($ionicPlatform, $rootScope, $ionicLoading) {
 
-.config(function($stateProvider, $urlRouterProvider) {
+        $rootScope.$on('loading:show', function() {
+            $ionicLoading.show({template: 'Fetching data from server'})
+        })
 
-  // Ionic uses AngularUI Router which uses the concept of states
-  // Learn more here: https://github.com/angular-ui/ui-router
-  // Set up the various states which the app can be in.
-  // Each state's controller can be found in controllers.js
-  $stateProvider
+        $rootScope.$on('loading:hide', function() {
+            $ionicLoading.hide()
+        })
 
-  // setup an abstract state for the tabs directive
-    .state('tab', {
-    url: "/tab",
-    abstract: true,
-    templateUrl: "templates/tabs.html"
-  })
-
-  // Each tab has its own nav history stack:
-
-  .state('tab.dash', {
-    url: '/dash',
-    views: {
-      'tab-dash': {
-        templateUrl: 'templates/tab-dash.html',
-        controller: 'DashCtrl'
-      }
-    }
-  })
-
-  .state('tab.chats', {
-      url: '/chats',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/tab-chats.html',
-          controller: 'ChatsCtrl'
-        }
-      }
-    })
-    .state('tab.chat-detail', {
-      url: '/chats/:chatId',
-      views: {
-        'tab-chats': {
-          templateUrl: 'templates/chat-detail.html',
-          controller: 'ChatDetailCtrl'
-        }
-      }
-    })
-  
-    .state('tab.rounds', {
-      url: '/rounds',
-      views: {
-        'tab-rounds': {
-          templateUrl: 'templates/tab-rounds.html',
-          controller: 'RoundsCtrl'
-        }
-      }
-    })
-    .state('tab.round-detail', {
-      url: '/rounds/:roundId',
-      views: {
-        'tab-rounds': {
-          templateUrl: 'templates/round-detail.html',
-          controller: 'RoundDetailCtrl'
-        }
-      }
+        $ionicPlatform.ready(function() {
+            // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+            // for form inputs)
+            if (window.cordova && window.cordova.plugins.Keyboard) {
+                cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+            }
+            if (window.StatusBar) {
+                // org.apache.cordova.statusbar required
+                StatusBar.styleDefault();
+            }
+        });
     })
 
-  .state('tab.friends', {
-      url: '/friends',
-      views: {
-        'tab-friends': {
-          templateUrl: 'templates/tab-friends.html',
-          controller: 'FriendsCtrl'
-        }
-      }
-    })
-    .state('tab.friend-detail', {
-      url: '/friend/:friendId',
-      views: {
-        'tab-friends': {
-          templateUrl: 'templates/friend-detail.html',
-          controller: 'FriendDetailCtrl'
-        }
-      }
-    })
+    .config(function($httpProvider, $stateProvider, $urlRouterProvider) {
 
-  .state('tab.account', {
-    url: '/account',
-    views: {
-      'tab-account': {
-        templateUrl: 'templates/tab-account.html',
-        controller: 'AccountCtrl'
-      }
-    }
-  });
+        $httpProvider.interceptors.push(function($rootScope) {
+            return {
+                request: function(config) {
+                    $rootScope.$broadcast('loading:show')
+                    return config
+                },
+                response: function(response) {
+                    $rootScope.$broadcast('loading:hide')
+                    return response
+                }
+            }
+        })
 
-  // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/tab/dash');
+        // Ionic uses AngularUI Router which uses the concept of states
+        // Learn more here: https://github.com/angular-ui/ui-router
+        // Set up the various states which the app can be in.
+        // Each state's controller can be found in controllers.js
+        $stateProvider
 
-});
+            // setup an abstract state for the tabs directive
+            .state('tab', {
+                url: "/tab",
+                abstract: true,
+                templateUrl: "templates/tabs.html"
+            })
+
+            // Each tab has its own nav history stack:
+
+            .state('tab.dash', {
+                url: '/dash',
+                views: {
+                    'tab-dash': {
+                        templateUrl: 'templates/tab-dash.html',
+                        controller: 'DemoTabCtrl'//'DashCtrl'
+                    }
+                }
+            })
+
+            //.state('tab.chats', {
+            //    url: '/chats',
+            //    views: {
+            //        'tab-chats': {
+            //            templateUrl: 'templates/tab-chats.html',
+            //            controller: 'ChatsCtrl'
+            //        }
+            //    }
+            //})
+            //.state('tab.chat-detail', {
+            //    url: '/chats/:chatId',
+            //    views: {
+            //        'tab-chats': {
+            //            templateUrl: 'templates/chat-detail.html',
+            //            controller: 'ChatDetailCtrl'
+            //        }
+            //    }
+            //})
+
+            .state('tab.rounds', {
+                url: '/rounds',
+                views: {
+                    'tab-rounds': {
+                        templateUrl: 'templates/tab-rounds.html',
+                        controller: 'RoundsCtrl'
+                    }
+                }
+            })
+            .state('tab.round-detail', {
+                url: '/rounds/:roundId',
+                views: {
+                    'tab-rounds': {
+                        templateUrl: 'templates/round-detail.html',
+                        controller: 'RoundDetailCtrl'
+                    }
+                }
+            })
+
+            //.state('tab.friends', {
+            //    url: '/friends',
+            //    views: {
+            //        'tab-friends': {
+            //            templateUrl: 'templates/tab-friends.html',
+            //            controller: 'FriendsCtrl'
+            //        }
+            //    }
+            //})
+            //.state('tab.friend-detail', {
+            //    url: '/friend/:friendId',
+            //    views: {
+            //        'tab-friends': {
+            //            templateUrl: 'templates/friend-detail.html',
+            //            controller: 'FriendDetailCtrl'
+            //        }
+            //    }
+            //})
+
+            .state('tab.account', {
+                url: '/account',
+                views: {
+                    'tab-account': {
+                        templateUrl: 'templates/tab-account.html',
+                        controller: 'DemoTabCtrl'//'AccountCtrl'
+                    }
+                }
+            });
+
+        // if none of the above states are matched, use this as the fallback
+        $urlRouterProvider.otherwise('/tab/dash');
+
+    });

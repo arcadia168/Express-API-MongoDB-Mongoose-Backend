@@ -32,7 +32,7 @@ exports.addPredictions = function(req, res) {
       if(err) return console.log(err);
       return res.send(202);
     }
-  })
+  );
 };
 
 exports.getPredictions = function(req, res) {

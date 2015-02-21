@@ -27,7 +27,8 @@
   "dependencies": {
     "express": "*",
     "body-parser": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "cors": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

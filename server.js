@@ -6,8 +6,10 @@ var IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJ
 var express = require('express');
 var fs      = require('fs');
 var mongoose = require('mongoose');
-var app = express();
 var bodyParser = require('body-parser');
+var cors = require('cors');
+var app = express();
+
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect('mongodb://localhost/nodejs');
@@ -20,6 +22,7 @@ db.on('error', function(){
 
   //app.use(express.bodyParser()); //this needs to be done externally in new versions
 //});
+app.use(cors());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 

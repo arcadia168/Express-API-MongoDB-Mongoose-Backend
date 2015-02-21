@@ -12,4 +12,6 @@ module.exports = function(app){
     app.post('/fixtures', fixtures.addFixtures);
     app.delete('/fixtures', fixtures.clearFixtures);
     app.delete('/fixtures/:round', fixtures.clearRound);
+    
+    app.post('/fixtures/import', fixtures.import);
 }

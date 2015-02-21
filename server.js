@@ -20,9 +20,6 @@ var db = mongoose.connection;
 db.on('error', function () {
   throw new Error('unable to connect to database at mongodb://localhost/nodejs');
 });
-db.once('open', function (callback) {
-  // yay!
-});
 
 app.use(cors());
 app.use(bodyParser.json()); // for parsing application/json

@@ -4,7 +4,7 @@ var PORT = process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_P
 var IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
 var express = require('express');
-var fs      = require('fs');
+var fs = require('fs');
 var mongoose = require('mongoose');
 var app = express();
 var bodyParser = require('body-parser');
@@ -12,11 +12,6 @@ var bodyParser = require('body-parser');
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect('mongodb://localhost/nodejs');
 var db = mongoose.connection;
-/*
-db.on('error', function(){
-  throw new Error('Unable to connect to database');
-});
-*/
 
 db.on('error', console.error.bind(console, "Connection error:"));
 

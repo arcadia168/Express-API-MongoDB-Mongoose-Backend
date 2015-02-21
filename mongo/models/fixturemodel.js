@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var fixtureSchema = new Schema({
   homeTeam: String,
-  awayTeamL String,
+  awayTeam: String,
+  round: Number,
   fixDate: { type: Date, default: Date.now },
   fixResult: Number
 });

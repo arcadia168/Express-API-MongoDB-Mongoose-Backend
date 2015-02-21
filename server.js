@@ -15,7 +15,7 @@ require('./mongo/models/fixturemodel');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
-mongoose.connect('mongodb://localhost/nodejs');
+mongoose.connect('mongodb://'+IPADDRESS+'/nodejs');
 var db = mongoose.connection;
 db.on('error', function () {
   throw new Error('unable to connect to database at mongodb://localhost/nodejs');

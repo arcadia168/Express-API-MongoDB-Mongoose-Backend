@@ -100,7 +100,7 @@ angular.module('starter.services', ['ngResource'])
         }
     })
 
-    .factory('Rounds', ['$http', '$q' ,'$resource', function($http, $q) {
+    .factory('Rounds', ['$http', '$q' ,'$ionicPopup', function($http, $q, $ionicPopUp) {
 
         var rounds = [];
 
@@ -110,12 +110,16 @@ angular.module('starter.services', ['ngResource'])
 
                 //TODO: Replace the use of http with resource
                 // Make a call to ye olde server
-                $http.get('http://nodejs-getin.rhcloud.com'
+                $http.get('http://nodejs-getin.rhcloud.com/fixtures/'
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
+                        $ionicPopup.alert({
+                            title: 'Server Connection Error!',
+                            template: 'Could not retrieve data from the server!'
+                        });
                         deferred.promise;
                     });
                 return deferred.promise;
@@ -141,12 +145,16 @@ angular.module('starter.services', ['ngResource'])
                 // Make a call to ye olde server
 
                 //TODO: Replace the use of http with resource
-                $http.get('http://nodejs-getin.rhcloud.com'
+                $http.get('http://nodejs-getin.rhcloud.com/fixtures/' + roundId
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
+                        var alertPopup = $ionicPopup.alert({
+                            title: 'Server Connection Error!',
+                            template: 'Could not retrieve data from the server!'
+                        });
                         deferred.promise;
                     });
                 return deferred.promise;

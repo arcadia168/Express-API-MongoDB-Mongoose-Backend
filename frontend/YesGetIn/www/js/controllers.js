@@ -70,6 +70,14 @@ angular.module('starter.controllers', [])
         //};
     })
 
-    .controller('DemoTabCtrl', function($scope) {
-        alert("This feature has been disabled for the demo app.");
+    .controller('DemoTabCtrl', function($scope, $ionicPopup) {
+        //alert("This feature has been disabled for the demo app.");
+
+        $ionicPopup.alert({
+            title: 'Tab not available in demo!',
+            template: 'This thing is a work in progress...'
+        });
+        alertPopup.then(function(res) {
+            $location.path("/yourPath");
+        });
     });

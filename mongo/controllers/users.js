@@ -1,6 +1,6 @@
-var mongoose = require('mongoose'),
+var mongoose = require('mongoose');
 require('../models/usermodel');
-User = mongoose.model('User');
+var User = mongoose.model('User');
 
 exports.addUser = function() {};
 exports.updateUser = function() {};

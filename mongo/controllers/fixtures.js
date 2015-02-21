@@ -1,6 +1,6 @@
-var mongoose = require('mongoose'),
+var mongoose = require('mongoose');
 require('../models/fixturemodel');
-Fixture = mongoose.model('Fixture');
+var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function() {};
 exports.getRound = function(req, res) {

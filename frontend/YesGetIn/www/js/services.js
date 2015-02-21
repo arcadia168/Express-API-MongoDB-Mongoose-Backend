@@ -1,3 +1,54 @@
+//(function () {
+//    'use strict';
+//
+//    angular.module('starter.services')
+//
+//    .factory('Rounds', ['$http', '$q', '$resource', Rounds]);
+//
+//    function Rounds($http, $q) {
+//
+//        var rounds;
+//
+//        function all() {
+//            var deferred = $q.defer();
+//
+//            // Make a call to ye olde server
+//            $http.get('http://nodejs-getin.rhcloud.com/'
+//            ).success(function (data) {
+//                    deferred.resolve(data);
+//                }).error(function () {
+//                    console.log("Error while making HTTP call.");
+//                    deferred.promise;
+//                });
+//            return deferred.promise;
+//        }
+//
+//        function remove(round) {
+//            rounds.splice(rounds.indexOf(round), 1);
+//        }
+//
+//        function get(round) {
+//            for (var i = 0; i < rounds.length; i++) {
+//                if (rounds[i].id === parseInt(round)) {
+//                    return rounds[i];
+//                }
+//            }
+//            return null;
+//        }
+//
+//        function predict() {
+//
+//        }
+//
+//        return {
+//            all: all,
+//            remove: remove,
+//            get: get,
+//            predict: predict
+//        };
+//    }
+//})();
+
 angular.module('starter.services', ['ngResource'])
 
     .factory('Chats', function() {
@@ -49,40 +100,6 @@ angular.module('starter.services', ['ngResource'])
         }
     })
 
-    //.factory('Rounds', ['$http', '$q' ,'$resource', function($http, $q) {
-    //
-    //    function getRounds() {
-    //        var deferred = $q.defer();
-    //
-    //        // Make a call to ye olde server
-    //        $http.get('http://nodejs-getin.rhcloud.com:8080'
-    //        ).success(function(data){
-    //                deferred.resolve(data);
-    //            }).error(function(){
-    //                console.log("Error while making HTTP call.");
-    //                deferred.promise;
-    //            });
-    //        return deferred.promise;
-    //    }
-    //
-    //    //because factory, returns a whole function which is then run
-    //    return {
-    //        all: function() {
-    //            var deferred = $q.defer();
-    //
-    //            // Make a call to ye olde server
-    //            $http.get('http://nodejs-getin.rhcloud.com:8080'
-    //            ).success(function (data) {
-    //                    deferred.resolve(data);
-    //                }).error(function () {
-    //                    console.log("Error while making HTTP call.");
-    //                    deferred.promise;
-    //                });
-    //            return deferred.promise;
-    //        }
-    //    }
-    //}])
-
     .factory('Rounds', ['$http', '$q' ,'$resource', function($http, $q) {
 
 
@@ -121,8 +138,8 @@ angular.module('starter.services', ['ngResource'])
     }])
 
 /**
- * A simple example service that returns some data.
- */
+* A simple example service that returns some data.
+*/
     .factory('Friends', function() {
         // Might use a resource here that returns a JSON array
 

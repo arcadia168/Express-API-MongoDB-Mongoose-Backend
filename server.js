@@ -9,13 +9,22 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
+var mongoConnection;
+
+if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
+    mongoConnection = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
+    process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +
+    process.env.OPENSHIFT_MONGODB_DB_HOST + ':' +
+    process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
+    process.env.OPENSHIFT_APP_NAME;
+}
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
-mongoose.connect('mongodb://'+IPADDRESS+'/nodejs');
+mongoose.connect(mongoConnection);
 var db = mongoose.connection;
 db.on('error', function () {
   throw new Error('unable to connect to database at mongodb://localhost/nodejs');

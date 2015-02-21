@@ -14,14 +14,14 @@ var app = express();
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect('mongodb://localhost/nodejs');
 var db = mongoose.connection;
+/*
 db.on('error', function(){
   throw new Error('Unable to connect to database');
 });
+*/
 
-//app.configure(function() { // Configure is deprecated
+db.on('error', console.error.bind(console, "Connection error:"));
 
-  //app.use(express.bodyParser()); //this needs to be done externally in new versions
-//});
 app.use(cors());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -40,7 +40,7 @@ app.get('/', function(req, res) {
             },
             { id: 2,
                 name: 'Fixture 2',
-                description: 'Them vs. Those'
+                description: 'Lads vs. Denchmans'
             },
             { id: 3,
                 name: 'Fixture 3',
@@ -144,7 +144,9 @@ app.get('/', function(req, res) {
   res.send(rounds);
 });
 
-app.listen(8080);
+app.listen(PORT, IPADDRESS, function() {
+  console.log('%s: Node server started on %s:%d ...', Date(Date.now()), IPADDRESS, PORT);
+});
 
 
 

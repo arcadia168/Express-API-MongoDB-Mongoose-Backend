@@ -45,7 +45,7 @@ exports.updatePrediction = function(req, res) {
   var username = req.params.username;
   User.findOneAndUpdate({'username': username,
                         'predictions.fixture': {"$ne": req.body.fixture}},
-                        { $set: {'predictions.$': req.body}}
+                        { $set: {'predictions.$': req.body}},
                         {upsert : true},
                         function(err, number) {
     if(err) return console.log(err);

@@ -100,13 +100,15 @@ angular.module('starter.services', ['ngResource'])
         }
     })
 
-    .factory('Rounds', ['$http', '$q' ,'$ionicPopup', function($http, $q, $ionicPopUp) {
+    .factory('Rounds', ['$http', '$q' ,'$ionicPopup', '$resource', function($http, $q, $ionicPopUp, $resource) {
 
         var rounds = [];
 
         return {
             all: function() {
                 var deferred = $q.defer();
+
+                debugger;
 
                 //TODO: Replace the use of http with resource
                 // Make a call to ye olde server
@@ -140,30 +142,34 @@ angular.module('starter.services', ['ngResource'])
 
                 //return a promise
 
-                var deferred = $q.defer();
+                //var deferred = $q.defer();
+                //
+                //// Make a call to ye olde server
+                //
+                ////TODO: Replace the use of http with resource
+                //
+                //debugger;
+                //
+                //$http.get('http://nodejs-getin.rhcloud.com/fixtures/' + roundId
+                //).success(function(data){
+                //        rounds = data;
+                //        deferred.resolve(data);
+                //    }).error(function(){
+                //        console.log("Error while making HTTP call.");
+                //        var alertPopup = $ionicPopup.alert({
+                //            title: 'Server Connection Error!',
+                //            template: 'Could not retrieve data from the server!'
+                //        });
+                //        deferred.promise;
+                //    });
+                //return deferred.promise;
 
-                // Make a call to ye olde server
-
-                //TODO: Replace the use of http with resource
-                $http.get('http://nodejs-getin.rhcloud.com/fixtures/' + roundId
-                ).success(function(data){
-                        rounds = data;
-                        deferred.resolve(data);
-                    }).error(function(){
-                        console.log("Error while making HTTP call.");
-                        var alertPopup = $ionicPopup.alert({
-                            title: 'Server Connection Error!',
-                            template: 'Could not retrieve data from the server!'
-                        });
-                        deferred.promise;
-                    });
-                return deferred.promise;
+                return $resource('http://nodejs-getin.rhcloud.com/fixtures/ + ');
 
             },
             predict: function(roundid, prediction) {
                 //make a call to server to send predictions away
 
-                //
             }
         }
     }])

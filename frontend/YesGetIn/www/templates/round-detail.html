@@ -1,18 +1,20 @@
 <!--
     Load all the details
 -->
-<ion-view view-title="{{round.name}}">
-  <ion-content class="padding">
-    <p>
-      {{round.description}}
-    </p>
-      
-      <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
-  
-    <ion-item class="item-remove-animate item-avatar item-icon-right" ng-model=round.fixtures ng-repeat="fixture in round.fixtures" on-swipe-left="onSwipeLeft(fixture.id)" type="item-text-wrap">
-       <h2>{{fixture.name}}</h2>    
-       <p>{{fixture.description}}</p>
-        
-    </ion-item>
-  </ion-content>
+<ion-view view-title="{{fixtures[0].round}}">
+    <ion-content class="padding">
+
+        <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
+
+        <ion-item class="item-remove-animate item-avatar item-icon-right" ng-model=fixtures
+                  ng-repeat="fixture in fixtures"
+                  on-swipe-left="predictHomeWin(fixture._id)" on-swipe-right="predictAwayWin(fixture._id)"
+                  on-swipe-down="predictDraw(fixture._id)" type="item-text-wrap">
+            <p>{{fixture.homeTeam}}</p>
+            <p><em>vs</em></p>
+            <p>{{fixture.awayTeam}}</p>
+            <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em>
+
+        </ion-item>
+    </ion-content>
 </ion-view>

@@ -64,7 +64,7 @@ exports.clearRound = function() {
 
 var examples = [{"homeTeam":"Oldham", "awayTeam":"Ipswitch","round":"1"},
     {"homeTeam":"***REMOVED***teshire", "awayTeam":"Walton", "round":"1"},
-    {"homeTeam":"Applestown", "awayTeam":"Oranges", "round":"1");
+    {"homeTeam":"Applestown", "awayTeam":"Oranges", "round":"1"},
     {"homeTeam":"Eggs", "awayTeam":"Cat and Fanny", "round":"1"},
     {"homeTeam":"Mancshire", "awayTeam":"Manctown", "round":"1"},
     {"homeTeam":"London", "awayTeam":"Nodnol", "round":"2"},

@@ -9,7 +9,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
-var mongoConnection;
+var mongoConnection = 'mongodb://localhost/nodejs';
 
 if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
     mongoConnection = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +

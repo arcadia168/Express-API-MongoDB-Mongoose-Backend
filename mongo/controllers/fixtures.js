@@ -14,6 +14,34 @@ exports.getRound = function(req, res) {
   });
 };
 
+exports.getGroupedFixtures = function(req, res) {
+  Fixture.find({}, function(err, results) {
+    var data = JSON.parse(results);
+    var newData = { rounds : [] };
+    var set = new MiniSet();
+    for(var i = 0; i < data.length; i++) {
+      var obj = data[i]
+      for(var key in obj) {
+        if(key == 'round') {
+          // if this round already exists in the list add it
+          // else make a new JSON object
+          var roundNum = Number(obj[key].toString());
+          if(set.has(roundNum)) {
+            newData.rounds[roundNum].data.push(JSON.stringify(obj));
+          } else {
+            var data = JSON.parse('{\"round\":\"'+roundNum+'\",\"data\":['+JSON.stringify(obj)+']}');
+            newData.rounds.push(data);
+            set.add(roundNum);
+          }
+          break;
+        }
+      }
+    }
+    
+    return res.send(newData.stringify());
+  });
+};
+
 exports.addFixtures = function(req, res) {
   Fixture.create(req.body, function(err, fixture) {
     if(err) return console.log(err);
@@ -28,7 +56,7 @@ exports.clearFixtures = function(req, res) {
 };
 
 exports.clearRound = function() {
-  var round = req.params.id;
+  var round = req.params.round;
   Fixture.remove({'round': round}, function(result){
     return res.send(result);
   });

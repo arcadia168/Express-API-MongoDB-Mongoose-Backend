@@ -11,6 +11,7 @@ module.exports = function(app){
     
     app.get('/fixtures', fixtures.getFixtures);
     app.get('/fixtures/:round', fixtures.getRound);
+    app.get('/rounds', fixtures.getGroupedFixtures);
     app.post('/fixtures', fixtures.addFixtures);
     app.delete('/fixtures', fixtures.clearFixtures);
     app.delete('/fixtures/:round', fixtures.clearRound);

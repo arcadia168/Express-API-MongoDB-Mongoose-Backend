@@ -44,13 +44,43 @@ angular.module('starter.controllers', [])
     //})
 
     .controller('RoundDetailCtrl', function($scope, $stateParams, Rounds) {
-        //Change this to use $q and show loading modal
 
+        //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
             //$ionicLoading.hide();
-            $scope.round = data;
+            $scope.fixtures = data;
         });
 
+        var _predictions = [
+            {fixtureid: 1, prediction: 1},
+            {fixtureid: 2, prediction: 2}
+        ];
+
+        //TODO: maybe show popup for each prediction using $ionicPopup
+
+        $scope.predictHomeWin = function (fixtureId) {
+            debugger
+            _predictions.push({fixtureid: fixtureId, prediction: 0});
+
+        };
+
+        $scope.predictAwayWin = function (fixtureId) {
+            debugger
+            _predictions.push({fixtureid: fixtureId, prediction: 1});
+
+        };
+
+        $scope.predictDraw = function (fixtureId) {
+            debugger
+            _predictions.push({fixtureid: fixtureId, prediction: 2});
+
+        };
+
+        //TODO: Implement validation for the predictions.
+        //once predictions are all validated, and predict button send, send all predictions
+        $scope.sendPredictions = function () {
+            Rounds.makePredictions(_predictions);
+        }
     })
 
     .controller('FriendsCtrl', function($scope, Friends) {

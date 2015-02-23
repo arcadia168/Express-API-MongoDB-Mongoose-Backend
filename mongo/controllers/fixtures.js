@@ -1,9 +1,10 @@
 var mongoose = require('mongoose');
+var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function(req, res) {
   Fixture.find({}, function(err, results) {
-    return res.send(results);
+    return res.jsonp(results);
   });
 };
 
@@ -16,29 +17,26 @@ exports.getRound = function(req, res) {
 
 exports.getGroupedFixtures = function(req, res) {
   Fixture.find({}, function(err, results) {
-    var data = JSON.parse(results);
-    var newData = { rounds : [] };
+    var data = JSON.parse(JSON.stringify(results));
+    var newData = {rounds:[]};
     var set = new MiniSet();
+
     for(var i = 0; i < data.length; i++) {
-      var obj = data[i]
-      for(var key in obj) {
-        if(key == 'round') {
-          // if this round already exists in the list add it
-          // else make a new JSON object
-          var roundNum = Number(obj[key].toString());
-          if(set.has(roundNum)) {
-            newData.rounds[roundNum].data.push(JSON.stringify(obj));
-          } else {
-            var data = JSON.parse('{\"round\":\"'+roundNum+'\",\"data\":['+JSON.stringify(obj)+']}');
-            newData.rounds.push(data);
-            set.add(roundNum);
-          }
-          break;
-        }
+      var obj = data[i];
+      // if this round already exists in the list add it
+      // else make a new JSON object
+      var roundNum = Number(obj.round.toString());
+      if(set.has(roundNum)) {
+        // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
+        newData.rounds[roundNum-1].data.push(obj);
+      } else {
+        var stringData = JSON.stringify(obj);
+        var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
+        newData.rounds.push(nextData);
+        set.add(roundNum);
       }
     }
-    
-    return res.send(newData.stringify());
+    return res.send(newData);
   });
 };
 

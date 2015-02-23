@@ -162,3 +162,4 @@ MiniSet.prototype = {
 };
 
 MiniSet.prototype.constructor = MiniSet;
+module.exports = MiniSet;

@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var predictionSchema = new Schema({
-  fixture: String,
+  fixture: { type: String, index: true },
   prediction: Number,
   predictDate: { type: Date, default: Date.now },
   predictValue: Number

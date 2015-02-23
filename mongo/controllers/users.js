@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var Fixture = mongoose.model('Fixture');
 
 exports.addUser = function(req, res) {
   User.create(req.body, function(err, user) {

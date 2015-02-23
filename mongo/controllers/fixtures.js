@@ -11,7 +11,7 @@ exports.getFixtures = function(req, res) {
 exports.getRound = function(req, res) {
   var round = req.params.round;
   Fixture.find({'round': round}, function(err, result) {
-    return res.send(result);
+    return res.jsonp(result);
   });
 };
 
@@ -36,27 +36,27 @@ exports.getGroupedFixtures = function(req, res) {
         set.add(roundNum);
       }
     }
-    return res.send(newData);
+    return res.jsonp(newData);
   });
 };
 
 exports.addFixtures = function(req, res) {
   Fixture.create(req.body, function(err, fixture) {
     if(err) return console.log(err);
-    return res.send(fixture);
+    return res.jsonp(fixture);
   });
 };
 
 exports.clearFixtures = function(req, res) {
   Fixture.remove({}, function(result) {
-    return res.send(result);
+    return res.jsonp(result);
   });
 };
 
 exports.clearRound = function() {
   var round = req.params.round;
   Fixture.remove({'round': round}, function(result){
-    return res.send(result);
+    return res.jsonp(result);
   });
 };
 
@@ -76,7 +76,7 @@ exports.dummyData = function(res, res) {
     function(err) {
       if(err)
         return console.log(err);
-      return res.send(202);
+      return res.jsonp(202);
     }
   );
 };

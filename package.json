@@ -28,7 +28,8 @@
     "express": "*",
     "body-parser": "*",
     "mongoose": "*",
-    "cors": "*"
+    "cors": "*",
+    "bcrypt": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

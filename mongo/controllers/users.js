@@ -10,7 +10,7 @@ exports.addUser = function(req, res) {
 };
 
 exports.getScoreboard = function(req, res) {
-  User.find({}, function(err, results) {
+  User.find({}, 'username score', function(err, results) {
     res.jsonp(results);
   });
 };

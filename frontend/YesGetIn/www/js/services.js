@@ -108,11 +108,9 @@ angular.module('starter.services', ['ngResource'])
             all: function() {
                 var deferred = $q.defer();
 
-                debugger;
-
                 //TODO: Replace the use of http with resource
                 // Make a call to ye olde server
-                $http.get('http://nodejs-getin.rhcloud.com/fixtures/'
+                $http.get('http://nodejs-getin.rhcloud.com/rounds/'
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);
@@ -126,7 +124,7 @@ angular.module('starter.services', ['ngResource'])
                 rounds.splice(rounds.indexOf(round), 1);
             },
             get: function(roundId) {
-                debugger;
+                //;
 
                 //make the request to the server to get the specified round
 
@@ -182,6 +180,27 @@ angular.module('starter.services', ['ngResource'])
                             title: 'Server Connection Error!',
                             template: 'Could not retrieve data from the server!'
                         });
+                        deferred.promise;
+                    });
+                return deferred.promise;
+            }
+        }
+    }])
+
+    .factory('Scoreboard', ['$http', '$q', function($http, $q) {
+
+        return {
+            all: function() {
+                var deferred = $q.defer();
+
+                //TODO: Replace the use of http with resource
+                // Make a call to ye olde server
+                $http.get('http://nodejs-getin.rhcloud.com/scoreboard/'
+                ).success(function(data){
+                        rounds = data;
+                        deferred.resolve(data);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
                         deferred.promise;
                     });
                 return deferred.promise;

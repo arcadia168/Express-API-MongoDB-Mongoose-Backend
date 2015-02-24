@@ -14,8 +14,9 @@ angular.module('starter.controllers', [])
         //only publicly accessible elements get added to the scope
 
         Rounds.all().then(function(data){
-            //$ionicLoading.hide();
+            //debugger;
             $scope.rounds = data;
+            $scope.rounds = $scope.rounds.rounds;
         });
 
         //debugger
@@ -43,7 +44,7 @@ angular.module('starter.controllers', [])
     //    //$scope.chat = Chats.get($stateParams.chatId);
     //})
 
-    .controller('RoundDetailCtrl', function($scope, $stateParams, Rounds) {
+    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, Rounds) {
 
         //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
@@ -51,29 +52,40 @@ angular.module('starter.controllers', [])
             $scope.fixtures = data;
         });
 
+        //TODO: Remove these predictions
+        //dummy predictions!
         var _predictions = [
             {fixtureid: 1, prediction: 1},
             {fixtureid: 2, prediction: 2}
         ];
 
         //TODO: maybe show popup for each prediction using $ionicPopup
+        function _dummyPredict(prediction) {
+            var alertPopup = $ionicPopup.alert({
+                title: 'You\'ve made a prediction!',
+                template: 'You predicted an ' + prediction + '!'
+            });
+        }
 
         $scope.predictHomeWin = function (fixtureId) {
             debugger
-            _predictions.push({fixtureid: fixtureId, prediction: 0});
 
+            //_predictions.push({fixtureid: fixtureId, prediction: 0});
+            _dummyPredict("home win");
         };
 
         $scope.predictAwayWin = function (fixtureId) {
             debugger
-            _predictions.push({fixtureid: fixtureId, prediction: 1});
+            //_predictions.push({fixtureid: fixtureId, prediction: 1});
 
+            _dummyPredict("away win");
         };
 
         $scope.predictDraw = function (fixtureId) {
             debugger
-            _predictions.push({fixtureid: fixtureId, prediction: 2});
+            //_predictions.push({fixtureid: fixtureId, prediction: 2});
 
+            _dummyPredict("draw");
         };
 
         //TODO: Implement validation for the predictions.
@@ -81,6 +93,15 @@ angular.module('starter.controllers', [])
         $scope.sendPredictions = function () {
             Rounds.makePredictions(_predictions);
         }
+    })
+
+    .controller('ScoreboardCtrl', function($scope, Scoreboard) {
+
+        //Get the data for scores for leaderboard
+        Scoreboard.all().then(function(data){
+            //debugger;
+            $scope.scores = data;
+        });
     })
 
     .controller('FriendsCtrl', function($scope, Friends) {

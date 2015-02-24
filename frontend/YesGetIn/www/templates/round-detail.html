@@ -8,7 +8,7 @@
 
         <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="fixtures"
                   ng-repeat="fixture in fixtures"
-                  on-swipe-left="predictHomeWin(fixture._id)" on-swipe-right="predictAwayWin(fixture._id)"
+                  on-swipe-right="predictHomeWin(fixture._id)" on-swipe-left="predictAwayWin(fixture._id)"
                   on-hold="predictDraw(fixture._id)" type="item-text-wrap">
             <i class="icon ion-home"></i>
             <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}} - <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>

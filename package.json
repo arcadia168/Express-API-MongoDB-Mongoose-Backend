@@ -29,7 +29,8 @@
     "body-parser": "*",
     "mongoose": "*",
     "cors": "*",
-    "bcrypt": "*"
+    "bcrypt": "*",
+    "connect": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

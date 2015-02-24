@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Prediction = require('./predictionmodel');
 var Schema = mongoose.Schema;
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var SALT_WORK_FACTOR = 10;
 
 var userSchema = new Schema({
@@ -11,13 +11,13 @@ var userSchema = new Schema({
   lastName: String,
   email: String,
   predictions: [Prediction],
-  score: { type: Number, default: 0}
+  score: { type: Number, default: 0 }
 });
 
 userSchema.pre('save', function(next) { var user = this;
   if(!user.isModified('password')) return next();
 
-  bcrypt.getSalt(SALT_WORK_FACTOR, function(err, salt) {
+  bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
     if(err) return next(err);
     
     bcrypt.hash(user.password, salt, function(err, hash) {

@@ -1,10 +1,10 @@
 module.exports = function(app){
-    var users = require('./mongo/controllers/users');
     var fixtures = require('./mongo/controllers/fixtures');
-    
+    var users = require('./mongo/controllers/users');
+
     app.get('/users/:username', users.getUserData);
     app.get('/users/predictions/:username', users.getPredictions);
-    app.get('/users/scoreboard/', users.getScoreboard);
+    app.get('/scoreboard', users.getScoreboard);
     app.post('/users', users.addUser);
     app.put('/users/predictions/:username', users.addPredictions);
     app.put('/users/:username', users.updateUser);

@@ -10,7 +10,6 @@ exports.addUser = function(req, res) {
 };
 
 exports.getScoreboard = function(req, res) {
-  var username = req.params.username;
   User.find({}, function(err, results) {
     res.jsonp(results);
   });

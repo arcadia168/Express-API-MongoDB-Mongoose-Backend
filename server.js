@@ -21,7 +21,7 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');
-..var connect = require('connect');
+//var connect = require('connect');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT

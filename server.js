@@ -21,6 +21,7 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');
+var connect = require('connect');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT
@@ -40,8 +41,9 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(cors());
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(app.router);
+app.use(connect.bodyParser.json({ type : 'application/json' })); // for parsing application/json
+app.use(connect.bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 app.get('/', function(req, res) {
   res.send('Yes!GetIn!');

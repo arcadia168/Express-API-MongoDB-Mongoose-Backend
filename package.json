@@ -29,7 +29,7 @@
     "body-parser": "*",
     "mongoose": "*",
     "cors": "*",
-    "bcrypt": "*",
+    "bcryptjs": "*",
     "connect": "*"
   },
   "devDependencies": {},

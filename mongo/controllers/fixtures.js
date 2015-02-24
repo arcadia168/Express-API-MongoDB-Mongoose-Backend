@@ -41,7 +41,7 @@ exports.getGroupedFixtures = function(req, res) {
 };
 
 exports.addFixtures = function(req, res) {
-return res;
+return res.send(req.body);
 /*
   Fixture.create(req.body, function(err, fixture) {
     if(err) return console.log(err);

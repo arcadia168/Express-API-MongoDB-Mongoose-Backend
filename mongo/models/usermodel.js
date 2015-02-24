@@ -11,7 +11,7 @@ var userSchema = new Schema({
   lastName: String,
   email: String,
   predictions: [Prediction],
-  score: Number
+  score: { type: Number, default: 0}
 });
 
 userSchema.pre('save', function(next) { var user = this;

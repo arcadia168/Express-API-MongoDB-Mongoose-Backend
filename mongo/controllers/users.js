@@ -32,13 +32,26 @@ exports.getUserData = function(req, res) {
 
 exports.addPredictions = function(req, res) {
   var username = req.params.username;
-  User.update({'username': username}, { $pushAll: {'predictions': req.body}},
-    {safe: true, upsert: false},
-    function(err, number) {
-      if(err) return console.log(err);
-      return res.jsonp(202);
+  // first get the fixture object, assign a score to the prediction
+  Fixture.find({'round':req.body[0].round}, 'fixDate', function(err, results) {
+    var date = new Date();
+    for(prediction in req.body) {
+      for(result in results) {
+        if(result._id == prediction.fixture) {
+          if(!result.fixDate || result.fixDate.UTC() <= (date.UTC() + (1000*60*45)))
+            return res.jsonp(400);
+          prediction.predictValue = allocatePoints(result.fixDate);
+        }
+      }
     }
-  );
+    User.update({'username': username}, { $pushAll: {'predictions': req.body.predictions}},
+      {safe: true, upsert: false},
+      function(err, number) {
+        if(err) return console.log(err);
+        return res.jsonp(202);
+      }
+    );
+  });
 };
 
 exports.getPredictions = function(req, res) {
@@ -50,15 +63,40 @@ exports.getPredictions = function(req, res) {
 
 exports.updatePrediction = function(req, res) {
   var username = req.params.username;
-  User.findOneAndUpdate({'username': username,
-                        'predictions.fixture': {"$ne": req.body.fixture}},
-                        { $set: {'predictions.$': req.body}},
-                        {upsert : true},
-                        function(err, number) {
-    if(err) return console.log(err);
-    return res.jsonp(202);
+  Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) {
+    var date = new Date();
+    if(!result || !result.fixDate || result.fixDate.UTC() <= (date.UTC() + (1000*60*45)))
+      return res.jsonp(400);
+    req.body[0].predictDate = date;
+    req.body[0].predictValue = allocatePoints(result.fixDate, date);
+    User.findOneAndUpdate({'username': username,
+                          'predictions.fixture': {"$ne": req.body.fixture}},
+                          { $set: {'predictions.$': req.body}},
+                          {upsert : true},
+                          function(err, number) {
+      if(err) return console.log(err);
+      return res.jsonp(202);
+    });
   });
 };
+
+function allocatePoints(fixDate, currDate) {
+  var diffMins = ((fixDate.UTC() + (1000*60*60)) - currDate.UTC()) / 1000 / 60;
+  var minsFromMid = currDate.UTC();
+  minsFromMid.setUTCHours(0);
+  minsFromMid.setUTCMinutes(0);
+  minsFromMid.setUTCSeconds(0);
+  if(diffMins <= 60) {
+    return 5;
+  } else if(diffMins <= 1440) {
+    return 6;
+  } else if(diffMins <= ((currDate.UTC() - minsFromMid.UTC()) / 1000 / 60)) {
+    return 9;
+  } else {
+    return 12;
+  }
+  // preSeason needs to be implemented
+}
 
 exports.clearPredictions = function(req, res) {
   User.update({}, {$pull: {'predictions': {}}}, function(err, number) {

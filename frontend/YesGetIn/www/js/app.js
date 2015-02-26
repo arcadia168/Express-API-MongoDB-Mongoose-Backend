@@ -74,7 +74,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
             .state('tab.league-table', {
                 url: '/league-table',
                 views: {
-                    'tab-dash': {
+                    'tab-league-table': {
                         templateUrl: 'templates/league-table.html',
                         controller: 'LeagueTableCtrl'
                     }
@@ -115,6 +115,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
                     'tab-rounds': {
                         templateUrl: 'templates/round-detail.html',
                         controller: 'RoundDetailCtrl'
+                    }
+                }
+            })
+
+            .state('tab.scoreboard', {
+                url: '/scoreboard',
+                views: {
+                    'tab-scoreboard': {
+                        templateUrl: 'templates/tab-scoreboard.html',
+                        controller: 'ScoreboardCtrl'
                     }
                 }
             })

@@ -33,18 +33,22 @@ exports.getUserData = function(req, res) {
 exports.addPredictions = function(req, res) {
   var username = req.params.username;
   // first get the fixture object, assign a score to the prediction
-  Fixture.find({'round':req.body[0].round}, 'fixDate', function(err, results) {
+  Fixture.find({'round':req.params.round}, 'fixDate', function(err, results) {
     var date = new Date();
-    for(prediction in req.body) {
-      for(result in results) {
-        if(result._id == prediction.fixture) {
-          if(!result.fixDate || result.fixDate.UTC() <= (date.UTC() + (1000*60*45)))
-            return res.jsonp(400);
-          prediction.predictValue = allocatePoints(result.fixDate);
+    var predictions = req.body[0].predictions;
+    for(var i = 0; i < predictions.length; i++) {
+      for(var j = 0; j < results.length; j++) {
+        var result = results[j];
+        if(result._id == predictions[i].fixture) {
+          // wont apply right now using test data
+          //if(!result.fixDate || result.fixDate.getTime() <= (date.getTime() + (1000*60*60)))
+          //  return res.jsonp(400);
+          var predVal = allocatePoints(result.fixDate, date);
+          predictions[i]["predictValue"] = predVal;
         }
       }
     }
-    User.update({'username': username}, { $pushAll: {'predictions': req.body.predictions}},
+    User.update({'username': username}, { $push: {'predictions': { $each: predictions}}},
       {safe: true, upsert: false},
       function(err, number) {
         if(err) return console.log(err);
@@ -65,10 +69,9 @@ exports.updatePrediction = function(req, res) {
   var username = req.params.username;
   Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) {
     var date = new Date();
-    if(!result || !result.fixDate || result.fixDate.UTC() <= (date.UTC() + (1000*60*45)))
+    if(typeof result == 'undefined' || typeof result.fixDate == 'undefined' || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
       return res.jsonp(400);
-    req.body[0].predictDate = date;
-    req.body[0].predictValue = allocatePoints(result.fixDate, date);
+    req.body[0]['predictValue'] = allocatePoints(result.fixDate, date);
     User.findOneAndUpdate({'username': username,
                           'predictions.fixture': {"$ne": req.body.fixture}},
                           { $set: {'predictions.$': req.body}},
@@ -81,16 +84,18 @@ exports.updatePrediction = function(req, res) {
 };
 
 function allocatePoints(fixDate, currDate) {
-  var diffMins = ((fixDate.UTC() + (1000*60*60)) - currDate.UTC()) / 1000 / 60;
-  var minsFromMid = currDate.UTC();
-  minsFromMid.setUTCHours(0);
-  minsFromMid.setUTCMinutes(0);
-  minsFromMid.setUTCSeconds(0);
+  if(typeof fixDate === 'undefined' || typeof currDate === 'undefined')
+    return 0;
+  var diffMins = ((fixDate.getTime() + (1000*60*60)) - currDate.getTime()) / 1000 / 60;
+  var minsFromMid = new Date(currDate.getTime());
+  minsFromMid.setHours(0);
+  minsFromMid.setMinutes(0);
+  minsFromMid.setSeconds(0);
   if(diffMins <= 60) {
     return 5;
   } else if(diffMins <= 1440) {
     return 6;
-  } else if(diffMins <= ((currDate.UTC() - minsFromMid.UTC()) / 1000 / 60)) {
+  } else if(diffMins <= ((currDate.getTime() - minsFromMid.getTime()) / 1000 / 60)) {
     return 9;
   } else {
     return 12;
@@ -102,20 +107,6 @@ exports.clearPredictions = function(req, res) {
   User.update({}, {$pull: {'predictions': {}}}, function(err, number) {
     if(err) return console.log(err);
     return res.jsonp(202);
-  });
-};
-
-exports.resetPredictions = function(req, res) {
-  var username = req.params.username;
-  User.update({'username': username}, {$pull: {'predictions': {}}}, function(err, number) {
-    if(err) return console.log(err);
-    User.update({'username': username}, { $pushAll: {'predictions': req.body}},
-      {safe: true, upsert: false},
-      function(err, number) {
-        if(err) return console.log(err);
-        return res.jsonp(202);
-      }
-    );
   });
 };
 
@@ -134,3 +125,11 @@ exports.dummyData = function(req, res) {
     }
   );
 };
+
+exports.wipe = function(req, res) {
+  Fixture.remove({}, function(result) {
+    User.remove({}, function(result) {
+      return res.jsonp(result);
+    });
+  });
+}

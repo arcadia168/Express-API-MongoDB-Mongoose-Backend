@@ -6,7 +6,8 @@ module.exports = function(app){
     app.get('/users/predictions/:username', users.getPredictions);
     app.get('/scoreboard', users.getScoreboard);
     app.post('/users', users.addUser);
-    app.put('/users/predictions/:username', users.addPredictions);
+    app.post('/users/predictions/:username/:round', users.addPredictions);
+    app.put('/users/predictions/update/:username', users.updatePrediction);
     app.put('/users/:username', users.updateUser);
     app.delete('/users/predictions/clear', users.clearPredictions);
     
@@ -20,4 +21,6 @@ module.exports = function(app){
     app.delete('/fixtures/:round', fixtures.clearRound);
     
     app.get('/dummy/fixtures', fixtures.dummyData);
+    
+    app.delete('/clear/all', users.wipe);
 }

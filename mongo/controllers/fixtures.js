@@ -41,13 +41,10 @@ exports.getGroupedFixtures = function(req, res) {
 };
 
 exports.addFixtures = function(req, res) {
-return res.send(req.body);
-/*
   Fixture.create(req.body, function(err, fixture) {
     if(err) return console.log(err);
     return res.jsonp(fixture);
   });
-*/
 };
 
 exports.clearFixtures = function(req, res) {

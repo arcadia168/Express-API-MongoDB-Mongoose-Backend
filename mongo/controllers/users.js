@@ -32,13 +32,30 @@ exports.getUserData = function(req, res) {
 
 exports.addPredictions = function(req, res) {
   var username = req.params.username;
-  User.update({'username': username}, { $pushAll: {'predictions': req.body}},
-    {safe: true, upsert: false},
-    function(err, number) {
-      if(err) return console.log(err);
-      return res.jsonp(202);
+  // first get the fixture object, assign a score to the prediction
+  Fixture.find({'round':req.params.round}, 'fixDate', function(err, results) {
+    var date = new Date();
+    var predictions = req.body[0].predictions;
+    for(var i = 0; i < predictions.length; i++) {
+      for(var j = 0; j < results.length; j++) {
+        var result = results[j];
+        if(result._id == predictions[i].fixture) {
+          // wont apply right now using test data
+          //if(!result.fixDate || result.fixDate.getTime() <= (date.getTime() + (1000*60*60)))
+          //  return res.jsonp(400);
+          var predVal = allocatePoints(result.fixDate, date);
+          predictions[i]["predictValue"] = predVal;
+        }
+      }
     }
-  );
+    User.update({'username': username}, { $push: {'predictions': { $each: predictions}}},
+      {safe: true, upsert: false},
+      function(err, number) {
+        if(err) return console.log(err);
+        return res.jsonp(202);
+      }
+    );
+  });
 };
 
 exports.getPredictions = function(req, res) {
@@ -50,34 +67,46 @@ exports.getPredictions = function(req, res) {
 
 exports.updatePrediction = function(req, res) {
   var username = req.params.username;
-  User.findOneAndUpdate({'username': username,
-                        'predictions.fixture': {"$ne": req.body.fixture}},
-                        { $set: {'predictions.$': req.body}},
-                        {upsert : true},
-                        function(err, number) {
-    if(err) return console.log(err);
-    return res.jsonp(202);
+  Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) {
+    var date = new Date();
+    if(typeof result == 'undefined' || typeof result.fixDate == 'undefined' || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
+      return res.jsonp(400);
+    req.body[0]['predictValue'] = allocatePoints(result.fixDate, date);
+    User.findOneAndUpdate({'username': username,
+                          'predictions.fixture': {"$ne": req.body.fixture}},
+                          { $set: {'predictions.$': req.body}},
+                          {upsert : true},
+                          function(err, number) {
+      if(err) return console.log(err);
+      return res.jsonp(202);
+    });
   });
 };
+
+function allocatePoints(fixDate, currDate) {
+  if(typeof fixDate === 'undefined' || typeof currDate === 'undefined')
+    return 0;
+  var diffMins = ((fixDate.getTime() + (1000*60*60)) - currDate.getTime()) / 1000 / 60;
+  var minsFromMid = new Date(currDate.getTime());
+  minsFromMid.setHours(0);
+  minsFromMid.setMinutes(0);
+  minsFromMid.setSeconds(0);
+  if(diffMins <= 60) {
+    return 5;
+  } else if(diffMins <= 1440) {
+    return 6;
+  } else if(diffMins <= ((currDate.getTime() - minsFromMid.getTime()) / 1000 / 60)) {
+    return 9;
+  } else {
+    return 12;
+  }
+  // preSeason needs to be implemented
+}
 
 exports.clearPredictions = function(req, res) {
   User.update({}, {$pull: {'predictions': {}}}, function(err, number) {
     if(err) return console.log(err);
     return res.jsonp(202);
-  });
-};
-
-exports.resetPredictions = function(req, res) {
-  var username = req.params.username;
-  User.update({'username': username}, {$pull: {'predictions': {}}}, function(err, number) {
-    if(err) return console.log(err);
-    User.update({'username': username}, { $pushAll: {'predictions': req.body}},
-      {safe: true, upsert: false},
-      function(err, number) {
-        if(err) return console.log(err);
-        return res.jsonp(202);
-      }
-    );
   });
 };
 
@@ -96,3 +125,11 @@ exports.dummyData = function(req, res) {
     }
   );
 };
+
+exports.wipe = function(req, res) {
+  Fixture.remove({}, function(result) {
+    User.remove({}, function(result) {
+      return res.jsonp(result);
+    });
+  });
+}

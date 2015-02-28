@@ -35,7 +35,9 @@ exports.addPredictions = function(req, res) {
   // first get the fixture object, assign a score to the prediction
   Fixture.find({'round':req.params.round}, 'fixDate', function(err, results) {
     var date = new Date();
-    var predictions = req.body[0].predictions;
+    //this line done got errors
+    debugger;
+    var predictions = req.body.predictions;
     for(var i = 0; i < predictions.length; i++) {
       for(var j = 0; j < results.length; j++) {
         var result = results[j];
@@ -84,6 +86,7 @@ exports.updatePrediction = function(req, res) {
 };
 
 function allocatePoints(fixDate, currDate) {
+    //TODO If no current data is supplied, just default it in here
   if(typeof fixDate === 'undefined' || typeof currDate === 'undefined')
     return 0;
   var diffMins = ((fixDate.getTime() + (1000*60*60)) - currDate.getTime()) / 1000 / 60;

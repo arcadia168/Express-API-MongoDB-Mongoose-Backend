@@ -1,1 +1,12 @@
 /* Empty. Add your own CSS if you like */
+ion-item.item.home-win-predicted {
+    background-color: #00A000;
+}
+
+ion-item.item.away-win-predicted {
+    background-color: #880000;
+}
+
+ion-item.item.draw-predicted {
+    background-color: #0000FF;
+}

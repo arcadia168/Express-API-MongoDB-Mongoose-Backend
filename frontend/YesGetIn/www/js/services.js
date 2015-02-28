@@ -100,7 +100,7 @@ angular.module('starter.services', ['ngResource'])
         }
     })
 
-    .factory('Rounds', ['$http', '$q' ,'$ionicPopup', '$resource', function($http, $q, $ionicPopUp, $resource) {
+    .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
         var rounds = [];
 
@@ -153,10 +153,6 @@ angular.module('starter.services', ['ngResource'])
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        var alertPopup = $ionicPopup.alert({
-                            title: 'Server Connection Error!',
-                            template: 'Could not retrieve data from the server!'
-                        });
                         deferred.promise;
                     });
                 return deferred.promise;
@@ -165,22 +161,74 @@ angular.module('starter.services', ['ngResource'])
 
             },
             //might need to take in the userid, although this may be global
-            makePredictions: function(predictions) {
+            makePredictions: function(username, round, predictions) {
                 //make a call to server to send predictions away
+
+                //prepend the predictions array with the necessary information
+                predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
+
+                //predictions = JSON.stringify(predictions);
+
+                console.log(predictions);
+
+                ////invalid json
+                //[
+                //    {
+                //        "predictions":[
+                //            [
+                //                {
+                //                    "fixtureid":"54ef7b929bf65365a7fe8e27",
+                //                    "prediction":3
+                //                }
+                //            ]
+                //    }
+                //]
+                //
+                //// valid json
+                //[
+                //    {
+                //        "predictions":[
+                //            {
+                //                "fixture":"54ef7b929bf65365a7fe8e27",
+                //                "prediction":"1"
+                //            }
+                //        ]
+                //    }
+                //]
+
+                debugger
+
+                var deferred = $q.defer();
 
                 //TODO: Implement getting the username from the session somehow
                 //use dummy user sillybilly for now
-                $http.put('http://nodejs-getin.rhcloud.com//users/predictions/sillybilly', predictions
-                ).success(function(data){
-                        rounds = data;
-                        deferred.resolve(data);
+                $http.post('http://nodejs-getin.rhcloud.com/users/predictions/' + username + '/' + round , predictions
+                ).success(function(response){
+                        console.log(response)
+                        deferred.resolve(response); //TODO not sure this is necessary
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        var alertPopup = $ionicPopup.alert({
-                            title: 'Server Connection Error!',
-                            template: 'Could not retrieve data from the server!'
-                        });
+                        alert("Something went wrong");
                         deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            getExistingPredictions: function(username) {
+
+                //make a call to the server to get the existing predictions made by a user
+                debugger
+
+                var deferred = $q.defer();
+
+                //TODO: Implement getting the username from the session somehow
+                $http.get('http://nodejs-getin.rhcloud.com/users/predictions/' + username
+                ).success(function(response){
+                        console.log("CURRENT USER PREDICTIONS:" + response)
+                        deferred.resolve(response);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong"); //TODO: Use an ionicPopUp for this
+                        //deferred.promise;
                     });
                 return deferred.promise;
             }

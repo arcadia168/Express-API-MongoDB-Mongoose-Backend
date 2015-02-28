@@ -28,70 +28,216 @@ angular.module('starter.controllers', [])
             Rounds.predict(roundid, prediction);
         }
 
-        //home win on swipe left
-        //$scope.onSwipeLeft(fixtureid){
-        //   //call the function in the service
+        //$scope.markRoundPredicted = function() {
+        //
+        //    //get the list of rounds
+        //
+        //    //for each round
+        //
+        //    //get list of fixtures in this round
+        //
+        //    //get the list of predictions for the user
+        //
+        //    //loop over the list of predictions
+        //    //if there exists ANY of the fixtures for the round in predictions
+        //    //them mark this round as already having had predictions made on it
         //};
-        //// away win on swipe right
-        //$scope.onSwipeRight(fixtureid){
-        //  //call the function in the service
-        //}
-    })
 
-    //.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-    //    alert("This feature has been disabled for the demo app.")
-    //
-    //    //$scope.chat = Chats.get($stateParams.chatId);
-    //})
+    })
 
     .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, Rounds) {
 
+        var _predictions = [];
+        var user = '***REMOVED***6969';
+
         //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
+
+            //when first loading the page, clear out any local existing predictions.
+            _predictions = [];
+
             //$ionicLoading.hide();
             $scope.fixtures = data;
+
+            //every time a new set of fixtures is loaded, clear predictions
+            //TODO: This needs to be loaded using another call to the server!
+
+            //go and get all of the predictions for the user
+            Rounds.getExistingPredictions(user).then(function(data){
+                debugger;
+                $scope.existingPredictions = data;
+                //$scope.rounds = $scope.rounds.rounds;
+            });
+
+            //loop over the fixtures
+            var indexFixtures = 0;
+            for (; indexFixtures < $scope.fixtures.length; indexFixtures++) {
+                //set current fixture id
+                var currentFixtureId = $scope.fixtures[indexFixtures]._id;
+
+                //loop over existing predictions
+                for (var j = 0; j < $scope.existingPredictions.length; j++) {
+
+                    //whenever fixture id matches, place fixture id and prediction within local predictions array as such
+                    if (currentFixtureId == $scope.existingPredictions[j].fixtureid) {
+                        //then add an entry to the local predictions array
+                        _predictions.push({fixtureid: currentFixtureId, prediction: $scope.existingPredictions[j].prediction});
+                    }
+                }
+            }
+
         });
 
-        //TODO: Remove these predictions
-        //dummy predictions!
-        var _predictions = [
-            {fixtureid: 1, prediction: 1},
-            {fixtureid: 2, prediction: 2}
-        ];
+        function _predictionExists(fixtureId) {
 
-        //TODO: maybe show popup for each prediction using $ionicPopup
-        function _dummyPredict(prediction) {
-            var alertPopup = $ionicPopup.alert({
-                title: 'You\'ve made a prediction!',
-                template: 'You predicted an ' + prediction + '!'
-            });
+            var found = -1;
+
+            for (var i = 0; i < _predictions.length; i++) {
+                if (fixtureId == _predictions[i].fixtureid) {
+                    //then the fixture has had a prediction made for it
+                    found = i;
+                    break; //breaks out of the inner loop
+                }
+            }
+
+            return found;
+        }
+
+        function _addFixturePrediction(fixtureId, prediction) {
+
+            //if the _predictions array contains an object with the fixture id passed in here
+
+            //find out if the current fixture has a prediction and if so, the position in the list
+            var existingPredictionPosition = _predictionExists(fixtureId);
+
+            if (existingPredictionPosition != -1) {
+                //then update this current fixture using the position in the predictions array
+                _predictions[existingPredictionPosition] = {fixtureid: fixtureId, prediction: prediction}
+
+            } else { //else if a prediction for this fixture does not already exist...
+                _predictions.push({fixtureid: fixtureId, prediction: prediction});
+            }
         }
 
         $scope.predictHomeWin = function (fixtureId) {
-            debugger
-
-            //_predictions.push({fixtureid: fixtureId, prediction: 0});
-            _dummyPredict("home win");
+            //debugger;
+            _addFixturePrediction(fixtureId, 1);
         };
 
         $scope.predictAwayWin = function (fixtureId) {
-            debugger
-            //_predictions.push({fixtureid: fixtureId, prediction: 1});
-
-            _dummyPredict("away win");
+            //debugger;
+            _addFixturePrediction(fixtureId, 2);
         };
 
         $scope.predictDraw = function (fixtureId) {
-            debugger
-            //_predictions.push({fixtureid: fixtureId, prediction: 2});
-
-            _dummyPredict("draw");
+            //debugger;
+            _addFixturePrediction(fixtureId, 3);
         };
 
-        //TODO: Implement validation for the predictions.
+        var colourMap = {
+            1: "home-win-predicted",
+            2: "away-win-predicted",
+            3: "draw-predicted"
+        };
+
+        $scope.getBackgroundColour = function(fixture) { //should be passing in the entire fixture object
+
+            var predictionClass;
+
+            //find prediction for this fixture
+            for(var i = 0; i < _predictions.length; i++) {
+                if (fixture._id == _predictions[i].fixtureid) {
+                    //then return the prediction for this fixture else leave undefined
+                    predictionClass = _predictions[i].prediction;
+                }
+            }
+
+            return colourMap[predictionClass];
+        };
+
+        //clear out predictions
+        $scope.clearPredictions = function() {
+            _predictions = [];
+        };
+
         //once predictions are all validated, and predict button send, send all predictions
-        $scope.sendPredictions = function () {
-            Rounds.makePredictions(_predictions);
+        $scope.sendPredictions = function () { //TODO: Add username to the state params
+
+            debugger;
+
+            //mock out the username for now.
+
+            var user = '***REMOVED***6969';
+
+            //TODO: Try to replace the below for loops with angular.forEach
+            //Validate that predictions have been made for every fixture in this round
+
+            //if predictions array contains every fixture id from the round
+
+            //outer loop
+            //iterate over each of the fixtures and ensure it exists within the list of predictions
+            var found;
+            var validPredictions = false;
+            var indexOfTheFuckingLoop = 0; //TODO: Change the anme
+            for(; indexOfTheFuckingLoop < $scope.fixtures.length; indexOfTheFuckingLoop++) {
+
+                debugger
+
+                found = false;
+
+                //access the value of the current fixture here once per iteration
+                var currentFixtureId = $scope.fixtures[indexOfTheFuckingLoop]._id;
+
+                //now iterate over each item in the predictions array
+                //inner loop
+                for (var j = 0; j < _predictions.length; j++) {
+                    if (currentFixtureId == _predictions[j].fixtureid) {
+                        //then the fixture has had a prediction made for it
+                        found = true;
+                        break; //breaks out of the inner loop
+                    }
+                }
+
+                if (!found) {
+                    //throw an error because a prediction was not made for all fixtures
+
+                    //alert the user, use the ionicPopUp service
+                    $ionicPopup.alert({
+                        title: 'Woah there!',
+                        template: 'Please make a prediction for every fixture in the round!'
+                    });
+
+                    //now clear out the predictions to start again
+                    //_predictions = [];
+
+                    break;
+                }
+
+                //if we are looking at the last fixture in the round, and all of them have been found.
+                if ((indexOfTheFuckingLoop == ($scope.fixtures.length - 1)) && (found)){
+
+                    debugger
+                    validPredictions = true;
+                    found = false;
+                }
+
+            }
+
+            //if the predictions are valid, send them off to the server
+            if (validPredictions) {
+                debugger
+                //Send the validatied predictions
+                Rounds.makePredictions(user, $stateParams.roundId, _predictions).then($ionicPopup.alert(
+                    {
+                        title: 'Your predictions have been made!',
+                        template: 'Let\'s hope you do well!'
+                    }
+                ));
+
+                //clear out the list of predictions
+                //_predictions = [];
+            }
+
         }
     })
 
@@ -104,10 +250,10 @@ angular.module('starter.controllers', [])
         });
     })
 
-    .controller('FriendsCtrl', function($scope, Friends) {
-        alert("This feature has been disabled for the demo app.");
-        //$scope.friends = Friends.all();
-    })
+    //.controller('FriendsCtrl', function($scope, Friends) {
+    //    alert("This feature has been disabled for the demo app.");
+    //    //$scope.friends = Friends.all();
+    //})
 
     .controller('FriendDetailCtrl', function($scope, $stateParams, Friends) {
         $scope.friend = Friends.get($stateParams.friendId);

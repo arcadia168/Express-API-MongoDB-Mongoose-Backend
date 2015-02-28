@@ -11,6 +11,7 @@ var cors = require('cors');
 var app = express();
 var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
 
+
 if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
     mongoConnection = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
     process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +

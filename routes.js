@@ -5,11 +5,13 @@ module.exports = function(app){
     app.get('/users/:username', users.getUserData);
     app.get('/users/predictions/:username', users.getPredictions);
     app.get('/scoreboard', users.getScoreboard);
+    app.get('/users/predictions/:username/:round', users.findRoundPredictions);
     app.post('/users', users.addUser);
     app.post('/users/predictions/:username/:round', users.addPredictions);
     app.put('/users/predictions/update/:username', users.updatePrediction);
     app.put('/users/:username', users.updateUser);
     app.delete('/users/predictions/clear', users.clearPredictions);
+    app.delete('/users/predictions/clear/:username/:round', users.clearRoundPredictions);
     
     app.get('/dummy/users', users.dummyData)
     

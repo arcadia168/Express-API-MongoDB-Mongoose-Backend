@@ -85,6 +85,48 @@ exports.updatePrediction = function(req, res) {
   });
 };
 
+exports.findRoundPredictions = function(req, res) {
+  var username = req.params.username;
+  User.findOne({'username': username}, function(err, uRes) {
+    Fixture.find({'round':req.params.round}, function(err, fRes) {
+      res.header('Content-type','application/json');
+      res.header('Charset','utf8');
+      var predictions = uRes.predictions;
+      for(var i = 0; i < predictions.length; i++) {
+        for(var j = 0; j < fRes.length; j++) {
+          var fix = fRes[j];
+          if(fix._id == predictions[i].fixture) {
+            res.write(JSON.stringify(predictions[i]));
+            break;
+          }
+        }
+      }
+      res.end();
+    });
+  });
+}
+
+exports.clearRoundPredictions = function(req, res) {
+  var username = req.params.username;
+  User.findOne({'username': username}, function(err, uRes) {
+    Fixture.find({'round':req.params.round}, function(err, fRes) {
+      var uPred = [];
+      for(var i = uRes.predictions.length-1; i >= 0; i--) {
+        for(var j = 0; j < fRes.length; j++) {
+          if(fRes[j]._id == uRes.predictions[i].fixture) {
+            uRes.predictions.id(uRes.predictions[i]._id).remove();
+            break;
+          }
+        }
+      }
+      uRes.save(function (err) {
+        if (err) return console.log(err);
+        return res.jsonp(202);
+      });
+    });
+  });
+}
+
 function allocatePoints(fixDate, currDate) {
   if(typeof fixDate === 'undefined' || typeof currDate === 'undefined')
     return 0;

@@ -47,6 +47,7 @@ exports.addPredictions = function(req, res) {
           //  return res.jsonp(400);
           var predVal = allocatePoints(result.fixDate, date);
           predictions[i]["predictValue"] = predVal;
+          break;
         }
       }
     }
@@ -71,13 +72,14 @@ exports.updatePrediction = function(req, res) {
   var username = req.params.username;
   Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) {
     var date = new Date();
-    if(typeof result == 'undefined' || typeof result.fixDate == 'undefined' || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
+    if(result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
       return res.jsonp(400);
-    req.body[0]['predictValue'] = allocatePoints(result.fixDate, date);
+    req.body[0]["predictValue"] = allocatePoints(result.fixDate, date);
+    req.body[0]["predictDate"] = date;
     User.findOneAndUpdate({'username': username,
-                          'predictions.fixture': {"$ne": req.body.fixture}},
-                          { $set: {'predictions.$': req.body}},
-                          {upsert : true},
+                          'predictions.fixture': req.body[0].fixture},
+                          { $set: {'predictions.$': req.body[0]}},
+                          {upsert : false, setDefaultsOnInsert: true, runValidators: true},
                           function(err, number) {
       if(err) return console.log(err);
       return res.jsonp(202);
@@ -107,7 +109,7 @@ function allocatePoints(fixDate, currDate) {
 }
 
 exports.clearPredictions = function(req, res) {
-  User.update({}, {$pull: {'predictions': {}}}, function(err, number) {
+  User.update({}, {$pull: {'predictions': {}}}, {multi:true}, function(err, number) {
     if(err) return console.log(err);
     return res.jsonp(202);
   });

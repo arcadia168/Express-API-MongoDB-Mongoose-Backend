@@ -28,43 +28,34 @@ angular.module('starter.controllers', [])
             Rounds.predict(roundid, prediction);
         }
 
-        $scope.markRoundPredicted = function() {
-
-            //get the list of rounds
-
-            //for each round
-
-                //get list of fixtures in this round
-
-                //get the list of predictions for the user
-
-                //loop over the list of predictions
-                    //if there exists ANY of the fixtures for the round in predictions
-                    //them mark this round as already having had predictions made on it
-        };
-
-        //home win on swipe left
-        //$scope.onSwipeLeft(fixtureid){
-        //   //call the function in the service
+        //$scope.markRoundPredicted = function() {
+        //
+        //    //get the list of rounds
+        //
+        //    //for each round
+        //
+        //    //get list of fixtures in this round
+        //
+        //    //get the list of predictions for the user
+        //
+        //    //loop over the list of predictions
+        //    //if there exists ANY of the fixtures for the round in predictions
+        //    //them mark this round as already having had predictions made on it
         //};
-        //// away win on swipe right
-        //$scope.onSwipeRight(fixtureid){
-        //  //call the function in the service
-        //}
-    })
 
-    //.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-    //    alert("This feature has been disabled for the demo app.")
-    //
-    //    //$scope.chat = Chats.get($stateParams.chatId);
-    //})
+    })
 
     .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, Rounds) {
 
         var _predictions = [];
+        var user = '***REMOVED***6969';
 
         //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
+
+            //when first loading the page, clear out any local existing predictions.
+            _predictions = [];
+
             //$ionicLoading.hide();
             $scope.fixtures = data;
 
@@ -72,15 +63,29 @@ angular.module('starter.controllers', [])
             //TODO: This needs to be loaded using another call to the server!
 
             //go and get all of the predictions for the user
+            Rounds.getExistingPredictions(user).then(function(data){
+                debugger;
+                $scope.existingPredictions = data;
+                //$scope.rounds = $scope.rounds.rounds;
+            });
 
             //loop over the fixtures
+            var indexFixtures = 0;
+            for (; indexFixtures < $scope.fixtures.length; indexFixtures++) {
                 //set current fixture id
-                //loop over predictions
+                var currentFixtureId = $scope.fixtures[indexFixtures]._id;
+
+                //loop over existing predictions
+                for (var j = 0; j < $scope.existingPredictions.length; j++) {
+
                     //whenever fixture id matches, place fixture id and prediction within local predictions array as such
+                    if (currentFixtureId == $scope.existingPredictions[j].fixtureid) {
+                        //then add an entry to the local predictions array
+                        _predictions.push({fixtureid: currentFixtureId, prediction: $scope.existingPredictions[j].prediction});
+                    }
+                }
+            }
 
-
-            //else
-            _predictions = [];
         });
 
         function _predictionExists(fixtureId) {

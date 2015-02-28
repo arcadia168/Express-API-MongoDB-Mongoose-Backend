@@ -212,6 +212,25 @@ angular.module('starter.services', ['ngResource'])
                         deferred.promise;
                     });
                 return deferred.promise;
+            },
+            getExistingPredictions: function(username) {
+
+                //make a call to the server to get the existing predictions made by a user
+                debugger
+
+                var deferred = $q.defer();
+
+                //TODO: Implement getting the username from the session somehow
+                $http.get('http://nodejs-getin.rhcloud.com/users/predictions/' + username
+                ).success(function(response){
+                        console.log("CURRENT USER PREDICTIONS:" + response)
+                        deferred.resolve(response);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong"); //TODO: Use an ionicPopUp for this
+                        //deferred.promise;
+                    });
+                return deferred.promise;
             }
         }
     }])

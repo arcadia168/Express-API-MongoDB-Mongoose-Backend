@@ -10,7 +10,6 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
 var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
-var multer = require('multer');
 
 
 if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
@@ -24,7 +23,6 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
 //Define middlewares
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(multer()); // for parsing multipart/form-data
 app.use(cors());
 
 //try to enable cors

@@ -15,11 +15,14 @@
                 <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}} - <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
                 <i class="icon ion-plane"></i>
             </ion-item>
-            <button class="button button-block button-positive" ng-click="sendPredictions()">
+            <button class="button button-block button-balanced" ng-click="sendPredictions()">
                 Submit Predictions for Round {{fixtures[0].round}}
             </button>
+            <button class="button button-block button-energized" ng-click="clearPredictions()">
+                Clear Selected
+            </button>
             <button class="button button-block button-assertive" ng-click="clearPredictions()">
-                Clear Current Predictions
+                Delete Existing Round Predictions
             </button>
     </ion-content>
 </ion-view>

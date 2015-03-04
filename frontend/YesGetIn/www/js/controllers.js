@@ -63,28 +63,30 @@ angular.module('starter.controllers', [])
             //TODO: This needs to be loaded using another call to the server!
 
             //go and get all of the predictions for the user
-            Rounds.getExistingPredictions(user).then(function(data){
+            Rounds.getExistingPredictions(user, $stateParams.roundId).then(function(data){
                 debugger;
                 $scope.existingPredictions = data;
-                //$scope.rounds = $scope.rounds.rounds;
+
+                //loop over the fixtures
+                //var indexFixtures = 0;
+                //for (; indexFixtures < $scope.fixtures.length; indexFixtures++) {
+                //    //set current fixture id
+                //    var currentFixtureId = $scope.fixtures[indexFixtures]._id;
+                //
+                //    //loop over existing predictions
+                //    for (var j = 0; j < $scope.existingPredictions[0].predictions.length; j++) { //TODO abstract into variable to make code more efficient, less operations
+                //
+                //        //whenever fixture id matches, place fixture id and prediction within local predictions array as such
+                //        if (currentFixtureId == $scope.existingPredictions[0].predictions[j]._id) {
+                //            //then add an entry to the local predictions array
+                //loop over the existing predictions and add to the predictions array
+                debugger
+                for (var j = 0; j < $scope.existingPredictions[0].predictions.length; j++) {
+                    _predictions.push({fixtureid: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[0].predictions[j].prediction});
+                        }
+
+                //}
             });
-
-            //loop over the fixtures
-            var indexFixtures = 0;
-            for (; indexFixtures < $scope.fixtures.length; indexFixtures++) {
-                //set current fixture id
-                var currentFixtureId = $scope.fixtures[indexFixtures]._id;
-
-                //loop over existing predictions
-                for (var j = 0; j < $scope.existingPredictions.length; j++) {
-
-                    //whenever fixture id matches, place fixture id and prediction within local predictions array as such
-                    if (currentFixtureId == $scope.existingPredictions[j].fixtureid) {
-                        //then add an entry to the local predictions array
-                        _predictions.push({fixtureid: currentFixtureId, prediction: $scope.existingPredictions[j].prediction});
-                    }
-                }
-            }
 
         });
 
@@ -239,6 +241,20 @@ angular.module('starter.controllers', [])
             }
 
         }
+
+        $scope.deleteRoundPredictions = function () {
+
+            debugger;
+
+            //call the function on the server
+            Rounds.deleteRoundPredictions(user, $stateParams.roundId).then($ionicPopup.alert(
+                {
+                    title: 'Your predictions for this round have been deleted!',
+                    template: 'Have another go!'
+                }
+            ));
+
+        };
     })
 
     .controller('ScoreboardCtrl', function($scope, Scoreboard) {

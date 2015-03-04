@@ -1,54 +1,3 @@
-//(function () {
-//    'use strict';
-//
-//    angular.module('starter.services')
-//
-//    .factory('Rounds', ['$http', '$q', '$resource', Rounds]);
-//
-//    function Rounds($http, $q) {
-//
-//        var rounds;
-//
-//        function all() {
-//            var deferred = $q.defer();
-//
-//            // Make a call to ye olde server
-//            $http.get('http://nodejs-getin.rhcloud.com/'
-//            ).success(function (data) {
-//                    deferred.resolve(data);
-//                }).error(function () {
-//                    console.log("Error while making HTTP call.");
-//                    deferred.promise;
-//                });
-//            return deferred.promise;
-//        }
-//
-//        function remove(round) {
-//            rounds.splice(rounds.indexOf(round), 1);
-//        }
-//
-//        function get(round) {
-//            for (var i = 0; i < rounds.length; i++) {
-//                if (rounds[i].id === parseInt(round)) {
-//                    return rounds[i];
-//                }
-//            }
-//            return null;
-//        }
-//
-//        function predict() {
-//
-//        }
-//
-//        return {
-//            all: all,
-//            remove: remove,
-//            get: get,
-//            predict: predict
-//        };
-//    }
-//})();
-
 angular.module('starter.services', ['ngResource'])
 
     .factory('Chats', function() {
@@ -167,34 +116,7 @@ angular.module('starter.services', ['ngResource'])
                 //prepend the predictions array with the necessary information
                 predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
 
-                //predictions = JSON.stringify(predictions);
-
                 console.log(predictions);
-
-                ////invalid json
-                //[
-                //    {
-                //        "predictions":[
-                //            [
-                //                {
-                //                    "fixtureid":"54ef7b929bf65365a7fe8e27",
-                //                    "prediction":3
-                //                }
-                //            ]
-                //    }
-                //]
-                //
-                //// valid json
-                //[
-                //    {
-                //        "predictions":[
-                //            {
-                //                "fixture":"54ef7b929bf65365a7fe8e27",
-                //                "prediction":"1"
-                //            }
-                //        ]
-                //    }
-                //]
 
                 debugger
 
@@ -205,23 +127,24 @@ angular.module('starter.services', ['ngResource'])
                 $http.post('http://nodejs-getin.rhcloud.com/users/predictions/' + username + '/' + round , predictions
                 ).success(function(response){
                         console.log(response)
-                        deferred.resolve(response); //TODO not sure this is necessary
+                        //deferred.resolve(response); //TODO not sure this is necessary
                     }).error(function(){
                         console.log("Error while making HTTP call.");
                         alert("Something went wrong");
-                        deferred.promise;
+                        //deferred.promise;
                     });
                 return deferred.promise;
             },
-            getExistingPredictions: function(username) {
+            getExistingPredictions: function(username, round) {
 
                 //make a call to the server to get the existing predictions made by a user
+                //do this for a given round
                 debugger
 
                 var deferred = $q.defer();
 
                 //TODO: Implement getting the username from the session somehow
-                $http.get('http://nodejs-getin.rhcloud.com/users/predictions/' + username
+                $http.get('http://nodejs-getin.rhcloud.com/users/predictions/' + username +  '/' + round
                 ).success(function(response){
                         console.log("CURRENT USER PREDICTIONS:" + response)
                         deferred.resolve(response);
@@ -229,6 +152,24 @@ angular.module('starter.services', ['ngResource'])
                         console.log("Error while making HTTP call.");
                         alert("Something went wrong"); //TODO: Use an ionicPopUp for this
                         //deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            deleteRoundPredictions: function(username, round) {
+
+                //make a call to the server to get the existing predictions made by a user
+                debugger
+
+                var deferred = $q.defer();
+
+                //TODO: Implement getting the username from the session somehow
+                $http.delete('http://nodejs-getin.rhcloud.com/users/predictions/clear/' + username + '/' + round
+                ).success(function(response){
+                        console.log("DELETED USER " + username + "'S PREDICTIONS FOR ROUND " + round);
+                        deferred.resolve(response);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong");
                     });
                 return deferred.promise;
             }

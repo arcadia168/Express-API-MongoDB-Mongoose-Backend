@@ -91,16 +91,21 @@ exports.findRoundPredictions = function(req, res) {
     Fixture.find({'round':req.params.round}, function(err, fRes) {
       res.header('Content-type','application/json');
       res.header('Charset','utf8');
-      var predictions = uRes.predictions;
+      var predictions = uRes.predictions; //all of the predictions for the user
+      var roundsToReturn = [];
       for(var i = 0; i < predictions.length; i++) {
         for(var j = 0; j < fRes.length; j++) {
           var fix = fRes[j];
           if(fix._id == predictions[i].fixture) {
-            res.write(JSON.stringify(predictions[i]));
-            break;
+
+            roundsToReturn.push(predictions[i]);
+            //res.write(JSON.stringify([predictions[i]));
+            break; //break to the outer loop
           }
         }
       }
+      //now return all of the predictions
+      res.write(JSON.stringify(roundsToReturn)); //append the result
       res.end();
     });
   });

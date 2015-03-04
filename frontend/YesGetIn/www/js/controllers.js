@@ -67,25 +67,10 @@ angular.module('starter.controllers', [])
                 debugger;
                 $scope.existingPredictions = data;
 
-                //loop over the fixtures
-                //var indexFixtures = 0;
-                //for (; indexFixtures < $scope.fixtures.length; indexFixtures++) {
-                //    //set current fixture id
-                //    var currentFixtureId = $scope.fixtures[indexFixtures]._id;
-                //
-                //    //loop over existing predictions
-                //    for (var j = 0; j < $scope.existingPredictions[0].predictions.length; j++) { //TODO abstract into variable to make code more efficient, less operations
-                //
-                //        //whenever fixture id matches, place fixture id and prediction within local predictions array as such
-                //        if (currentFixtureId == $scope.existingPredictions[0].predictions[j]._id) {
-                //            //then add an entry to the local predictions array
-                //loop over the existing predictions and add to the predictions array
-                debugger
-                for (var j = 0; j < $scope.existingPredictions[0].predictions.length; j++) {
-                    _predictions.push({fixtureid: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[0].predictions[j].prediction});
-                        }
+                for (var j = 0; j < $scope.existingPredictions.length; j++) {
+                    _predictions.push({fixtureid: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[j].prediction});
+                }
 
-                //}
             });
 
         });

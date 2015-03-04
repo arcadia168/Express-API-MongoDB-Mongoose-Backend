@@ -116,7 +116,7 @@ angular.module('starter.services', ['ngResource'])
                 //prepend the predictions array with the necessary information
                 predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
 
-                console.log(predictions);
+                console.log('SENDING PREDICTIONS:' + predictions);
 
                 debugger
 

@@ -68,19 +68,19 @@ angular.module('starter.controllers', [])
                 $scope.existingPredictions = data;
 
                 for (var j = 0; j < $scope.existingPredictions.length; j++) {
-                    _predictions.push({fixtureid: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[j].prediction});
+                    _predictions.push({fixture: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[j].prediction});
                 }
 
             });
 
         });
 
-        function _predictionExists(fixtureId) {
+        function _predictionExists(fixture) {
 
             var found = -1;
 
             for (var i = 0; i < _predictions.length; i++) {
-                if (fixtureId == _predictions[i].fixtureid) {
+                if (fixture == _predictions[i].fixture) {
                     //then the fixture has had a prediction made for it
                     found = i;
                     break; //breaks out of the inner loop
@@ -90,35 +90,35 @@ angular.module('starter.controllers', [])
             return found;
         }
 
-        function _addFixturePrediction(fixtureId, prediction) {
+        function _addFixturePrediction(fixture, prediction) {
 
             //if the _predictions array contains an object with the fixture id passed in here
 
             //find out if the current fixture has a prediction and if so, the position in the list
-            var existingPredictionPosition = _predictionExists(fixtureId);
+            var existingPredictionPosition = _predictionExists(fixture);
 
             if (existingPredictionPosition != -1) {
                 //then update this current fixture using the position in the predictions array
-                _predictions[existingPredictionPosition] = {fixtureid: fixtureId, prediction: prediction}
+                _predictions[existingPredictionPosition] = {fixture: fixture, prediction: prediction}
 
             } else { //else if a prediction for this fixture does not already exist...
-                _predictions.push({fixture: fixtureId, prediction: prediction});
+                _predictions.push({fixture: fixture, prediction: prediction});
             }
         }
 
-        $scope.predictHomeWin = function (fixtureId) {
-            //debugger;
-            _addFixturePrediction(fixtureId, 1);
+        $scope.predictHomeWin = function (fixture) {
+            debugger;
+            _addFixturePrediction(fixture, 1);
         };
 
-        $scope.predictAwayWin = function (fixtureId) {
-            //debugger;
-            _addFixturePrediction(fixtureId, 2);
+        $scope.predictAwayWin = function (fixture) {
+            debugger;
+            _addFixturePrediction(fixture, 2);
         };
 
-        $scope.predictDraw = function (fixtureId) {
-            //debugger;
-            _addFixturePrediction(fixtureId, 3);
+        $scope.predictDraw = function (fixture) {
+            debugger;
+            _addFixturePrediction(fixture, 3);
         };
 
         var colourMap = {
@@ -133,7 +133,7 @@ angular.module('starter.controllers', [])
 
             //find prediction for this fixture
             for(var i = 0; i < _predictions.length; i++) {
-                if (fixture._id == _predictions[i].fixtureid) {
+                if (fixture._id == _predictions[i].fixture) {
                     //then return the prediction for this fixture else leave undefined
                     predictionClass = _predictions[i].prediction;
                 }
@@ -171,12 +171,12 @@ angular.module('starter.controllers', [])
                 found = false;
 
                 //access the value of the current fixture here once per iteration
-                var currentFixtureId = $scope.fixtures[indexOfTheFuckingLoop]._id;
+                var currentFixture = $scope.fixtures[indexOfTheFuckingLoop]._id;
 
                 //now iterate over each item in the predictions array
                 //inner loop
                 for (var j = 0; j < _predictions.length; j++) {
-                    if (currentFixtureId == _predictions[j].fixtureid) {
+                    if (currentFixture == _predictions[j].fixture) {
                         //then the fixture has had a prediction made for it
                         found = true;
                         break; //breaks out of the inner loop

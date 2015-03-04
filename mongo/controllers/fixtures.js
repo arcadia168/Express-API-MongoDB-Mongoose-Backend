@@ -60,6 +60,7 @@ exports.clearRound = function() {
   });
 };
 
+//TODO: Replace these with sensible fixtures from the spreadsheet!
 var examples = [{"homeTeam":"Oldham", "awayTeam":"Ipswitch","round":"1"},
     {"homeTeam":"***REMOVED***teshire", "awayTeam":"Walton", "round":"1"},
     {"homeTeam":"Applestown", "awayTeam":"Oranges", "round":"1"},

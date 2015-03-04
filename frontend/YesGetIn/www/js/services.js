@@ -51,6 +51,9 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
+        var SERVER = "http://localhost:8080";
+        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+
         var rounds = [];
 
         return {
@@ -96,7 +99,7 @@ angular.module('starter.services', ['ngResource'])
 
                 var deferred = $q.defer();
 
-                $http.get('http://nodejs-getin.rhcloud.com/fixtures/' + roundId
+                $http.get(SERVER + '/fixtures/' + roundId
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);
@@ -124,7 +127,7 @@ angular.module('starter.services', ['ngResource'])
 
                 //TODO: Implement getting the username from the session somehow
                 //use dummy user sillybilly for now
-                $http.post('http://nodejs-getin.rhcloud.com/users/predictions/' + username + '/' + round , predictions
+                $http.post(SERVER + '/users/predictions/' + username + '/' + round , predictions
                 ).success(function(response){
                         console.log(response)
                         //deferred.resolve(response); //TODO not sure this is necessary
@@ -144,7 +147,7 @@ angular.module('starter.services', ['ngResource'])
                 var deferred = $q.defer();
 
                 //TODO: Implement getting the username from the session somehow
-                $http.get('http://nodejs-getin.rhcloud.com/users/predictions/' + username +  '/' + round
+                $http.get(SERVER + '/users/predictions/' + username +  '/' + round
                 ).success(function(response){
                         console.log("CURRENT USER PREDICTIONS:" + response)
                         deferred.resolve(response);
@@ -163,7 +166,7 @@ angular.module('starter.services', ['ngResource'])
                 var deferred = $q.defer();
 
                 //TODO: Implement getting the username from the session somehow
-                $http.delete('http://nodejs-getin.rhcloud.com/users/predictions/clear/' + username + '/' + round
+                $http.delete(SERVER + '/users/predictions/clear/' + username + '/' + round
                 ).success(function(response){
                         console.log("DELETED USER " + username + "'S PREDICTIONS FOR ROUND " + round);
                         deferred.resolve(response);
@@ -184,7 +187,7 @@ angular.module('starter.services', ['ngResource'])
 
                 //TODO: Replace the use of http with resource
                 // Make a call to ye olde server
-                $http.get('http://nodejs-getin.rhcloud.com/scoreboard/'
+                $http.get(SERVER + '/scoreboard/'
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);

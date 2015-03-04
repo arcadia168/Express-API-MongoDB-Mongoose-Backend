@@ -102,7 +102,7 @@ angular.module('starter.controllers', [])
                 _predictions[existingPredictionPosition] = {fixtureid: fixtureId, prediction: prediction}
 
             } else { //else if a prediction for this fixture does not already exist...
-                _predictions.push({fixtureid: fixtureId, prediction: prediction});
+                _predictions.push({fixture: fixtureId, prediction: prediction});
             }
         }
 
@@ -167,8 +167,6 @@ angular.module('starter.controllers', [])
             var validPredictions = false;
             var indexOfTheFuckingLoop = 0; //TODO: Change the anme
             for(; indexOfTheFuckingLoop < $scope.fixtures.length; indexOfTheFuckingLoop++) {
-
-                debugger
 
                 found = false;
 

@@ -66,9 +66,10 @@ exports.getPredictions = function(req, res) {
   });
 };
 
+//dafuq does this do?
 exports.updatePrediction = function(req, res) {
-  var username = req.params.username;
-  Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) {
+  var username = req.params.username; //get username from request
+  Fixture.findOne({'_id':req.body[0].fixture}, 'fixDate', function(err, result) { //find specific fixure from params
     var date = new Date();
     if(result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
       return res.jsonp(400);
@@ -87,8 +88,8 @@ exports.updatePrediction = function(req, res) {
 
 exports.findRoundPredictions = function(req, res) {
   var username = req.params.username;
-  User.findOne({'username': username}, function(err, uRes) {
-    Fixture.find({'round':req.params.round}, function(err, fRes) {
+  User.findOne({'username': username}, function(err, uRes) { //find the user
+    Fixture.find({'round':req.params.round}, function(err, fRes) { //find all fixtures for the round
       res.header('Content-type','application/json');
       res.header('Charset','utf8');
       var predictions = uRes.predictions; //all of the predictions for the user
@@ -113,13 +114,14 @@ exports.findRoundPredictions = function(req, res) {
 
 exports.clearRoundPredictions = function(req, res) {
   var username = req.params.username;
-  User.findOne({'username': username}, function(err, uRes) {
-    Fixture.find({'round':req.params.round}, function(err, fRes) {
+  User.findOne({'username': username}, function(err, uRes) { //get all predictions for the user
+    Fixture.find({'round':req.params.round}, function(err, fRes) { //get all fixtures for the round
       var uPred = [];
-      for(var i = uRes.predictions.length-1; i >= 0; i--) {
-        for(var j = 0; j < fRes.length; j++) {
-          if(fRes[j]._id == uRes.predictions[i].fixture) {
-            uRes.predictions.id(uRes.predictions[i]._id).remove();
+      for(var i = uRes.predictions.length-1; i >= 0; i--) { //iterate over all users predictions
+        for(var j = 0; j < fRes.length; j++) { //iterate over all fixtures for round
+          if(fRes[j]._id == uRes.predictions[i].fixture) { //if matching fixture
+              //doesn't remove from db?
+            uRes.predictions.id(uRes.predictions[i]._id).remove(); //delete the fixture
             break;
           }
         }

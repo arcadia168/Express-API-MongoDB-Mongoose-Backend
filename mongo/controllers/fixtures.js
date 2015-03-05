@@ -73,7 +73,7 @@ var examples = [{"homeTeam":"Oldham", "awayTeam":"Ipswitch","round":"1"},
     {"homeTeam":"Jerusalem", "awayTeam":"Alpha Centurai", "round":"2"}];
 
 exports.dummyData = function(req, res) {
-    Fixture.create(examples,
+  Fixture.create(examples,
     function(err) {
       if(err)
         return console.log(err);

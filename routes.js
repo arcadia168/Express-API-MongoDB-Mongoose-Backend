@@ -25,5 +25,7 @@ module.exports = function(app){
     
     app.get('/dummy/fixtures', fixtures.dummyData);
     
+    app.get('/dummy/results/:round', users.dummyResults);
+    
     app.delete('/clear/all', users.wipe);
 }

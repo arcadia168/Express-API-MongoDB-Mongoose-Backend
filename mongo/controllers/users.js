@@ -36,93 +36,6 @@ exports.getUserData = function(req, res) {
     });
 };
 
-//exports.addPredictions = function(req, res) {
-//    var username = req.params.username;
-//    var userExistingPredictions = []; //variable to hold all of the user's current predictions
-//    var predictionForFixtureExistsAlready = false;
-//    var ohballs = false;
-//
-//    userExistingPredictions = User.find({'username': username}, 'predictions'); //query the db
-//
-//    // first get the fixture object, assign a score to the prediction
-//    Fixture.find({'round':req.params.round}, 'fixDate', function(err, results) { //gets fixture by round
-//
-//        if(err){
-//            return res.jsonp(400); //return an error if there is one.
-//        } else {
-//
-//            var date = new Date();
-//
-//            var predictions = req.body[0].predictions; //list of received predictions
-//
-//            //get a list of fixtures for a given round, find the fixture on which we are making a prediction
-//            for(var i = 0; i < predictions.length; i++) { //iterate over each prediction recieved from user to be added
-//
-//                for(var j = 0; j < results.length; j++) { //iterate over the list of fixtures for the round and date
-//
-//                    var result = results[j]; //get the current fixture from results
-//
-//                    if(result._id == predictions[i].fixture) { //checks to if the prediction is for the current fixture
-//                        // wont apply right now using test data
-//                        //if(!result.fixDate || result.fixDate.getTime() <= (date.getTime() + (1000*60*60)))
-//                        //  return res.jsonp(400);
-//
-//                        //TODO: Check HERE to see if a prediction has already been made for this fixture! Set a flag
-//                        //DO THIS BY SEARCHING PREDICTIONS FOR THE USER, IF FIXTURE ID EXISTS WITHIN LIST, THEN A PREDICTION HAS ALREADY BEEN MADE FOR THIS ROUND
-//
-//                        var predVal = allocatePoints(result.fixDate, date); //allocate prediction points based on date of prediction
-//
-//                        predictions[i]["predictValue"] = predVal; //set the value in points of the prediction!
-//
-//                        ////get the users list of predictions
-//                        //
-//                        ////ENSURE NO MORE THAN ONE PREDICTION PER FIXTURE FOR ANY USER
-//                        ////check to see if this prediction's fixture already exists within the users list of predictions
-//                        ////if so, PULL that predictoin out of the user's prediction array
-//                        ////have to do this with a loop
-//                        //for (var k = 0; k < userExistingPredictions.length; k++){
-//                        //    if (userExistingPredictions[k].fixture == predictions[i].fixture) {
-//                        //
-//                        //        //then the fixture trying to be predicted on already has a prediction, so delete this
-//                        //
-//                        //        predictionForFixtureExistsAlready = true;
-//                        //
-//                        //        break; //out of inner inner loop
-//                        //    }
-//                        //}
-//                        //
-//                        ////if a prediction already exists for this fixture, delete it based on fixture id query
-//                        //if (predictionForFixtureExistsAlready) {
-//                        //    User.update({'username': username}, {$pull: {'predictions': {'fixture' : predictions[i].fixture}}},
-//                        //        {safe: true, upsert: false}, function(err, response) { if (err) ohballs = true; return } //WILL THIS AFFECT GLOBAL VARIABLE
-//                        //    );
-//                        //    predictionForFixtureExistsAlready = false; //reset the found flag on delete of old prediction
-//                        //}
-//                        //
-//                        ////push the new prediction for the fixture into the user's prediction array
-//                        //User.update({'username': username}, { $push: {'predictions': predictions[i]}}, //upsert each prediction to the users prediction array
-//                        //    {safe: true, upsert: false}, function(err, response) { if (err) ohballs = true; return }
-//                        //        );
-//
-//                        break; //out of inner loop, move on to the next prediction given to us by the user!
-//
-//                    } //if
-//
-//                } //inner loop, loops over fixtures for the round being predicted on
-//
-//            } //outer loop, loops over newly submitted predictions
-//
-//            //check to see if something went wrong or not
-//            if (!ohballs) {
-//                return res.jsonp(202);
-//            } else {
-//                return res.jsonp(502);
-//            }
-//        }
-//
-//        });
-//};
-
 exports.addPredictions = function(req, res) {
     var username = req.params.username;
     // first get the fixture object, assign a score to the prediction
@@ -206,7 +119,7 @@ exports.updatePredictions = function(req, res) {
                     if (err) return console.log(err);
                     //return res.jsonp(202);
                 }
-                );
+            );
         });
     }
 
@@ -306,10 +219,68 @@ exports.dummyData = function(req, res) {
     );
 };
 
+exports.dummyResults = function(req, res) {
+  var round = req.params.round;
+  Fixture.find({'round': round}, function(err, results) {
+    resultAssigner(0, results, function() {
+      scoreUsers(round, function(err, status) {
+        return res.jsonp(status);
+      });
+    });
+  });
+};
+
+function scoreUsers(round, callback) {
+  Fixture.find({'round': round}, function(err, fixs) {
+    User.find({}, function(err, usrs) {
+      scoreAdder(0, users, fixs, function() {
+        callback(null, 202);
+      });
+    });
+  });
+};
+
+function scoreAdder(i, users, fixs, callback) {
+  if(i < users.length) { 
+    var preds = users[i].predictions;
+    var score = users[i].score;
+    for(var j = 0; j < fixs.length; j++) {
+      var currFix = fixs[j];
+      for(var k = 0; k < preds.length; k++) {
+        if(preds[k].fixture == currFix._id) {
+          if(preds[k].prediction == currFix.fixResult) {
+            score += preds[k].predictValue;
+          }
+        }
+      }
+    }
+    if(score != users[i].score) {
+      User.findByIdAndUpdate(users[i]._id, {$set:{'score':score}}, function(err, res) {
+        scoreAdder(i+1, users, fixs, callback);
+      });
+    } else {
+      scoreAdder(i+1, users, fixs, callback);
+    }
+  } else {
+    callback();
+  }
+};
+
+function resultAssigner(i, results, callback) {
+  if(i < results.length) {
+    var fixRes = Math.floor((Math.random() * 3) + 1);
+    Fixture.findByIdAndUpdate(results[i]._id, {$set:{'fixResult':fixRes}}, function(err, res) {
+      resultAssigner(i+1, results, callback);   
+    });
+  } else {
+    callback();
+  }
+};
+
 exports.wipe = function(req, res) {
     Fixture.remove({}, function(result) {
         User.remove({}, function(result) {
             return res.jsonp(result);
         });
     });
-}
+};

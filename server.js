@@ -40,7 +40,8 @@ require('./routes')(app);
 //CHANGE THIS FOR LOCAL DEVELOPMENT
 mongoose.connect(mongoConnection);
 var db = mongoose.connection;
-db.on('error', function () {
+db.on('error', function (err) {
+  console.error('MongoDB Error: %s', err);
   throw new Error('unable to connect to database at mongodb://localhost/nodejs');
 });
 

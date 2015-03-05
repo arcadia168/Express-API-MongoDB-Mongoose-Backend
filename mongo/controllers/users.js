@@ -1,7 +1,12 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
-var ObjectId = mongoose.Types.ObjectId
+
+//so that mongoose now queries by object id
+String.prototype.toObjectId = function() {
+    var ObjectId = (require('mongoose').Types.ObjectId);
+    return new ObjectId(this.toString());
+};
 
 exports.addUser = function(req, res) {
     User.create(req.body, function(err, user) {
@@ -179,12 +184,15 @@ exports.getPredictions = function(req, res) {
 exports.updatePredictions = function(req, res) {
     var username = req.params.username; //get username from request
     var predictionsToUpdate = req.body[0].predictions; //get the predictions that need to be updated
+    var testFixture;
 
     //loop over all predictions, updating as we go along.
     for (var i = 0; i < predictionsToUpdate.length-1; i++) {
-        Fixture.findOne({'_id': ObjectId.fromString(predictionsToUpdate[i].fixture)}, 'fixDate', function (err, result) { //find specific fixure from params
+        //asynchronously query for a fixture with the same id as the fixture of the current prediction, return the fixtureDate
+        //then implement a callback
+        Fixture.findById(predictionsToUpdate[i].fixture, 'fixDate', function (err, fixture) { //find specific fixure from params
             var date = new Date(); //get today's date
-            if (result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
+            if (fixture == null || typeof fixture == 'undefined' || typeof result.fixDate == 'undefined') // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
                 return res.jsonp(400); //check to see if we have fixture in db (has it finished yet)?
             predictionsToUpdate[i].predictValue = allocatePoints(result.fixDate, date); //allocate points for the fixture based on date
             predictionsToUpdate[i].predictDate = date; //set the date of the prediction to be today
@@ -193,11 +201,11 @@ exports.updatePredictions = function(req, res) {
                     'predictions.fixture': predictionsToUpdate[i].fixture
                 }, //where username is same and predictions.fixture is same
                 {$set: {'predictions.$': predictionsToUpdate[i]}}, //add new prediction
-                {upsert: false, setDefaultsOnInsert: true, runValidators: true}//,
-                //function (err, number) {
-                //    if (err) return console.log(err);
-                //    return res.jsonp(202);
-                //}
+                {upsert: false, setDefaultsOnInsert: true, runValidators: true},
+                function (err, number) {
+                    if (err) return console.log(err);
+                    //return res.jsonp(202);
+                }
                 );
         });
     }
@@ -241,9 +249,6 @@ exports.clearRoundPredictions = function(req, res) {
             for(var i = uRes.predictions.length-1; i >= 0; i--) { //iterate over all users predictions
                 for(var j = 0; j < fRes.length; j++) { //iterate over all fixtures for round
                     if(fRes[j]._id == uRes.predictions[i].fixture) { //if matching fixture
-
-                        //remove 20 points from the user
-
 
                         uRes.predictions.id(uRes.predictions[i]._id).remove(); //delete the fixture
                         break;

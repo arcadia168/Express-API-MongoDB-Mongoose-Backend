@@ -19,10 +19,11 @@
                 Submit Predictions for Round {{fixtures[0].round}}
             </button>
             <button class="button button-block button-energized" ng-click="clearPredictions()">
-                Clear Selected
+                Clear Currently Selected Predictions
             </button>
             <button class="button button-block button-assertive" ng-click="deleteRoundPredictions()">
-                Delete Existing Round Predictions
+                Withdraw Predictions for Round {{fixtures[0].round}}
+                <!-- TODO: Implement warning in Ionic here -->
             </button>
     </ion-content>
 </ion-view>

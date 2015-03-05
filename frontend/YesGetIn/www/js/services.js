@@ -51,7 +51,7 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
-        var SERVER = "http://localhost:8080";
+        var SERVER = "http://localhost:8000";
         //var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         var rounds = [];
@@ -62,7 +62,7 @@ angular.module('starter.services', ['ngResource'])
 
                 //TODO: Replace the use of http with resource
                 // Make a call to ye olde server
-                $http.get('http://nodejs-getin.rhcloud.com/rounds/'
+                $http.get(SERVER + '/rounds/'
                 ).success(function(data){
                         rounds = data;
                         deferred.resolve(data);
@@ -137,7 +137,34 @@ angular.module('starter.services', ['ngResource'])
                         //deferred.promise;
                     });
                 return deferred.promise;
-            },
+            }
+            ,
+            //might need to take in the userid, although this may be global
+            updatePredictions: function(username, round, predictions) {
+            //make a call to server to send predictions away
+
+            //prepend the predictions array with the necessary information
+            predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
+
+            console.log('UPDATING PREDICTIONS:' + predictions);
+
+            debugger
+
+            var deferred = $q.defer();
+
+            //TODO: Implement getting the username from the session somehow
+            //use dummy user ***REMOVED***6969 for now
+            $http.put(SERVER + '/users/predictions/update/' + username, predictions //TODO: Do we need round?
+            ).success(function(response){
+                    console.log(response)
+                    //deferred.resolve(response); //TODO not sure this is necessary
+                }).error(function(){
+                    console.log("Error while making HTTP call.");
+                    alert("Something went wrong");
+                    //deferred.promise;
+                });
+            return deferred.promise;
+        },
             getExistingPredictions: function(username, round) {
 
                 //make a call to the server to get the existing predictions made by a user

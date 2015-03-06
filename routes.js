@@ -8,13 +8,13 @@ module.exports = function(app){
     app.get('/users/predictions/:username/:round', users.findRoundPredictions);
     app.post('/users', users.addUser);
     app.post('/users/predictions/:username/:round', users.addPredictions);
-    //app.put('/users/predictions/update/:username', users.updatePrediction);
-    app.put('/users/predictions/update/:username', users.updatePredictions);
+    app.put('/users/predictions/update/:username', users.updatePrediction);
+    //app.put('/users/predictions/update/:username', users.updatePredictions);
     app.put('/users/:username', users.updateUser);
     app.delete('/users/predictions/clear', users.clearPredictions);
     app.delete('/users/predictions/clear/:username/:round', users.clearRoundPredictions);
     
-    app.get('/dummy/users', users.dummyData)
+    app.get('/dummy/users', users.dummyData);
     
     app.get('/fixtures', fixtures.getFixtures);
     app.get('/fixtures/:round', fixtures.getRound);
@@ -26,4 +26,4 @@ module.exports = function(app){
     app.get('/dummy/fixtures', fixtures.dummyData);
     
     app.delete('/clear/all', users.wipe);
-}
+};

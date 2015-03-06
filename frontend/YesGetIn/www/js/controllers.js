@@ -22,11 +22,11 @@ angular.module('starter.controllers', [])
         //debugger
         $scope.remove = function(round) {
             Rounds.remove(round);
-        }
+        };
 
         $scope.predict = function(roundid, prediction) { //prediction will be left, right, up
             Rounds.predict(roundid, prediction);
-        }
+        };
 
         //$scope.markRoundPredicted = function() {
         //
@@ -66,17 +66,36 @@ angular.module('starter.controllers', [])
 
         });
 
+        //predicton map struct to be used in below function
+        var predictionMap = {
+            1: "Home Win!",
+            2: "Away Win!",
+            3: "Draw!"
+        };
+
         function _getExistingPredictions() {
             //go and get all of the predictions for the user
             Rounds.getExistingPredictions(user, $stateParams.roundId).then(function(data){
                 //clear existing predictions
-                _predictions = []
+                _predictions = [];
 
                 debugger;
 
                 $scope.existingPredictions = data;
+                $scope.predictionsOnServer = data;
+
+                var currentFixturePrediction = null;
 
                 if ($scope.existingPredictions.length) {
+
+                    //now loop over fixtures and add in these predictions!
+                    for (var i = 0; i < $scope.fixtures.length ; i++){
+
+                        currentFixturePrediction = predictionMap[$scope.existingPredictions[i].prediction];
+
+                        $scope.fixtures[i].prediction = currentFixturePrediction;
+                    }
+
                     updatePredictions = true; //only set this if there are existing predictions!
                 }
 
@@ -148,6 +167,7 @@ angular.module('starter.controllers', [])
                 if (fixture._id == _predictions[i].fixture) {
                     //then return the prediction for this fixture else leave undefined
                     predictionClass = _predictions[i].prediction;
+
                 }
             }
 
@@ -177,7 +197,8 @@ angular.module('starter.controllers', [])
             //iterate over each of the fixtures and ensure it exists within the list of predictions
             var found;
             var validPredictions = false;
-            var indexOfTheFuckingLoop = 0; //TODO: Change the anme
+            var indexOfTheFuckingLoop = 0; //TODO: Change the anm;
+            var predictionsToUpdate = [];
             for(; indexOfTheFuckingLoop < $scope.fixtures.length; indexOfTheFuckingLoop++) {
 
                 found = false;
@@ -213,7 +234,7 @@ angular.module('starter.controllers', [])
                 //if we are looking at the last fixture in the round, and all of them have been found.
                 if ((indexOfTheFuckingLoop == ($scope.fixtures.length - 1)) && (found)){
 
-                    debugger
+                    debugger;
                     validPredictions = true;
                     found = false;
                 }
@@ -222,62 +243,119 @@ angular.module('starter.controllers', [])
 
             //if the predictions are valid, send them off to the server
             if (validPredictions) {
-                debugger
+                debugger;
                 //Send the validatied predictions
 
                 //check to see if we are making new predictions or updating old ones
                 if (updatePredictions){
                     //update existing predictions!
-                    debugger
-                    Rounds.updatePredictions(user, $stateParams.roundId, _predictions).then($ionicPopup.alert(
+                    debugger;
+
+
+                    //compare differences of new predictions to old ones, add to array of predictions to update
+                    //loop over old predictions and compare to new
+                    for (var i = 0; i < $scope.predictionsOnServer.length; i++){ //arrays are indexed by 0
+
+                        var currentExistingPrediction = $scope.predictionsOnServer[i];
+
+                        for (var j = 0; j < _predictions.length; j++) {
+
+                            var currentUpdatedPrediction = _predictions[j];
+
+                            //if fixture id is the same, but the prediction is different
+                            if ((currentExistingPrediction.fixture == currentUpdatedPrediction.fixture) &&
+                                (currentExistingPrediction.prediction != currentUpdatedPrediction.prediction)) {
+
+                                //TODO: Here assign the fixture ID back into the prediction to be updated!!!
+                                debugger;
+                                currentUpdatedPrediction._id = currentExistingPrediction._id;
+
+                                //add this prediction to the list of predictions to be updated
+                                predictionsToUpdate.push(currentUpdatedPrediction);
+                            }
+                        }
+                    }
+
+                    debugger;
+                    //once you have a list of predictions to update, async for loop and update
+                    for (var i = 0, c = predictionsToUpdate.length; i < c; i++)
+                    {
+                        // creating an Immiedately Invoked Function Expression
+                        (function( prediction ) {
+
+                            //call the async function
+                            Rounds.updatePrediction(user, prediction);
+
+                            //fs.lstat(path, function (error, stat) {
+                            //    console.log(path, stat);
+                            //});
+                        })( predictionsToUpdate[i] ); //use dogballs (a closure)
+                        // passing predictions[i] in as "path" in the closure
+                    }
+
+                    //tell the user things have been updated
+                    $ionicPopup.alert(
                         {
                             title: 'Your predictions have been updated!',
                             template: 'Let\'s hope you do better than you previously would have!'
-                        }
-                    ));
+                        });
+
+                    //Rounds.updatePredictions(user, $stateParams.roundId, _predictions).then($ionicPopup.alert(
+                    //    {
+                    //        title: 'Your predictions have been updated!',
+                    //        template: 'Let\'s hope you do better than you previously would have!'
+                    //    }
+                    //));
+
                     //reset the update flag!
-                    updatePredictions = false;
+                    //updatePredictions = false;
 
                     //reload the existing predictions!
                     //debugger;
                     //_getExistingPredictions();
 
                 } else { //make a set of new predictions
-                    Rounds.makePredictions(user, $stateParams.roundId, _predictions).then($ionicPopup.alert(
-                        {
-                            title: 'Your predictions have been made!',
-                            template: 'Let\'s hope you do well!'
-                        }
-                    ));
+                    Rounds.makePredictions(user, $stateParams.roundId, _predictions).then(function(){
+                        $ionicPopup.alert({
+                                title: 'Your predictions have been made!',
+                                template: 'Let\'s hope you do well!'
+                        });
 
-                    //_getExistingPredictions();
+                        _getExistingPredictions();
+                    });
+
                 }
-
-                //clear out the list of predictions
-                //_predictions = [];
             }
-
-        }
+        };
 
         $scope.deleteRoundPredictions = function () {
 
             debugger;
 
-            //call the function on the server
 
-            //TODO: Issue warning that the user will lose points
-            Rounds.deleteRoundPredictions(user, $stateParams.roundId).then($ionicPopup.alert(
-                {
-                    title: 'Your predictions for this round have been deleted!',
-                    template: 'Have another go!'
+            var confirmPopup = $ionicPopup.confirm({
+                title: 'Confirm Delete',
+                template: 'Are you sure you want to delete the predictions for this round? \n You\'ll lose 20 points!'
+            });
+            confirmPopup.then(function(res) {
+                if(res) {
+                    console.log('You are sure');
+                    Rounds.deleteRoundPredictions(user, $stateParams.roundId).then(function() {
+                            $ionicPopup.alert(
+                                {
+                                    title: 'Your predictions for this round have been deleted!',
+                                    template: 'Have another go!'
+                                }
+                            );
+
+                            _getExistingPredictions();
+                        }
+
+                    );
+                } else {
+                    console.log('You are not sure');
                 }
-            ));
-
-            _predictions = []; //reset the predictions here
-
-            //check to see if there are any predictions for the round
-
-
+            });
         };
     })
 

@@ -117,11 +117,11 @@ angular.module('starter.services', ['ngResource'])
                 //make a call to server to send predictions away
 
                 //prepend the predictions array with the necessary information
-                predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
+                predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]";
 
                 console.log('SENDING PREDICTIONS:' + predictions);
 
-                debugger
+                debugger;
 
                 var deferred = $q.defer();
 
@@ -129,7 +129,7 @@ angular.module('starter.services', ['ngResource'])
                 //use dummy user sillybilly for now
                 $http.post(SERVER + '/users/predictions/' + username + '/' + round , predictions
                 ).success(function(response){
-                        console.log(response)
+                        console.log(response);
                         //deferred.resolve(response); //TODO not sure this is necessary
                     }).error(function(){
                         console.log("Error while making HTTP call.");
@@ -140,15 +140,15 @@ angular.module('starter.services', ['ngResource'])
             }
             ,
             //might need to take in the userid, although this may be global
-            updatePredictions: function(username, round, predictions) {
+            updatePrediction: function(username, predictions) {
             //make a call to server to send predictions away
 
             //prepend the predictions array with the necessary information
-            predictions = "[{\"predictions\":" + JSON.stringify(predictions) + "}]"
+            predictions = JSON.stringify(predictions);
 
             console.log('UPDATING PREDICTIONS:' + predictions);
 
-            debugger
+            debugger;
 
             var deferred = $q.defer();
 
@@ -156,7 +156,7 @@ angular.module('starter.services', ['ngResource'])
             //use dummy user ***REMOVED***6969 for now
             $http.put(SERVER + '/users/predictions/update/' + username, predictions //TODO: Do we need round?
             ).success(function(response){
-                    console.log(response)
+                    console.log(response);
                     //deferred.resolve(response); //TODO not sure this is necessary
                 }).error(function(){
                     console.log("Error while making HTTP call.");
@@ -169,14 +169,14 @@ angular.module('starter.services', ['ngResource'])
 
                 //make a call to the server to get the existing predictions made by a user
                 //do this for a given round
-                debugger
+                debugger;
 
                 var deferred = $q.defer();
 
                 //TODO: Implement getting the username from the session somehow
                 $http.get(SERVER + '/users/predictions/' + username +  '/' + round
                 ).success(function(response){
-                        console.log("CURRENT USER PREDICTIONS:" + response)
+                        console.log("CURRENT USER PREDICTIONS:" + response);
                         deferred.resolve(response);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
@@ -188,7 +188,7 @@ angular.module('starter.services', ['ngResource'])
             deleteRoundPredictions: function(username, round) {
 
                 //make a call to the server to get the existing predictions made by a user
-                debugger
+                debugger;
 
                 var deferred = $q.defer();
 

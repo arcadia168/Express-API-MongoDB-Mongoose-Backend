@@ -11,9 +11,10 @@
                       on-swipe-right="predictHomeWin(fixture._id)" on-swipe-left="predictAwayWin(fixture._id)"
                       on-hold="predictDraw(fixture._id)" type="item-text-wrap"
                       ng-class="getBackgroundColour(fixture)">
-                <i class="icon ion-home"></i>
-                <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}} - <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
-                <i class="icon ion-plane"></i>
+                <i class="icon ion-tshirt-outline"></i>
+                <p>{{fixture.homeTeam}} <em>vs</em>{{fixture.awayTeam}} - <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
+                <p>Prediction: {{fixture.prediction || "No prediction made"}}</p>
+                <i class="icon ion-tshirt"><br></i>
             </ion-item>
             <button class="button button-block button-balanced" ng-click="sendPredictions()">
                 Submit Predictions for Round {{fixtures[0].round}}
@@ -23,7 +24,6 @@
             </button>
             <button class="button button-block button-assertive" ng-click="deleteRoundPredictions()">
                 Withdraw Predictions for Round {{fixtures[0].round}}
-                <!-- TODO: Implement warning in Ionic here -->
             </button>
     </ion-content>
 </ion-view>

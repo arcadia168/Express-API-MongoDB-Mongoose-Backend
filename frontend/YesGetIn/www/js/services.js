@@ -51,8 +51,8 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        //var SERVER = "http://localhost:8000";
+        var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         var rounds = [];
 
@@ -141,30 +141,30 @@ angular.module('starter.services', ['ngResource'])
             ,
             //might need to take in the userid, although this may be global
             updatePrediction: function(username, predictions) {
-            //make a call to server to send predictions away
+                //make a call to server to send predictions away
 
-            //prepend the predictions array with the necessary information
-            predictions = JSON.stringify(predictions);
+                //prepend the predictions array with the necessary information
+                predictions = JSON.stringify(predictions);
 
-            console.log('UPDATING PREDICTIONS:' + predictions);
+                console.log('UPDATING PREDICTIONS:' + predictions);
 
-            debugger;
+                debugger;
 
-            var deferred = $q.defer();
+                var deferred = $q.defer();
 
-            //TODO: Implement getting the username from the session somehow
-            //use dummy user ***REMOVED***6969 for now
-            $http.put(SERVER + '/users/predictions/update/' + username, predictions //TODO: Do we need round?
-            ).success(function(response){
-                    console.log(response);
-                    //deferred.resolve(response); //TODO not sure this is necessary
-                }).error(function(){
-                    console.log("Error while making HTTP call.");
-                    alert("Something went wrong");
-                    //deferred.promise;
-                });
-            return deferred.promise;
-        },
+                //TODO: Implement getting the username from the session somehow
+                //use dummy user ***REMOVED***6969 for now
+                $http.put(SERVER + '/users/predictions/update/' + username, predictions //TODO: Do we need round?
+                ).success(function(response){
+                        console.log(response);
+                        //deferred.resolve(response); //TODO not sure this is necessary
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong");
+                        //deferred.promise;
+                    });
+                return deferred.promise;
+            },
             getExistingPredictions: function(username, round) {
 
                 //make a call to the server to get the existing predictions made by a user
@@ -228,8 +228,8 @@ angular.module('starter.services', ['ngResource'])
     }])
 
 /**
-* A simple example service that returns some data.
-*/
+ * A simple example service that returns some data.
+ */
     .factory('Friends', function() {
         // Might use a resource here that returns a JSON array
 

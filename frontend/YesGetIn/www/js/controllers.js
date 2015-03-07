@@ -45,11 +45,13 @@ angular.module('starter.controllers', [])
 
     })
 
-    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, Rounds) {
+    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, $ionicHistory, Rounds) {
 
         var _predictions = [];
         var updatePredictions = false; //flag to update predictions if some already exist.
         var user = '***REMOVED***6969';
+
+        $scope.saveChangesNeeded = true;
 
         //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
@@ -123,6 +125,9 @@ angular.module('starter.controllers', [])
 
         function _addFixturePrediction(fixture, prediction) {
 
+            //mark changes as requiring saving
+            $scope.saveChangesNeeded = true;
+
             //if the _predictions array contains an object with the fixture id passed in here
 
             //find out if the current fixture has a prediction and if so, the position in the list
@@ -137,18 +142,45 @@ angular.module('starter.controllers', [])
             }
         }
 
-        $scope.predictHomeWin = function (fixture) {
+        //function to check that user is ready to leave without saving changes
+        $scope.makeUnsavedChanges = function() {
 
+            //ask if they are sure they want to go back if there are unsaved changes that would be lost
+            debugger;
+
+            //$ionicHistory.goBack();
+            //if ($scope.saveChangesNeeded){
+                var confirmPopup = $ionicPopup.confirm({
+                    title: 'Unsaved Changes',
+                    template: 'If there some changes to predictions that you\'ve yet to save and you leave now you\'ll lose them! Are you sure?'
+                });
+                confirmPopup.then(function(res) {
+                    if(res) {
+                        console.log('You are sure');
+                        //then go on back!
+                        //set save changes to false
+                        $scope.saveChangesNeeded = false;
+                        $ionicHistory.goBack();
+                    } else {
+                        console.log('You are not sure');
+                        //stay in this view
+                    }});
+                //});
+           // } else {
+             //   $ionicHistory.goBack();
+            //}
+
+        };
+
+        $scope.predictHomeWin = function (fixture) {
             _addFixturePrediction(fixture, 1);
         };
 
         $scope.predictAwayWin = function (fixture) {
-
             _addFixturePrediction(fixture, 2);
         };
 
         $scope.predictDraw = function (fixture) {
-
             _addFixturePrediction(fixture, 3);
         };
 
@@ -284,7 +316,11 @@ angular.module('starter.controllers', [])
                         (function( prediction ) {
 
                             //call the async function
-                            Rounds.updatePrediction(user, prediction);
+                            Rounds.updatePrediction(user, prediction).then(function()
+                            {
+                                //changes were just saved, this is no longer true
+                                $scope.saveChangesNeeded = false;
+                            });
 
                             //fs.lstat(path, function (error, stat) {
                             //    console.log(path, stat);
@@ -321,6 +357,9 @@ angular.module('starter.controllers', [])
                                 template: 'Let\'s hope you do well!'
                         });
 
+                        //changes have just been saved so no longer need this
+                        $scope.saveChangesNeeded = false;
+
                         _getExistingPredictions();
                     });
 
@@ -348,6 +387,9 @@ angular.module('starter.controllers', [])
                                 }
                             );
 
+                            //changes have been saved
+                            $scope.saveChangesNeeded = false;
+
                             _getExistingPredictions();
                         }
 
@@ -367,11 +409,6 @@ angular.module('starter.controllers', [])
             $scope.scores = data;
         });
     })
-
-    //.controller('FriendsCtrl', function($scope, Friends) {
-    //    alert("This feature has been disabled for the demo app.");
-    //    //$scope.friends = Friends.all();
-    //})
 
     .controller('FriendDetailCtrl', function($scope, $stateParams, Friends) {
         $scope.friend = Friends.get($stateParams.friendId);

@@ -105,6 +105,11 @@ angular.module('starter.controllers', [])
                     _predictions.push({fixture: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[j].prediction});
                 }
 
+                //
+
+                //force view to refresh
+                //$scope.$apply();
+
             });
         }
 
@@ -127,6 +132,22 @@ angular.module('starter.controllers', [])
 
             //mark changes as requiring saving
             $scope.saveChangesNeeded = true;
+
+            //update the fixture in the $scope.fixtures list
+            debugger;
+
+            //find the fixture with the matching id in the list
+            //for (var i = 0; i < $scope.fixtures.length; i++){
+            //    if ($scope.fixtures[i]._id == fixture) {
+            //        //update the prediction
+            //
+            //        //call the prediction map!
+            //        $scope.fixtures[i].prediction = predictionMap[prediction];
+            //    }
+            //}
+
+            //update the class
+            //$scope.getBackgroundColour(fixture)
 
             //if the _predictions array contains an object with the fixture id passed in here
 
@@ -152,7 +173,7 @@ angular.module('starter.controllers', [])
             //if ($scope.saveChangesNeeded){
                 var confirmPopup = $ionicPopup.confirm({
                     title: 'Unsaved Changes',
-                    template: 'If there some changes to predictions that you\'ve yet to save and you leave now you\'ll lose them! Are you sure?'
+                    template: 'Any unsaved changes to predictions will be lost'
                 });
                 confirmPopup.then(function(res) {
                     if(res) {
@@ -329,26 +350,15 @@ angular.module('starter.controllers', [])
                         // passing predictions[i] in as "path" in the closure
                     }
 
+                    // This may be causing an issue whereby the old predictions are pulled down before updates made
+                    //_getExistingPredictions();
+
                     //tell the user things have been updated
                     $ionicPopup.alert(
                         {
                             title: 'Your predictions have been updated!',
                             template: 'Let\'s hope you do better than you previously would have!'
                         });
-
-                    //Rounds.updatePredictions(user, $stateParams.roundId, _predictions).then($ionicPopup.alert(
-                    //    {
-                    //        title: 'Your predictions have been updated!',
-                    //        template: 'Let\'s hope you do better than you previously would have!'
-                    //    }
-                    //));
-
-                    //reset the update flag!
-                    //updatePredictions = false;
-
-                    //reload the existing predictions!
-                    //debugger;
-                    //_getExistingPredictions();
 
                 } else { //make a set of new predictions
                     Rounds.makePredictions(user, $stateParams.roundId, _predictions).then(function(){

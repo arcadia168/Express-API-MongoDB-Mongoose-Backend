@@ -126,7 +126,6 @@ exports.clearRoundPredictions = function(req, res) {
             for(var i = uRes.predictions.length-1; i >= 0; i--) { //iterate over all users predictions
                 for(var j = 0; j < fRes.length; j++) { //iterate over all fixtures for round
                     if(fRes[j]._id == uRes.predictions[i].fixture) { //if matching fixture
-
                         uRes.predictions.id(uRes.predictions[i]._id).remove(); //delete the fixture
                         break;
                     }
@@ -134,12 +133,15 @@ exports.clearRoundPredictions = function(req, res) {
             }
 
             //Deduct 20 points from the user
-            uRes.score = uRes.score - 20; //debug this!
+            uRes.score = uRes.score - 20;
 
             uRes.save(function (err) {
                 if (err) return console.log(err);
                 return res.jsonp(202);
             });
+
+            console.log('User round predictions deleted for user: ' + uRes.username + ' for round: ' + req.params.round);
+
         });
     });
 };
@@ -200,7 +202,7 @@ exports.dummyResults = function(req, res) {
 
 function scoreUsers(round, callback) {
   Fixture.find({'round': round}, function(err, fixs) {
-    User.find({}, function(err, usrs) {
+    User.find({}, function(err, users) {
       scoreAdder(0, users, fixs, function() {
         callback(null, 202);
       });

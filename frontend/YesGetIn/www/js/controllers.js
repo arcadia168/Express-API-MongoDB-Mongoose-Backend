@@ -28,30 +28,47 @@ angular.module('starter.controllers', [])
             Rounds.predict(roundid, prediction);
         };
 
-        //$scope.markRoundPredicted = function() {
-        //
-        //    //get the list of rounds
-        //
-        //    //for each round
-        //
-        //    //get list of fixtures in this round
-        //
-        //    //get the list of predictions for the user
-        //
-        //    //loop over the list of predictions
-        //    //if there exists ANY of the fixtures for the round in predictions
-        //    //them mark this round as already having had predictions made on it
-        //};
-
     })
 
-    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, $ionicHistory, Rounds) {
+    .controller('SaveCtrl', function($scope, $ionicPopup, $ionicHistory, SaveChanges){
+        //function to check that user is ready to leave without saving changes
+        $scope.makeUnsavedChanges = function() {
+
+            //ask if they are sure they want to go back if there are unsaved changes that would be lost
+            debugger;
+
+            if (SaveChanges.check()) {
+                var confirmPopup = $ionicPopup.confirm({
+                    title: 'Unsaved Changes',
+                    template: 'Any unsaved changes to predictions will be lost'
+                });
+                confirmPopup.then(function (res) {
+                    if (res) {
+                        console.log('You are sure');
+                        //then go on back!
+                        //set save changes to false
+                        SaveChanges.saveChangesNotNeeded();
+                        $ionicHistory.goBack();
+                    } else {
+                        console.log('You are not sure');
+                        //stay in this view
+                    }
+                });
+            } else {
+                //just go back
+                $ionicHistory.goBack();
+            };
+        };
+    })
+
+    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, $ionicHistory, Rounds, SaveChanges) {
 
         var _predictions = [];
         var updatePredictions = false; //flag to update predictions if some already exist.
         var user = '***REMOVED***6969';
 
-        $scope.saveChangesNeeded = true;
+        //set the need for changes to be saved to be false by default
+        SaveChanges.saveChangesNotNeeded();
 
         //Get the data for this particular round from the server
         Rounds.get($stateParams.roundId).then(function(data){
@@ -131,25 +148,10 @@ angular.module('starter.controllers', [])
         function _addFixturePrediction(fixture, prediction) {
 
             //mark changes as requiring saving
-            $scope.saveChangesNeeded = true;
+            SaveChanges.saveChangesNeeded();
 
             //update the fixture in the $scope.fixtures list
             debugger;
-
-            //find the fixture with the matching id in the list
-            //for (var i = 0; i < $scope.fixtures.length; i++){
-            //    if ($scope.fixtures[i]._id == fixture) {
-            //        //update the prediction
-            //
-            //        //call the prediction map!
-            //        $scope.fixtures[i].prediction = predictionMap[prediction];
-            //    }
-            //}
-
-            //update the class
-            //$scope.getBackgroundColour(fixture)
-
-            //if the _predictions array contains an object with the fixture id passed in here
 
             //find out if the current fixture has a prediction and if so, the position in the list
             var existingPredictionPosition = _predictionExists(fixture);
@@ -169,28 +171,24 @@ angular.module('starter.controllers', [])
             //ask if they are sure they want to go back if there are unsaved changes that would be lost
             debugger;
 
-            //$ionicHistory.goBack();
-            //if ($scope.saveChangesNeeded){
+            if (SaveChanges.check()) {
                 var confirmPopup = $ionicPopup.confirm({
                     title: 'Unsaved Changes',
                     template: 'Any unsaved changes to predictions will be lost'
                 });
-                confirmPopup.then(function(res) {
-                    if(res) {
+                confirmPopup.then(function (res) {
+                    if (res) {
                         console.log('You are sure');
                         //then go on back!
                         //set save changes to false
-                        $scope.saveChangesNeeded = false;
+                        SaveChanges.saveChangesNotNeeded();
                         $ionicHistory.goBack();
                     } else {
                         console.log('You are not sure');
                         //stay in this view
-                    }});
-                //});
-           // } else {
-             //   $ionicHistory.goBack();
-            //}
-
+                    }
+                });
+            };
         };
 
         $scope.predictHomeWin = function (fixture) {
@@ -337,21 +335,14 @@ angular.module('starter.controllers', [])
                         (function( prediction ) {
 
                             //call the async function
-                            Rounds.updatePrediction(user, prediction).then(function()
-                            {
-                                //changes were just saved, this is no longer true
-                                $scope.saveChangesNeeded = false;
-                            });
+                            Rounds.updatePrediction(user, prediction);
 
-                            //fs.lstat(path, function (error, stat) {
-                            //    console.log(path, stat);
-                            //});
-                        })( predictionsToUpdate[i] ); //use dogballs (a closure)
+                        })(predictionsToUpdate[i]); //use dogballs (a closure)
                         // passing predictions[i] in as "path" in the closure
                     }
 
-                    // This may be causing an issue whereby the old predictions are pulled down before updates made
-                    //_getExistingPredictions();
+                    //mark changes as not being required.
+                    SaveChanges.saveChangesNotNeeded();
 
                     //tell the user things have been updated
                     $ionicPopup.alert(
@@ -368,7 +359,7 @@ angular.module('starter.controllers', [])
                         });
 
                         //changes have just been saved so no longer need this
-                        $scope.saveChangesNeeded = false;
+                        SaveChanges.saveChangesNotNeeded();
 
                         _getExistingPredictions();
                     });
@@ -398,7 +389,7 @@ angular.module('starter.controllers', [])
                             );
 
                             //changes have been saved
-                            $scope.saveChangesNeeded = false;
+                            SaveChanges.saveChangesNotNeeded();
 
                             _getExistingPredictions();
                         }

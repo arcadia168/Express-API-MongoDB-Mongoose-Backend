@@ -162,4 +162,29 @@ angular.module('starter.services', ['ngResource'])
                 return deferred.promise;
             }
         }
+    }])
+
+    .factory('SaveChanges', [function (){
+        var saveChangesNeeded = false;
+
+        //need to return an object to call objects on
+        var saveChanges = {};
+
+        //add functions
+        saveChanges.saveChangesNeeded = function() {
+            saveChangesNeeded = true;
+        };
+
+        saveChanges.saveChangesNotNeeded = function() {
+            saveChangesNeeded = false;
+        };
+
+        //give access to the property
+        saveChanges.check = function () {
+            return saveChangesNeeded;
+        };
+
+        //return object to provide access to methods.
+        return saveChanges;
+
     }]);

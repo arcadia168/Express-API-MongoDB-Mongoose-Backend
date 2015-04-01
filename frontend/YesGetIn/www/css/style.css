@@ -16,3 +16,11 @@ ion-item.item.draw-predicted {
     color: #ffffff;
     text-decoration-color: #ffffff;
 }
+
+.right-shirt {
+    left: 83% !important;
+}
+
+.ion-ios-close-empty {
+    right: 0% !important;
+}

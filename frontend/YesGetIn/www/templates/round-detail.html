@@ -12,7 +12,7 @@
                       on-hold="predictDraw(fixture._id)" type="item-text-wrap"
                       ng-class="getBackgroundColour(fixture)">
                 <i class="icon ion-tshirt-outline"></i>
-                <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}} - <em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
+                <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}}<br><em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
                 <p ng-model="fixture">Prediction: {{fixture.prediction || "No prediction made"}}</p>
                 <i class="icon ion-tshirt right-shirt"></i>
                 <i class="icon ion-ios-close-empty" ng-click="clearSinglePrediction(fixture)"></i>

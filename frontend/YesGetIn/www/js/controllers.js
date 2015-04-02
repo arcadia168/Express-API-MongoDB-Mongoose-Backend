@@ -106,7 +106,7 @@ angular.module('starter.controllers', [])
 
                     //as there are some predictions, enable the delete and clear buttons
                     $scope.deleteDisabled = false;
-                    $scope.clearDisabled = true;
+                    $scope.clearDisabled = false;
 
                     //now loop over fixtures and add in these predictions!
                     for (var i = 0; i < $scope.fixtures.length ; i++){
@@ -209,8 +209,6 @@ angular.module('starter.controllers', [])
 
         $scope.getBackgroundColour = function(fixture) { //should be passing in the entire fixture object
 
-            debugger;
-
             var predictionClass;
 
             //find prediction for this fixture
@@ -270,7 +268,7 @@ angular.module('starter.controllers', [])
             for(var i = 0; i < _predictions.length; i++) {
                 if (fixture._id == _predictions[i].fixture) {
                     //then return the prediction for this fixture else leave undefined
-                    _predictions[i].prediction = null;
+                    _predictions.splice(i ,1); //delete this object from the predictions array.
                 }
             }
 
@@ -294,6 +292,12 @@ angular.module('starter.controllers', [])
                     SaveChanges.saveChangesNotNeeded();
                 }
             }
+
+            //check whether or not to disable the clear all button
+            debugger;
+            if (_predictions.length == 0) {
+                $scope.clearDisabled = true;
+            }
         };
 
         //once predictions are all validated, and predict button send, send all predictions
@@ -302,39 +306,6 @@ angular.module('starter.controllers', [])
             //mock out the username for now.
 
             var user = '***REMOVED***6969';
-
-            //before validating the predictions, see if the predictions are the same as those on server
-            //if no changes have been made, don't bother and exit out and shout at the user
-            var diffFlag = false;
-
-            for (var i = 0; i < _predictions.length; i++) {
-                //loop over and compare to predictions
-                for (var j = 0; j < $scope.existingPredictions.length; j++) {
-                    //if the prediction for matching fixtures is different...
-                    if ((_predictions[i].fixture == $scope.existingPredictions[j].fixture) && !(_predictions[i].prediction == $scope.existingPredictions[j].prediction)) {
-                        //trigger the diffFlag
-                        diffFlag = true; //there is a difference between the predictions on the server and new ones.
-                        break; //break out of the inner loop
-                    }
-                }
-
-                //check the diffFlag before iterating
-                if (diffFlag) {
-                    //exit the outer loop
-                    break;
-                }
-            }
-
-            //Now check to see if new and old predictions are the same via the flag
-            if (!diffFlag) {
-                $ionicPopup.alert({
-                    title: 'Predictions Unchanged!',
-                    template: 'The predictions you are submitted have not been changed, change some and try again.'
-                });
-
-                //exit the function
-                return;
-            }
 
             //TODO: Try to replace the below for loops with angular.forEach
             //Validate that predictions have been made for every fixture in this round
@@ -389,8 +360,52 @@ angular.module('starter.controllers', [])
 
             }
 
+            //after validating the predictions, see if the predictions are the same as those on server
+            //if no changes have been made, don't bother and exit out and shout at the user
+
             //if the predictions are valid, send them off to the server
             if (validPredictions) {
+
+                debugger
+
+                var diffFlag = false;
+
+                for (var i = 0; i < _predictions.length; i++) {
+                    //loop over and compare to
+
+                    //if there are existing predictions, compare
+                    if ($scope.existingPredictions.length) {
+                        for (var j = 0; j < $scope.existingPredictions.length; j++) {
+                            //if the prediction for matching fixtures is different...
+                            if ((_predictions[i].fixture == $scope.existingPredictions[j].fixture) && !(_predictions[i].prediction == $scope.existingPredictions[j].prediction)) {
+                                //trigger the diffFlag
+                                diffFlag = true; //there is a difference between the predictions on the server and new ones.
+                                break; //break out of the inner loop
+                            }
+                        }
+                    } else {
+                        //there are no existing predictions, so new values will always be different
+                        diffFlag = true;
+                    }
+
+                    //check the diffFlag before iterating
+                    if (diffFlag) {
+                        //exit the outer loop
+                        break;
+                    }
+                }
+
+                //Now check to see if new and old predictions are the same via the flag
+                if (diffFlag == false) {
+                    $ionicPopup.alert({
+                        title: 'Predictions Unchanged!',
+                        template: 'The predictions you are submitting are the same as those on the server, change some and try again.'
+                    });
+
+                    //exit the function
+                    return;
+                }
+
                 debugger;
                 //Send the validatied predictions
 
@@ -399,72 +414,90 @@ angular.module('starter.controllers', [])
                     //update existing predictions!
                     debugger;
 
+                    //warn user that updating will mean points get lost
+                    $ionicPopup.confirm({
+                        title: 'Updating means less points!',
+                        template: 'Are you sure you want to update? Doing so will mean you earn less points.'
+                    }).then(function(res) {
+                        if(res) {
+                            console.log('You are sure');
+                            //then continue as normal
 
-                    //compare differences of new predictions to old ones, add to array of predictions to update
-                    //loop over old predictions and compare to new
-                    for (var i = 0; i < $scope.predictionsOnServer.length; i++){ //arrays are indexed by 0
 
-                        var currentExistingPrediction = $scope.predictionsOnServer[i];
+                            //compare differences of new predictions to old ones, add to array of predictions to update
+                            //loop over old predictions and compare to new
+                            for (var i = 0; i < $scope.predictionsOnServer.length; i++){ //arrays are indexed by 0
 
-                        for (var j = 0; j < _predictions.length; j++) {
+                                var currentExistingPrediction = $scope.predictionsOnServer[i];
 
-                            var currentUpdatedPrediction = _predictions[j];
+                                for (var j = 0; j < _predictions.length; j++) {
 
-                            //if fixture id is the same, but the prediction is different
-                            if ((currentExistingPrediction.fixture == currentUpdatedPrediction.fixture) &&
-                                (currentExistingPrediction.prediction != currentUpdatedPrediction.prediction)) {
+                                    var currentUpdatedPrediction = _predictions[j];
 
-                                //TODO: Here assign the fixture ID back into the prediction to be updated!!!
-                                debugger;
-                                currentUpdatedPrediction._id = currentExistingPrediction._id;
+                                    //if fixture id is the same, but the prediction is different
+                                    if ((currentExistingPrediction.fixture == currentUpdatedPrediction.fixture) &&
+                                        (currentExistingPrediction.prediction != currentUpdatedPrediction.prediction)) {
 
-                                //add this prediction to the list of predictions to be updated
-                                predictionsToUpdate.push(currentUpdatedPrediction);
+                                        //TODO: Here assign the fixture ID back into the prediction to be updated!!!
+                                        debugger;
+                                        currentUpdatedPrediction._id = currentExistingPrediction._id;
+
+                                        //add this prediction to the list of predictions to be updated
+                                        predictionsToUpdate.push(currentUpdatedPrediction);
+                                    }
+                                }
                             }
+
+                            //once you have a list of predictions to update, async for loop and update
+                            for (var i = 0, c = predictionsToUpdate.length; i < c; i++)
+                            {
+                                // creating an Immiedately Invoked Function Expression
+                                (function( prediction ) {
+
+                                    //call the async function
+                                    Rounds.updatePrediction(user, prediction);
+
+                                })(predictionsToUpdate[i]); //use dogballs (a closure)
+                                // passing predictions[i] in as "path" in the closure
+                            }
+
+                            //mark changes as not being required.
+                            SaveChanges.saveChangesNotNeeded();
+
+                            //now enable the delete and clear buttons also
+                            $scope.deleteDisabled = false;
+                            $scope.clearDisabled = false;
+
+
+                            //tell the user things have been updated
+                            $ionicPopup.alert(
+                                {
+                                    title: 'Your predictions have been updated!',
+                                    template: 'Let\'s hope you do better than you previously would have!'
+                                });
+
+                        } else {
+                            console.log('You are not sure');
+                            //leave the function
+                            return
                         }
-                    }
-
-                    //once you have a list of predictions to update, async for loop and update
-                    for (var i = 0, c = predictionsToUpdate.length; i < c; i++)
-                    {
-                        // creating an Immiedately Invoked Function Expression
-                        (function( prediction ) {
-
-                            //call the async function
-                            Rounds.updatePrediction(user, prediction);
-
-                        })(predictionsToUpdate[i]); //use dogballs (a closure)
-                        // passing predictions[i] in as "path" in the closure
-                    }
-
-                    //mark changes as not being required.
-                    SaveChanges.saveChangesNotNeeded();
-
-                    //now enable the delete and clear buttons also
-                    $scope.deleteDisabled = false;
-                    $scope.clearDisabled = false;
-
-
-                    //tell the user things have been updated
-                    $ionicPopup.alert(
-                        {
-                            title: 'Your predictions have been updated!',
-                            template: 'Let\'s hope you do better than you previously would have!'
-                        });
-
-                } else { //make a set of new predictions
-                    Rounds.makePredictions(user, $stateParams.roundId, _predictions).then(function(){
-                        $ionicPopup.alert({
-                                title: 'Your predictions have been made!',
-                                template: 'Let\'s hope you do well!'
-                        });
-
-                        //changes have just been saved so no longer need this
-                        SaveChanges.saveChangesNotNeeded();
-
-                        _getExistingPredictions();
                     });
 
+                } else { //make a set of new predictions
+                    Rounds.makePredictions(user, $stateParams.roundId, _predictions);
+
+                    $ionicPopup.alert({
+                        title: 'Your predictions have been made!',
+                        template: 'Let\'s hope you do well!'
+                    });
+
+                    //changes have just been saved so no longer need this
+                    SaveChanges.saveChangesNotNeeded();
+
+                    //_getExistingPredictions();
+
+                    //enable the delete button
+                    $scope.deleteDisabled = false;
                 }
             }
         };
@@ -492,10 +525,24 @@ angular.module('starter.controllers', [])
                                 }
                             );
 
+                            //need to delete all predictions from $scope.fixtures
+                            for (var i = 0; i < $scope.fixtures.length; i++) {
+                                //for each, remove the prediction
+                                $scope.fixtures[i].prediction = null;
+                            }
+
+                            //$scope.$apply(); //try to get ui to refresh!
+
                             //changes have been saved
                             SaveChanges.saveChangesNotNeeded();
 
                             _getExistingPredictions();
+
+                            //disable delete button
+                            $scope.deleteDisabled = true;
+
+                            //disbale clear button
+                            $scope.clearDisabled = true;
                         }
                     );
                 } else {

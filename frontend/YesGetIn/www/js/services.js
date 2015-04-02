@@ -2,8 +2,8 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        //var SERVER = "http://localhost:8000";
+        var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         var rounds = [];
 
@@ -142,8 +142,8 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Scoreboard', ['$http', '$q', function($http, $q) {
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        //var SERVER = "http://localhost:8000";
+        var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         return {
             all: function() {

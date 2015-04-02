@@ -272,6 +272,9 @@ angular.module('starter.controllers', [])
                 }
             }
 
+            //assume that a save will be needed and negate this if necessary
+            SaveChanges.saveChangesNeeded();
+
             var saveNeeded = false; //flag to denote if the user needs to save any changes or not
 
             //only loop if there were no predictions made to begin with

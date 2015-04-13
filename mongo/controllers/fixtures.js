@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var http = require('http');
+var https = require('https');
 var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 
@@ -38,6 +40,50 @@ exports.getGroupedFixtures = function(req, res) {
     }
     return res.jsonp(newData);
   });
+};
+
+//function to call to the football-api and retrieve the league table
+exports.getStandings = function(req, res) {
+    debugger;
+
+    console.log("rest::getStandings");
+
+    //set the option settings which will always be the same here
+    var options = {
+        host: 'football-api.com',
+        path: '/api/?Action=standings&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    var obj = {}; //variable to hold the returned json
+    var req2 = http.get(options, function(res2)
+    {
+        var output = '';
+        console.log(options.host + ':' + res2.statusCode);
+        res2.setEncoding('utf8');
+
+        res2.on('data', function (chunk) {
+            output += chunk;
+        });
+
+        res2.on('end', function() {
+            obj = JSON.parse(output);
+            console.log(obj);
+            return res.jsonp(output);
+        });
+    });
+
+    req2.on('error', function(err) {
+        //res2.send('error: ' + err.message);
+    });
+
+    req2.end();
+
+    console.log(obj);
+
+    return obj;
 };
 
 exports.addFixtures = function(req, res) {

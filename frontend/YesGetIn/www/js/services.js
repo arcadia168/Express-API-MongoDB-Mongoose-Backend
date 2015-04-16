@@ -2,8 +2,8 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
 
-        //var SERVER = "http://localhost:8000";
-        var SERVER = "http://nodejs-getin.rhcloud.com/";
+        var SERVER = "http://localhost:8000";
+        //var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         var rounds = [];
 
@@ -142,8 +142,10 @@ angular.module('starter.services', ['ngResource'])
 
     .factory('Scoreboard', ['$http', '$q', function($http, $q) {
 
-        //var SERVER = "http://localhost:8000";
-        var SERVER = "http://nodejs-getin.rhcloud.com/";
+        //TODO: Sort out the formatting and indentation of these promise functions
+
+        var SERVER = "http://localhost:8000";
+        //var SERVER = "http://nodejs-getin.rhcloud.com/";
 
         return {
             all: function() {
@@ -156,6 +158,29 @@ angular.module('starter.services', ['ngResource'])
                         rounds = data;
                         deferred.resolve(data);
                     }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        deferred.promise; //TODO: Remove these deferred.promise statements, not quite sure what they do.
+                    });
+                return deferred.promise;
+            }
+        }
+    }])
+
+    .factory('LeagueTable', ['$http', '$q', function($http, $q) {
+
+        var SERVER = "http://localhost:8000";
+        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+
+        return {
+            all: function() {
+                var deferred = $q.defer();
+
+                //Retrieve the English Premiere League standings
+                $http.get(SERVER + '/standings').success(
+                    function(data) {
+                        deferred.resolve(data);
+                    }).error(
+                    function(){
                         console.log("Error while making HTTP call.");
                         deferred.promise;
                     });

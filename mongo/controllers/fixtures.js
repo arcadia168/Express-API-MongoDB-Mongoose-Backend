@@ -71,19 +71,9 @@ exports.getStandings = function(req, res) {
         res2.on('end', function() {
             obj = JSON.parse(output);
             console.log(obj);
-            return res.jsonp(output);
+            return res.jsonp(obj);
         });
     });
-
-    req2.on('error', function(err) {
-        //res2.send('error: ' + err.message);
-    });
-
-    req2.end();
-
-    console.log(obj);
-
-    return obj;
 };
 
 exports.addFixtures = function(req, res) {

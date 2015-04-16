@@ -21,3 +21,8 @@ ion-item.item.draw-predicted {
 .ion-ios-close-empty {
     right: 0% !important;
 }
+
+/* Styling the ng-table standings */
+.ng-table {
+    border: 1px solid #00A000;
+}

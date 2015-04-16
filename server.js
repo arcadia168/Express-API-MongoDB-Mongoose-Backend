@@ -10,6 +10,13 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var app = express();
 var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
+//configure auth0
+var jwt = require('express-jwt');
+
+var jwtCheck = jwt({
+    secret: new Buffer('fpQpckeWWFKr444cvgx3ImOrnBQkjESj57QEkIsMxEWcjalZX8FVNxEFC_DeE8rk', 'base64'),
+    audience: 'Ny44FwyaGBQvKOV9FxIRDX6JvogUm80j'
+});
 
 
 if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
@@ -32,6 +39,10 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     next();
 });
+
+//here I THINK we are stating that we wish to use the jwtCheck middleware on the specified routes for our API
+//define this for each app route that is user specific
+app.use('/users/rounds', jwtCheck);
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');

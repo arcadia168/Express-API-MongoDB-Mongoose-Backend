@@ -1,0 +1,12 @@
+{
+  "name": "YesGetIn",
+  "app_id": "17ad87a3",
+  "gulpStartupTasks": [
+    "sass",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ]
+}

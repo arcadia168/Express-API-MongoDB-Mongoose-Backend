@@ -1,10 +1,15 @@
 module.exports = function(app){
     var fixtures = require('./mongo/controllers/fixtures');
     var users = require('./mongo/controllers/users');
+    var privateLeagues = require('./mongo/controllers/privateleagues');
 
     app.get('/users/:user_id', users.getUserData);
     app.get('/users/predictions/:user_id', users.getPredictions);
     app.get('/users/predictions/:user_id/:round', users.findRoundPredictions);
+    app.get('/users/create_private_league/:user_id/:private_league_name', privateLeagues.createPrivateLeague);
+    app.get('/users/private_leagues/invite/:user_id', privateLeagues.getPrivateLeagues);
+    app.get('/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember);
+    app.get('/user/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember);
     app.post('/users', users.addUser);
     app.post('/users/sync', users.userSync);
     app.post('/users/predictions/:user_id/:round', users.addPredictions);

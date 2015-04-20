@@ -46,6 +46,7 @@ app.use('/users/rounds', jwtCheck);
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');
+require('./mongo/models/privateleaguemodel');
 require('./routes')(app);
 
 //CHANGE THIS FOR LOCAL DEVELOPMENT

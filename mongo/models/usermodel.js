@@ -10,7 +10,9 @@ var userSchema = new Schema({
     //email: { type: String, required: true },
     name: { type: String, required: true },
     predictions: [Prediction],
-    score: { type: Number, default: 0 }
+    notifications: [{message: String}],
+    invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
+    score: { type: Number, default: 0 } //TODO: Add a url to a user picture! - Get this from Auth0
 });
 
 userSchema.pre('save', function(next) { var user = this;

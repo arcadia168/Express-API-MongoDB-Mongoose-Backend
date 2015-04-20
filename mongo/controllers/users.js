@@ -28,12 +28,13 @@ exports.userSync = function(req, res) {
 
     User.findOne({'user_id': user_id}, function(err, result) {
         //if no user with this user_id exists, create one
-        //TODO: Remove or comment these out when happy with them.
-        console.log(req.body);
-        console.log('The result of looking for user ' + req.body.name + ' was ' + result);
-        console.log('User ID: ' + user_id);
-        console.log('Username: ' + req.body.nickname);
-        console.log('Name: ' + req.body.name);
+
+        //Debugging code
+        //console.log(req.body);
+        //console.log('The result of looking for user ' + req.body.name + ' was ' + result);
+        //console.log('User ID: ' + user_id);
+        //console.log('Username: ' + req.body.nickname);
+        //console.log('Name: ' + req.body.name);
 
         if (result == null){
 

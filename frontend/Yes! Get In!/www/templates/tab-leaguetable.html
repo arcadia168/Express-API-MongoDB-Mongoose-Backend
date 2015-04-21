@@ -1,6 +1,6 @@
 <ion-view view-title="League Table">
     <ion-content>
-        <div class="row"><p class="col">Pos</p><p class="col-25">Team</p><p class="col">GP</p><p class="col">W</p><p class="col">D</p><p class="col">L</p><p class="col">Pts</p></div>
+        <div class="row row-header"><p class="col">Pos</p><p class="col-25">Team</p><p class="col">GP</p><p class="col">W</p><p class="col">D</p><p class="col">L</p><p class="col">Pts</p></div>
         <div class="row" ng-model="standings" ng-repeat="standing in standings track by $index">
             <div class="col">{{standing.stand_position}}</div>
             <div class="col-25">{{standing.stand_team_name}}</div>

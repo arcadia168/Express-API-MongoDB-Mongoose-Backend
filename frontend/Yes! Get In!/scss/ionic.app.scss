@@ -7,7 +7,7 @@ For example, you might change some of the default colors:
 YES! GET IN! GREEN  #50EF8C !default;
 
 */
-$light:                           #fff    !default;
+$light:                           #e9f5e7    !default;
 $stable:                          #50EF8C !default; // This is the one we want #f8f8f8 !default;
 $positive:                        #fff    !default;//#387ef5 !default;
 $calm:                            #fff    !default; //#11c1f3 !default;
@@ -25,7 +25,6 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 @import "www/lib/ionic/scss/ionic";
 
 
-/* Empty. Add your own CSS if you like */
 ion-item.item.home-win-predicted {
   background-color: #00A000;
   color: #ffffff !important;
@@ -49,9 +48,28 @@ ion-item.item.draw-predicted {
   right: 0% !important;
 }
 
-/* Styling the ng-table standings */
+
+
+/* 
+  ng-table standings 
+*/
 .ng-table {
   border: 1px solid #00A000;
+}
+
+ion-view[view-title="League Table"] {
+
+  .row-header {
+    background: $stable;
+    color:#fff;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .row:nth-child(2n) {
+    background: $light;
+  }
+
 }
 
 .col-25 {

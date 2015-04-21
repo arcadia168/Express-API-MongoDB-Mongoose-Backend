@@ -26,9 +26,9 @@ exports.createPrivateLeague = function(req, res){
         members:
             [
                 {
-                    user_id: user_id
+                    user_id: user_id //add the creator of the private league as a member of the private league
                 }
-            ] //add the creator of the private league as a member of the private league
+            ]
     };
 
     //Create the private league
@@ -56,12 +56,18 @@ exports.getPrivateLeagues = function(req, res){
 
 };
 
-//TODO: Need to validate the user that is requesting the removal, ensure they are an owner/admin of the leagues
 exports.removePrivateLeagueMember = function(req, res){
     //Get user_id of member to remove
     var removeUserId = req.params.remove_user_id;
 
+    //Get user_id of the user trying to perform the operation for validation
+    var user_id = req.params.user_id;
+
     var removeUserWithObjectId = null;
+
+    var member_exists = false;
+
+    //check the user_id of the user making the request, if they are not the league owner, they cannot do this
 
     //Get the private league id
     var privateLeagueId = req.params.private_league_id;
@@ -76,6 +82,13 @@ exports.removePrivateLeagueMember = function(req, res){
             return res.jsonp("No such private league exists.")
         }
 
+        console.log('The owner of this private league is user: ' + privateLeague.creator)
+        //ensure that the user attempting to make the change is entitle to do so
+        if (!privateLeague.creator == user_id) { //todo: make this an array of league 'admins', maybe, later, yeah, later.
+            //if the user making the request is not the owner, they can't do this
+            return res.jsonp(403) //code which denotes access denied
+        }
+
         //Pull this member from the array
         console.log('The corresponding private league has been successfully found: ' + privateLeague);
         console.log('Now attempting to remove the user with user_id: ' + removeUserId + ' from the Private League: ' + privateLeagueId);
@@ -87,6 +100,8 @@ exports.removePrivateLeagueMember = function(req, res){
             console.log('Iterating over loop, looking for private league member with id: ' + removeUserId);
 
             if (privateLeague.members[i].user_id == removeUserId) {
+
+                member_exists = true;
 
                 console.log('Private league member ' + privateLeague.members[i].user_id + ' found');
 
@@ -109,13 +124,52 @@ exports.removePrivateLeagueMember = function(req, res){
                 });
             }
         }
+
+        console.log('Specified user was not a member of the private league and was hence not removed, exiting.')
+        return res.jsonp('member was not found in private league');
     });
 };
 
 exports.deletePrivateLeague = function(req, res){
+
+    //get the private league id from the url params
+    var privateLeagueId = req.params.private_league_id;
+
+    //get the user_id of the user attempting to delete the private league
+    var user_id = req.params.user_id;
+
+    console.log('User ' + user_id + ' is attempting to delete the private league ' + privateLeagueId);
+
+    //TODO: Check that the user asking to delete the private league is an admin of the private league
+    PrivateLeague.findOne({ 'privateLeagueId' : privateLeagueId}, 'creator' , function(error, creator) {
+
+        if (creator == null) {
+            return;
+        }
+
+        console.log(creator);
+        console.log('The creator of the private league that user is attempting to delete is: ' + creator.creator);
+
+        //if user trying to delete is not the creator of the private league, they lack the priviledge to delete, so error
+        if (creator.creator != user_id) {
+            console.log('The user attempting to delete the private league with id: ' + privateLeagueId + ' does not have sufficient priviledges')
+            return res.jsonp('403'); //403 means insufficient priviledges/access denied.
+        };
+    });
+
     //Get private league id to remove
+    var remove_league = req.params.private_league_id;
 
     //Remove the whole private league document
+    PrivateLeague.remove({ 'privateLeagueId' : remove_league}, function(error){
+        if (error) return res.jsonp(error);
+
+        console.log('Private League with id: ' + privateLeagueId + ' was removed');
+
+        //return accepted status code
+        return res.jsonp(202);
+    });
+
 };
 
 exports.invitePrivateLeagueMember = function(req, res){
@@ -229,12 +283,42 @@ exports.invitePrivateLeagueMember = function(req, res){
 
 //upon accepting an invitation
 exports.addPrivateLeagueMember = function(req, res){
-    //Get the user_id of the invitee
+    //Get the user_id of the invitee, accepting the invitation
+    var user_id = req.params.user_id;
+    var username = null;
+    var user_score = null;
 
     //Get the privateLeagueId of the league to which the member is being added
+    var privateLeagueId = req.params.private_league_id;
+
+    //also ADD THIS USERS NAME AND SCORE - or is this duplication of data!?
+    User.findOne({ 'user_id' : user_id}, 'username score', function(error, results){
+
+        //first ensure that some results were returned
+        if (results == null) {
+            console.log('Requesting user was not found on server.');
+            return res.jsonp(404); //user not found
+        };
+
+        console.log('Now attempting to assign the username: ' + results.username + ' and the score ' + results.score);
+
+        //assign the user's username and score to variables to be stored in private league
+        username = results.username;
+        user_score = results.score;
+    });
 
     //Add this user_id to the privateLeague's members array - findOne, alter, save.
+    PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, 'members', function(error, members) {
 
-    //also ADD THIS USERS NAME AND SCORE
+        //ensure that the private league the user is attempting to add a member to exists
+
+        //ensure that the user that is attempting to be added to the private league has been invited
+
+        //construct the object to be added to the members array of the private league
+
+        //push the new member
+
+        //save the change made to this private league. 
+    });
 };
 

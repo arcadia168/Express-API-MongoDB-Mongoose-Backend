@@ -9,7 +9,8 @@ module.exports = function(app){
     app.get('/users/create_private_league/:user_id/:private_league_name', privateLeagues.createPrivateLeague);
     app.get('/users/private_leagues/invite/:user_id', privateLeagues.getPrivateLeagues);
     app.get('/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember);
-    app.get('/user/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember);
+    app.delete('/user/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember);
+    app.delete('/user/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague);
     app.post('/users', users.addUser);
     app.post('/users/sync', users.userSync);
     app.post('/users/predictions/:user_id/:round', users.addPredictions);

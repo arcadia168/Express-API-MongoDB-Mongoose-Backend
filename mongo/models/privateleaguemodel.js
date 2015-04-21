@@ -8,8 +8,8 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 //A private league is simply a collection of user_ids for which to display scores.
 var privateLeagueSchema = new Schema({
     privateLeagueId: { type: ObjectId},
-    privateLeagueName: { type: String, required: true},
-    creator: { type: String, index: true, required: true },
+    privateLeagueName: { type: String},
+    creator: { type: String, index: true},
     members: [{ user_id: String, username: String, score: Number}], //include pic url?
     dateCreated: { type: Date, default: Date.now }
 });

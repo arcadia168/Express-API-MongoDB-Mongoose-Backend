@@ -62,29 +62,29 @@ exports.getGroupedFixtures = function(req, res) {
 
         var newData = {rounds:[]};
 
-        var set = new MiniSet();
+        var set = new MiniSet(); //is the issue this?
 
-        //for(var i = 0; i < data.length; i++) {
-        //
-        //    var obj = data[i];
-        //
-        //    // if this round already exists in the list add it else make a new JSON object
-        //
-        //    var roundNum = Number(obj.round.toString());
-        //    console.log('Now working on round number: ' + roundNum);
-        //
-        //    if(set.has(roundNum)) {
-        //        console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
-        //        // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
-        //        newData.rounds[roundNum-1].data.push(obj);
-        //    } else {
-        //        var stringData = JSON.stringify(obj);
-        //        console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
-        //        var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
-        //        newData.rounds.push(nextData);
-        //        set.add(roundNum);
-        //    }
-        //}
+        for(var i = 0; i < data.length; i++) {
+
+            var obj = data[i];
+
+            // if this round already exists in the list add it else make a new JSON object
+
+            var roundNum = Number(obj.round.toString());
+            console.log('Now working on round number: ' + roundNum);
+
+            if(set.has(roundNum)) {
+                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
+                // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
+                newData.rounds[roundNum-1].data.push(obj);
+            } else {
+                var stringData = JSON.stringify(obj);
+                console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
+                var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
+                newData.rounds.push(nextData);
+                set.add(roundNum);
+            }
+        };
 
         console.log('Now returning to the user: ' + JSON.stringify(newData));
         return res.jsonp(200);

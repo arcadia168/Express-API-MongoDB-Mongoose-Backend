@@ -5,45 +5,45 @@ var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function(req, res) {
-/*    Fixture.find({}, function(err, results) {
-        return res.jsonp(results);
-    });*/
-
-    console.log('Getting rounds');
     Fixture.find({}, function(err, results) {
-        var data = JSON.parse(JSON.stringify(results));
-
-        console.log('Parsing fixture data ' + data + ' into rounds');
-
-        var newData = {rounds:[]};
-
-        var set = new MiniSet();
-
-        for(var i = 0; i < data.length; i++) {
-
-            var obj = data[i];
-
-            // if this round already exists in the list add it else make a new JSON object
-
-            var roundNum = Number(obj.round.toString());
-            console.log('Now working on round number: ' + roundNum);
-
-            if(set.has(roundNum)) {
-                console.log('The set already has the round ' + roundNum + ' just adding in ' + obj);
-                // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
-                newData.rounds[roundNum-1].data.push(obj);
-            } else {
-                var stringData = JSON.stringify(obj);
-                console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
-                var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
-                newData.rounds.push(nextData);
-                set.add(roundNum);
-            }
-        }
-
-        console.logs('Now returning to the user: ' + newData);
-        return res.jsonp(newData);
+        return res.jsonp(results);
     });
+
+    //console.log('Getting rounds');
+    //Fixture.find({}, function(err, results) {
+    //    var data = JSON.parse(JSON.stringify(results));
+    //
+    //    console.log('Parsing fixture data ' + data + ' into rounds');
+    //
+    //    var newData = {rounds:[]};
+    //
+    //    var set = new MiniSet();
+    //
+    //    for(var i = 0; i < data.length; i++) {
+    //
+    //        var obj = data[i];
+    //
+    //        // if this round already exists in the list add it else make a new JSON object
+    //
+    //        var roundNum = Number(obj.round.toString());
+    //        console.log('Now working on round number: ' + roundNum);
+    //
+    //        if(set.has(roundNum)) {
+    //            console.log('The set already has the round ' + roundNum + ' just adding in ' + obj);
+    //            // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
+    //            newData.rounds[roundNum-1].data.push(obj);
+    //        } else {
+    //            var stringData = JSON.stringify(obj);
+    //            console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
+    //            var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
+    //            newData.rounds.push(nextData);
+    //            set.add(roundNum);
+    //        }
+    //    }
+    //
+    //    console.log('Now returning to the user: ' + newData);
+    //    return res.jsonp(newData);
+    //});
 };
 
 exports.getRound = function(req, res) {
@@ -58,7 +58,7 @@ exports.getGroupedFixtures = function(req, res) {
     Fixture.find({}, function(err, results) {
         var data = JSON.parse(JSON.stringify(results));
 
-        console.log('Parsing fixture data ' + data + ' into rounds');
+        console.log('Parsing fixture data ' + results + ' into rounds');
 
         var newData = {rounds:[]};
 
@@ -74,7 +74,7 @@ exports.getGroupedFixtures = function(req, res) {
             console.log('Now working on round number: ' + roundNum);
 
             if(set.has(roundNum)) {
-                console.log('The set already has the round ' + roundNum + ' just adding in ' + obj);
+                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
                 newData.rounds[roundNum-1].data.push(obj);
             } else {
@@ -86,7 +86,7 @@ exports.getGroupedFixtures = function(req, res) {
             }
         }
 
-        console.logs('Now returning to the user: ' + newData);
+        console.log('Now returning to the user: ' + JSON.stringify(newData));
         return res.jsonp(newData);
     });
 };

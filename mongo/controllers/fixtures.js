@@ -62,7 +62,8 @@ exports.getGroupedFixtures = function(req, res) {
 
         var newData = {rounds:[]};
 
-        var set = new MiniSet(); //is the issue this?
+        var newSet = new MiniSet(); //is the issue this?
+        console.log(newSet);
 
         for(var i = 0; i < data.length; i++) {
 
@@ -73,7 +74,7 @@ exports.getGroupedFixtures = function(req, res) {
             var roundNum = Number(obj.round.toString());
             console.log('Now working on round number: ' + roundNum);
 
-            if(set.has(roundNum)) {
+            if(newSet.has(roundNum)) {
                 console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
                 newData.rounds[roundNum-1].data.push(obj);
@@ -82,7 +83,7 @@ exports.getGroupedFixtures = function(req, res) {
                 console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
                 var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
                 newData.rounds.push(nextData);
-                set.add(roundNum);
+                newSet.add(roundNum);
             }
         };
 

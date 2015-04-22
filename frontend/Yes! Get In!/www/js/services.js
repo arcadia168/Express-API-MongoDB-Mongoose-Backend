@@ -11,9 +11,9 @@ angular.module('starter.services', ['ngResource'])
         var runMode = {}; //object to be returned by the factory for use all over - this is a singleton (I think)
 
         if (debugRelease == 'release') {
-            serverToUse = "http://nodejs-getin.rhcloud.com";
+            serverToUse = "http://nodejs-getin.rhcloud.com/api";
         } else { //inefficiency for the sake of ease of reading here
-            serverToUse = "http://localhost:8000";
+            serverToUse = "http://localhost:8000/api";
         }
 
         //Now assign the server being used to a property of the service

@@ -43,9 +43,9 @@ app.use(function(req, res, next) {
 //here I THINK we are stating that we wish to use the jwtCheck middleware on the specified routes for our API
 //define this for each app route that is user specific
 //app.use('/users/rounds', jwtCheck);
-app.use('api/users/', jwtCheck);
+app.use('api/users', jwtCheck);
 
-//TODO: protect various endpoints here.
+//TODO: protect various endpoints here and the routes explicitly
 
 require('./mongo/models/usermodel');
 require('./mongo/models/fixturemodel');

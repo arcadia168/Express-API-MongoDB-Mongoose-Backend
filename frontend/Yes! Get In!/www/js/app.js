@@ -129,6 +129,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                         templateUrl: 'templates/round-detail.html',
                         controller: 'RoundDetailCtrl'
                     }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
                 }
             })
 
@@ -139,6 +145,42 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                         templateUrl: 'templates/tab-scoreboard.html',
                         controller: 'ScoreboardCtrl'
                     }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
+                }
+            })
+            .state('tab.scoreboard-private-leagues', {
+                url: '/scoreboard/privateleagues',
+                views: {
+                    'tab-scoreboard' : {
+                        templateUrl: 'templates/scoreboard-private-leagues-detail.html',
+                        controller: 'PrivateLeaguesCtrl'
+                    }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
+                }
+            })
+            .state('tab.scoreboard-global', {
+                url: '/scoreboard/global',
+                views: {
+                    'tab-scoreboard' : {
+                        templateUrl: 'templates/scoreboard-global-detail.html',
+                        controller:  'GlobalScoreboardCtrl'
+                    }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
                 }
             })
 
@@ -149,28 +191,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                         templateUrl: 'templates/tab-leaguetable.html',
                         controller: 'LeagueTableCtrl'
                     }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
                 }
             })
-
-            //.state('tab.friends', {
-            //    url: '/friends',
-            //    views: {
-            //        'tab-friends': {
-            //            templateUrl: 'templates/tab-friends.html',
-            //            controller: 'FriendsCtrl'
-            //        }
-            //    }
-            //})
-            //.state('tab.friend-detail', {
-            //    url: '/friend/:friendId',
-            //    views: {
-            //        'tab-friends': {
-            //            templateUrl: 'templates/friend-detail.html',
-            //            controller: 'FriendDetailCtrl'
-            //        }
-            //    }
-            //})
-
             .state('tab.account', {
                 url: '/account',
                 views: {
@@ -207,12 +235,12 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         auth.hookEvents();
 
         $rootScope.$on('loading:show', function() {
-            $ionicLoading.show({template: 'Fetching data from server'})
-        })
+            $ionicLoading.show({template: 'Fetching data from server'}) //TODO: ADD A SPINNER IN HERE
+        });
 
         $rootScope.$on('loading:hide', function() {
             $ionicLoading.hide()
-        })
+        });
 
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard

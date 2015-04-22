@@ -1,9 +1,34 @@
 angular.module('starter.services', ['ngResource'])
 
-    .factory('Rounds', ['$http', '$q', '$resource', function($http, $q, $resource) {
+//Using a service to create  a globally accessible variable
+    .factory('RunMode', [function(){
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        //TO SET THE WHOLE APP TO RELEASE MODE CHANGE THIS HERE
+        var debugRelease = 'release';
+
+        var serverToUse = '';
+
+        var runMode = {}; //object to be returned by the factory for use all over - this is a singleton (I think)
+
+        if (debugRelease == 'release') {
+            serverToUse = "http://nodejs-getin.rhcloud.com";
+        } else { //inefficiency for the sake of ease of reading here
+            serverToUse = "http://localhost:8000";
+        }
+
+        //Now assign the server being used to a property of the service
+        runMode.server = function() {
+            return serverToUse;
+        }
+
+        //return this object to quickly get which server to use
+        return runMode;
+    }])
+
+    .factory('Rounds', ['$http', '$q', 'RunMode', function($http, $q, RunMode) {
+
+        var SERVER = RunMode.server();
+        console.log(SERVER);
 
         var rounds = [];
 
@@ -140,12 +165,12 @@ angular.module('starter.services', ['ngResource'])
         }
     }])
 
-    .factory('Scoreboard', ['$http', '$q', function($http, $q) {
+    .factory('Scoreboard', ['$http', '$q', 'RunMode', function($http, $q, RunMode) {
 
         //TODO: Sort out the formatting and indentation of these promise functions
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        var SERVER = RunMode.server();
+        console.log(SERVER);
 
         return {
             all: function() {
@@ -166,10 +191,10 @@ angular.module('starter.services', ['ngResource'])
         }
     }])
 
-    .factory('LeagueTable', ['$http', '$q', function($http, $q) {
+    .factory('LeagueTable', ['$http', '$q', 'RunMode', function($http, $q, RunMode) {
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        var SERVER = RunMode.server();
+        console.log(SERVER);
 
         return {
             all: function() {
@@ -189,10 +214,9 @@ angular.module('starter.services', ['ngResource'])
         }
     }])
 
-    .factory('User', ['$http', '$q', function($http, $q){
+    .factory('User', ['$http', '$q', 'RunMode', function($http, $q, RunMode){
 
-        var SERVER = "http://localhost:8000";
-        //var SERVER = "http://nodejs-getin.rhcloud.com/";
+        var SERVER = RunMode.server();
 
         return {
             sync: function(user) {

@@ -3,10 +3,14 @@ angular.module('starter.controllers', [])
     .controller('LoginCtrl', function($scope, auth, $state, $ionicPopup, User) {
 
         auth.signin({
+
+            //THIS IS WHERE TO CONFIGURE THE AUTH0 OPTIONS SUCH AS CLOSABLE ETC...
+
             // This is a must for mobile projects
             popup: true,
             // Make the widget non closeable
             standalone: true,
+            closable: false,
             // This asks for the refresh token
             // So that the user never has to log in again
             offline_mode: true,
@@ -600,36 +604,87 @@ angular.module('starter.controllers', [])
 
     .controller('ScoreboardCtrl', function($scope, Scoreboard) {
 
+
+        $scope.test = function() {
+            $ionicPopup.alert({
+                title:    'Sup dawg!',
+                template: 'Sub bitchtits'
+            });
+        };
+    })
+
+    .controller('PrivateLeaguesCtrl', function($scope, auth) {
+
+        //get all of the private leagues for the user from the private league service
+
+    })
+
+    .controller('GlobalScoreboardCtrl', function($scope, Scoreboard, auth){
+
+        //Get the global scoreboard
         //Get the data for scores for leaderboard
         Scoreboard.all().then(function(data){
-
             $scope.scores = data;
         });
+
     })
 
-    .controller('FriendDetailCtrl', function($scope, $stateParams, Friends) {
-        $scope.friend = Friends.get($stateParams.friendId);
-    })
+    .controller('AccountCtrl', function($scope, User, auth) {
 
-    .controller('AccountCtrl', function($scope) {
-        alert("This feature has been disabled for the demo app.");
+        $scope.signOut = function() {
+            //call the signout method on the auth service
+            auth.signout();
 
-        //$scope.settings = {
-        //    enableFriends: true
-        //};
-    })
+            //need to manually display the login screen again
+            auth.signin({
 
-    .controller('DemoTabCtrl', function($scope, $ionicPopup, $state) {
-        //alert("This feature has been disabled for the demo app.");
+                //THIS IS WHERE TO CONFIGURE THE AUTH0 OPTIONS SUCH AS CLOSABLE ETC...
 
-        $scope.accessDeny = function() {
-            $ionicPopup.alert({
-                title: 'Tab not available in demo!',
-                template: 'This thing is a work in progress...'
-            }).then(function(res) {
+                // This is a must for mobile projects
+                popup: true,
+                // Make the widget non closeable
+                standalone: true,
+                closable: false,
+                // This asks for the refresh token
+                // So that the user never has to log in again
+                offline_mode: true,
+                device: 'Phone'
+            }, function() {
+                // Login was successful
 
-                //deflect the user from the tab which has not yet been implemented to a good tab
-                $state.transitionTo("tab.rounds");
+                //check to see if this user exists on the server already, if not, create this user using auth0 details
+                debugger;
+                User.sync(auth.profile);
+
+                $state.go('tab.rounds');
+
+                //show an alert for testing purposes
+                $ionicPopup.alert({
+                    title: 'Login successful!',
+                    template: 'Welcome ' + auth.profile.nickname + '!'
+                }).then(function(res){
+                    console.log(auth.profile);
+                });
+
+            }, function(error) {
+                // Oops something went wrong during login:
+                console.log("There was an error logging in", error);
             });
-        }
+        };
+
     });
+    //
+    //.controller('DemoTabCtrl', function($scope, $ionicPopup, $state) {
+    //    //alert("This feature has been disabled for the demo app.");
+    //
+    //    $scope.accessDeny = function() {
+    //        $ionicPopup.alert({
+    //            title: 'Tab not available in demo!',
+    //            template: 'This thing is a work in progress...'
+    //        }).then(function(res) {
+    //
+    //            //deflect the user from the tab which has not yet been implemented to a good tab
+    //            $state.transitionTo("tab.rounds");
+    //        });
+    //    }
+    //});

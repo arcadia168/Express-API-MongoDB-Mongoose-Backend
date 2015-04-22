@@ -1,14 +1,12 @@
-<ion-view view-title="<i class='icon ion-ribbon-a'></i>&nbsp;Leaderboard">
+<ion-view view-title="Leaderboard">
     <ion-content class="padding">
 
         <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
-
-        <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="scores"
-                  ng-repeat="score in scores"
-                  type="item-text-wrap">
-            <i class="icon ion-ribbon-b"></i>
-            <p><em>Position</em>: {{$index}} <em>User:</em> {{score.username}} <em>Score:</em> {{score.score}}</p>
-
+        <ion-item href="#/tab/scoreboard/global">
+            <div>Global Leaderboard</div>
+        </ion-item>
+        <ion-item href="#/tab/scoreboard/privateleagues">
+            <div>Private Leagues</div>
         </ion-item>
     </ion-content>
 </ion-view>

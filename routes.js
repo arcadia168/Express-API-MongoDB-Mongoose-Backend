@@ -3,14 +3,16 @@ module.exports = function(app){
     var users = require('./mongo/controllers/users');
     var privateLeagues = require('./mongo/controllers/privateleagues');
 
+    //TODO: MAKE URL GET REQUESTS WHICH DISPLAY SENSITIVE INFORMATION INTO POST REQUESTS, MOVE INFO INTO BODYS
     app.get('/users/:user_id', users.getUserData);
     app.get('/users/predictions/:user_id', users.getPredictions);
     app.get('/users/predictions/:user_id/:round', users.findRoundPredictions);
     app.get('/users/create_private_league/:user_id/:private_league_name', privateLeagues.createPrivateLeague);
     app.get('/users/private_leagues/invite/:user_id', privateLeagues.getPrivateLeagues);
     app.get('/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember);
-    app.delete('/user/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember);
-    app.delete('/user/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague);
+    app.get('/users/private_leagues/invite/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember);
+    app.get('/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague);
+    app.delete('/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague);
     app.post('/users', users.addUser);
     app.post('/users/sync', users.userSync);
     app.post('/users/predictions/:user_id/:round', users.addPredictions);

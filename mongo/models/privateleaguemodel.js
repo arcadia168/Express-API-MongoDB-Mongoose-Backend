@@ -10,7 +10,7 @@ var privateLeagueSchema = new Schema({
     privateLeagueId: { type: ObjectId},
     privateLeagueName: { type: String},
     creator: { type: String, index: true},
-    members: [{ user_id: String, username: String, score: Number}], //include pic url?
+    members: [{ user_id: String, username: String, score: Number, status: String}], //include pic url?
     dateCreated: { type: Date, default: Date.now }
 });
 

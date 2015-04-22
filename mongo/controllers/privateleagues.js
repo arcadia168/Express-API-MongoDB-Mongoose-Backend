@@ -172,6 +172,53 @@ exports.deletePrivateLeague = function(req, res){
 
 };
 
+exports.renamePrivateLeague = function(req, res) {
+    //Get the id of the private league to be renamed
+    var privateLeagueId = req.params.private_league_id;
+
+    //Get the user id of the user who is attempting to rename the private league
+    var user_id = req.params.user_id;
+
+    //Get the new name that the private league is attempting to be given
+    var new_name = req.params.new_league_name;
+
+    //Retrieve the private league with the corresponding id
+    PrivateLeague.findOne({ 'privateLeagueId' : privateLeagueId}, function(error, foundPrivateLeague){
+
+        //check that a private league with the corresponding id was found
+        if (foundPrivateLeague == null) {
+            console.log("No private league with that id was found");
+            res.jsonp(404);
+        }
+
+        console.log('the creator of the private league has user_id: ' + foundPrivateLeague.creator);
+        console.log('user_id of the user attempting to change the league name is: ' + user_id);
+        //check that the user issuing the command owns/created the private league and hence has permission
+        if (foundPrivateLeague.creator != user_id) {
+            //then the user making the command does not have persmission to change this private league
+            console.log("the user attempting to change the name of the private league does not have sufficient priviledges as they are not the creator of the league.");
+            return res.jsonp(403); //403 for permission denied
+        };
+
+        console.log('Now changing the private league with id: ' + privateLeagueId + ' to have the name: ' + new_name);
+        //now that that the league exists and the user has sufficient permission to change the name, do so
+        foundPrivateLeague.privateLeagueName = new_name;
+
+        console.log('Now attempting to save the new name into the private league.' + foundPrivateLeague.privateLeagueName);
+        //Now save the change to the name
+        foundPrivateLeague.save(function (err) {
+
+            if (err) return res.jsonp(err);
+
+            console.log('The private league with id: ' + privateLeagueId + ' had its name changed to: ' + new_name);
+
+            //return accepted status code
+            return res.jsonp(202);
+        });
+
+    });
+};
+
 exports.invitePrivateLeagueMember = function(req, res){
 
     //URL strcture should be
@@ -206,31 +253,31 @@ exports.invitePrivateLeagueMember = function(req, res){
         var privateLeagueName = '';
 
         //Get the name of the private league using the privateLeagueId
-        PrivateLeague.findOne({'privateLeagueId': new ObjectId(privateLeagueId)}, function(err, results){
+        PrivateLeague.findOne({'privateLeagueId': new ObjectId(privateLeagueId)}, function(err, foundPrivateLeague){
             //Check to see if any results were found, if not, return an error
 
             //For debugging
-            console.log('3. The private leagues found matching the provided privateLeagueId is: ' + results);
+            console.log('3. The private leagues found matching the provided privateLeagueId is: ' + foundPrivateLeague);
 
-            if (results == null) {
+            if (foundPrivateLeague == null) {
                 //exit out
                 console.log('No private league with the provided private league id was found, exiting function.');
                 return res.jsonp("The private league does not exist.");
             } else {
                 //assign the user id to a variable
-                console.log('4. The privateLeaugeId to which the user is being invited is: ' + results.privateLeagueId);
-                privateLeagueName = results.privateLeagueName;
+                console.log('4. The privateLeaugeId to which the user is being invited is: ' + foundPrivateLeague.privateLeagueId);
+                privateLeagueName = foundPrivateLeague.privateLeagueName;
             };
 
             var inviting_user = null;
 
             //Get the username of the user who is creating the invitation
-            User.findOne({'user_id': user_id}, 'username', function(error, results){
+            User.findOne({'user_id': user_id}, 'username', function(error, foundUser){
                 //Check to see if any results were found, if not, return an error
 
                 //TODO: place this repeated check logic into a function perhaps
                 //For debugging
-                console.log('5. The username found matching the provided user_id is: ' + results);
+                console.log('5. The username found matching the provided user_id is: ' + foundUser);
 
                 if (results == null) {
                     //exit out
@@ -238,8 +285,8 @@ exports.invitePrivateLeagueMember = function(req, res){
                     return res.jsonp("The inviting user does not exist.");
                 } else {
                     //assign the user id to a variable
-                    console.log('6. The username of the inviting user is:' + results.username);
-                    inviting_user = results.username;
+                    console.log('6. The username of the inviting user is:' + foundUser.username);
+                    inviting_user = foundUser.username;
                 };
 
                 //Print out required variables for debugging
@@ -249,6 +296,7 @@ exports.invitePrivateLeagueMember = function(req, res){
                 console.log('invitee_user_id: ' + invitee_user_id);
                 console.log('privateLeagueName: ' + privateLeagueName);
 
+                //Now retrieve the details of the user that has been invited to join the private league
                 User.findOne({ user_id: invitee_user_id }, function (err, user){
 
                     console.log("7. The user about to be given an invitation is: " + user + ' and has invitations: ' + user.invitations);
@@ -259,7 +307,7 @@ exports.invitePrivateLeagueMember = function(req, res){
                             //then an invite to this league already exists, so don't add another
                             console.log('The user has already been invited to this private league.');
 
-                            return res.jsonp('The user has already been invited to join this private league');
+                            return res.jsonp('The user has already been added to this private league');
                         }
                     }
 
@@ -269,10 +317,25 @@ exports.invitePrivateLeagueMember = function(req, res){
                         "privateLeagueName" :  privateLeagueName
                     });
 
+                    console.log('8. Now provisionally adding this member to the private league with a status of pending');
+                    //also add this member to the private league with a status of pending
+                    foundPrivateLeague.members.push(
+                        {
+                            "user_id"  : invitee_user_id,
+                            "username" : user.username,
+                            "status"   : "Invited - awaiting acceptance."
+                        }
+                    );
+
+                    console.log('Now the private league has members: ' + foundPrivateLeague.members);
+
+                    console.log("9. Saving the changes made to the private league: " + privateLeagueId);
+                    foundPrivateLeague.save();
+
                     //Save the changes to the user
                     user.save();
 
-                    console.log("Successfully invited user " + invitee_user_id);
+                    console.log("10. Successfully invited user " + invitee_user_id);
 
                     res.jsonp(202);
                 });
@@ -311,14 +374,21 @@ exports.addPrivateLeagueMember = function(req, res){
     PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, 'members', function(error, members) {
 
         //ensure that the private league the user is attempting to add a member to exists
+        if (members == null) {
+            console.log('The private league ' + privateLeagueId + ' could not be found.')
+            return res.jsonp(403);
+        };
 
         //ensure that the user that is attempting to be added to the private league has been invited
+        for (var i = 0; i < members.length; i++) {
+            //compare user_id of the member being added and
+        };
 
         //construct the object to be added to the members array of the private league
 
         //push the new member
 
-        //save the change made to this private league. 
+        //save the change made to this private league.
     });
 };
 

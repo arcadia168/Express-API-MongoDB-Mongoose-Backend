@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var http = require('http');
 var https = require('https');
-var MiniSet = require('./miniset');
+var MiniSet = require('miniset');
 var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function(req, res) {
@@ -88,7 +88,7 @@ exports.getGroupedFixtures = function(req, res) {
         };
 
         console.log('Now returning to the user: ' + JSON.stringify(newData));
-        return res.jsonp(200);
+        return res.jsonp(newSet);
     });
 };
 

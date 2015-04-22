@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var http = require('http');
 var https = require('https');
-var MiniSet = require('miniset');
+var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 
 exports.getFixtures = function(req, res) {

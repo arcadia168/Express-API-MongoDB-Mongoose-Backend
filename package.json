@@ -29,8 +29,7 @@
     "cors": "*",
     "express": "*",
     "express-jwt": "*",
-    "mongoose": "*",
-    "miniset": "*"
+    "mongoose": "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

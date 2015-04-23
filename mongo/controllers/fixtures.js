@@ -57,11 +57,11 @@ exports.getGroupedFixtures = function(req, res) {
 
     console.log('Getting rounds');
 
-    Fixture.find({}, function(err, results) {
+    Fixture.find({}).sort({ 'round' : 1}).exec(function(err, results) {
 
         var data = JSON.parse(JSON.stringify(results));
 
-        //console.log('Parsing fixture data ' + results + ' into rounds');
+        console.log('Parsing sorted fixture data ' + results + ' into rounds');
 
         var newData = {
             rounds: []
@@ -76,25 +76,26 @@ exports.getGroupedFixtures = function(req, res) {
         //loop over each fixture, assign to a round
         for(var i = 0; i < data.length; i++) {
 
-            var obj = data[i];
+            var fixtures = data[i];
 
+            console.log('The data should now have been sorted, and the resulting sorted fixtures are:' + JSON.stringify(fixtures));
             // if this round already exists in the list add it else make a new JSON object
 
-            var roundNum = Number(obj.round.toString());
+            var roundNum = Number(fixtures.round.toString());
             console.log('Now working on round number: ' + roundNum);
 
             if(newSet.has(roundNum)) {
 
-                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
+                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(fixtures));
 
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
 
-                console.log()
-                newData.rounds[roundNum-1].data.push(obj);
+                console.log('Now pushing the fixture into the round ' + roundNum);
+                newData.rounds[roundNum-1].data.push(fixtures);
 
             } else {
 
-                var stringData = JSON.stringify(obj);
+                var stringData = JSON.stringify(fixtures);
 
                 console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
 

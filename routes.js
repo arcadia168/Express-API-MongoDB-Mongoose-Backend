@@ -30,7 +30,7 @@ module.exports = function(app){
     app.get('/api/fixtures', fixtures.getFixtures); //don't protect
     app.get('/api/fixtures/:round', fixtures.getRound); //don't protect
     app.get('/api/standings', fixtures.getStandings); //don't protect
-    app.get('/api/rounds', fixtures.getGroupedFixtures); //don't protect
+    app.get('/api/fixtures/rounds', fixtures.getGroupedFixtures); //don't protect
 
     //TODO: Review how necessary/remove these routes.
     //routes used for server/db admin, not used by app

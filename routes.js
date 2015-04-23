@@ -41,8 +41,8 @@ module.exports = function(app){
     //TODO: Remove these from the release version of the API
     //routes which quickly manipulate dummy data into the database
     //always disable these when pushing to the server.
-    //app.get('/api/dummy/users', users.dummyData);
-    //app.get('/api/dummy/fixtures', fixtures.dummyData);
-    //app.get('/api/dummy/results/:round', users.dummyResults);
-    //app.delete('/api/clear/all', users.wipe);
+    app.get('/api/dummy/users', users.dummyData);
+    app.get('/api/dummy/fixtures', fixtures.dummyData);
+    app.get('/api/dummy/results/:round', users.dummyResults);
+    app.delete('/api/clear/all', users.wipe);
 };

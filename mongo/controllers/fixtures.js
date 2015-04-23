@@ -61,13 +61,19 @@ exports.getGroupedFixtures = function(req, res) {
 
         var data = JSON.parse(JSON.stringify(results));
 
-        console.log('Parsing fixture data ' + results + ' into rounds');
+        //console.log('Parsing fixture data ' + results + ' into rounds');
 
-        var newData = {rounds:[]};
+        var newData = {
+            rounds: []
+        };
+        console.log('The new data variable is: ' + JSON.stringify(newData));
 
         var newSet = new MiniSet();
-        console.log(newSet);
+        //console.log(newSet);
 
+        //TODO: ALTER THIS FUNCTION TO ALLOW FOR STARTING FROM ROUNDS OTHER THAN 1
+
+        //loop over each fixture, assign to a round
         for(var i = 0; i < data.length; i++) {
 
             var obj = data[i];
@@ -78,9 +84,14 @@ exports.getGroupedFixtures = function(req, res) {
             console.log('Now working on round number: ' + roundNum);
 
             if(newSet.has(roundNum)) {
+
                 console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(obj));
+
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
+
+                console.log()
                 newData.rounds[roundNum-1].data.push(obj);
+
             } else {
 
                 var stringData = JSON.stringify(obj);

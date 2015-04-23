@@ -4,7 +4,7 @@ angular.module('starter.services', ['ngResource'])
     .factory('RunMode', [function(){
 
         //TO SET THE WHOLE APP TO RELEASE MODE CHANGE THIS HERE
-        var debugRelease = 'release';
+        var debugRelease = 'debug';
 
         var serverToUse = '';
 

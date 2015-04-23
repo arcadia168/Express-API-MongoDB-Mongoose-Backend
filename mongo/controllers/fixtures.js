@@ -54,15 +54,18 @@ exports.getRound = function(req, res) {
 };
 
 exports.getGroupedFixtures = function(req, res) {
+
     console.log('Getting rounds');
+
     Fixture.find({}, function(err, results) {
+
         var data = JSON.parse(JSON.stringify(results));
 
         console.log('Parsing fixture data ' + results + ' into rounds');
 
         var newData = {rounds:[]};
 
-        var newSet = new MiniSet(); //is the issue this?
+        var newSet = new MiniSet();
         console.log(newSet);
 
         for(var i = 0; i < data.length; i++) {
@@ -79,16 +82,21 @@ exports.getGroupedFixtures = function(req, res) {
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
                 newData.rounds[roundNum-1].data.push(obj);
             } else {
+
                 var stringData = JSON.stringify(obj);
+
                 console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
+
                 var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
+
                 newData.rounds.push(nextData);
+
                 newSet.add(roundNum);
             }
-        };
+        }
 
         console.log('Now returning to the user: ' + JSON.stringify(newData));
-        return res.jsonp(newSet);
+        return res.jsonp(newData);
     });
 };
 

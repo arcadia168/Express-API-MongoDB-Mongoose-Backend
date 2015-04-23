@@ -7046,3 +7046,6 @@ ion-view[view-title="League Table"] .row:nth-child(2n) {
 .left {
   position: absolute;
   left: 1rem; }
+
+.team {
+  background: #fff; }

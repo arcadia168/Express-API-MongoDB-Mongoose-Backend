@@ -1,0 +1,18 @@
+<ion-view view-title="Private Leagues">
+    <ion-content>
+        <div class="item item-divider">Your created leagues</div>
+        <ion-item class="item-remove-animate item item-icon-left item-icon-right" type="item-text-wrap" ng-model="createdLeagues"
+                  href="#/tab/scoreboard/privateleagues/{{league.privateLeagueId}}"
+                  ng-repeat="league in createdLeagues track by league._id">
+            <h2>{{league.privateLeagueName}}</h2>
+            <i class="icon ion-chevron-right icon-accessory"></i>
+        </ion-item>
+
+        <div class="item item-divider">Your joined leagues</div>
+        <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="inLeagues"
+                  ng-repeat="league in inLeagues track by league._id">
+            <a>{{league.privateLeagueName}}</a>
+        <!--THE USER'S PRIVATE LEAGUES - as a list-->
+        <!--GIVE OPTION CREATE AND DELETE PRIVATE LEAGUE'S HERE - in header-->
+    </ion-content>
+</ion-view>

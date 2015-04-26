@@ -15,15 +15,15 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         $httpProvider.interceptors.push(function($rootScope) {
             return {
                 request: function(config) {
-                    $rootScope.$broadcast('loading:show')
+                    $rootScope.$broadcast('loading:show');
                     return config
                 },
                 response: function(response) {
-                    $rootScope.$broadcast('loading:hide')
+                    $rootScope.$broadcast('loading:hide');
                     return response
                 }
             }
-        })
+        });
 
         //add the auth0 jwt http interceptor
         jwtInterceptorProvider.tokenGetter = function(store, jwtHelper, auth) {
@@ -42,7 +42,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             } else {
                 return idToken;
             }
-        }
+        };
 
         $httpProvider.interceptors.push('jwtInterceptor');
 
@@ -75,37 +75,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                     requiresLogin: true
                 }
             })
-
-            // Each tab has its own nav history stack:
-
-            //.state('tab.dash', {
-            //    url: '/dash',
-            //    views: {
-            //        'tab-dash': {
-            //            templateUrl: 'templates/tab-dash.html',
-            //            controller: 'DemoTabCtrl'//'DashCtrl'
-            //        }
-            //    }
-            //})
-
-            //.state('tab.chats', {
-            //    url: '/chats',
-            //    views: {
-            //        'tab-chats': {
-            //            templateUrl: 'templates/tab-chats.html',
-            //            controller: 'ChatsCtrl'
-            //        }
-            //    }
-            //})
-            //.state('tab.chat-detail', {
-            //    url: '/chats/:chatId',
-            //    views: {
-            //        'tab-chats': {
-            //            templateUrl: 'templates/chat-detail.html',
-            //            controller: 'ChatDetailCtrl'
-            //        }
-            //    }
-            //})
 
             .state('tab.rounds', {
                 url: '/rounds',
@@ -157,8 +126,23 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 url: '/scoreboard/privateleagues',
                 views: {
                     'tab-scoreboard' : {
-                        templateUrl: 'templates/scoreboard-private-leagues-detail.html',
+                        templateUrl: 'templates/scoreboard-private-leagues.html',
                         controller: 'PrivateLeaguesCtrl'
+                    }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
+                }
+            })
+            .state('tab.scoreboard-private-leagues-detail', {
+                url: '/scoreboard/privateleagues/:privateLeagueId',
+                views: {
+                    'tab-scoreboard' : {
+                        templateUrl: 'templates/scoreboard-private-leagues-detail.html',
+                        controller: 'PrivateLeaguesDetailCtrl'
                     }
                 },
                 data: {
@@ -172,7 +156,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
                 url: '/scoreboard/global',
                 views: {
                     'tab-scoreboard' : {
-                        templateUrl: 'templates/scoreboard-global-detail.html',
+                        templateUrl: 'templates/scoreboard-global.html',
                         controller:  'GlobalScoreboardCtrl'
                     }
                 },
@@ -235,7 +219,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         auth.hookEvents();
 
         $rootScope.$on('loading:show', function() {
-            $ionicLoading.show({template: 'Fetching data from server'}) //TODO: ADD A SPINNER IN HERE
+            $ionicLoading.show({template: 'Fetching data from server'}); //TODO: ADD A SPINNER IN HERE
         });
 
         $rootScope.$on('loading:hide', function() {

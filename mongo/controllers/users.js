@@ -27,15 +27,8 @@ exports.userSync = function(req, res) {
     var user_id = req.body.user_id;
 
     User.findOne({'user_id': user_id}, function(err, result) {
+
         //if no user with this user_id exists, create one
-
-        //Debugging code
-        //console.log(req.body);
-        //console.log('The result of looking for user ' + req.body.name + ' was ' + result);
-        //console.log('User ID: '   + user_id);
-        //console.log('Username: '  + req.body.nickname);
-        //console.log('Name: '      + req.body.name);
-
         if (result == null){
 
             console.log("The user did not exist, creating the user now");
@@ -47,7 +40,7 @@ exports.userSync = function(req, res) {
                 name        :   req.body.name,
                 predictions :   [],
                 score       :   0
-            }
+            };
 
             //Now insert this new user object into the database
             User.create(newUser, function(err, user){
@@ -58,7 +51,7 @@ exports.userSync = function(req, res) {
 
             console.log('User already existed, doing nothing.');
 
-            res.jsonp(404);
+            res.jsonp(result);
         }
     });
 };
@@ -252,8 +245,7 @@ function scoreUsers(round, callback) {
       });
     });
   });
-};
-
+}
 function scoreAdder(i, users, fixs, callback) {
   if(i < users.length) { 
     var preds = users[i].predictions;
@@ -278,8 +270,7 @@ function scoreAdder(i, users, fixs, callback) {
   } else {
     callback();
   }
-};
-
+}
 function resultAssigner(i, results, callback) {
   if(i < results.length) {
     var fixRes = Math.floor((Math.random() * 3) + 1);
@@ -289,4 +280,4 @@ function resultAssigner(i, results, callback) {
   } else {
     callback();
   }
-};
+}

@@ -1,8 +1,14 @@
-<ion-view view-title="Private Leagues">
-    <ion-content class="padding">
-        THE USER'S PRIVATE LEAGUES - as a list
-        GIVE OPTION CREATE AND DELETE PRIVATE LEAGUE'S HERE - in header
-        WITHIN PRIVATE LEAGUES GIVE OPTION TO INVITE NEW USERS
-        WITHIN PRIVATE LEAGUES SHOW ALL USERS WHO HAVE ACCEPTED INVITATION'S SCORES.
+<ion-view view-title="Private League {{privateLeague.privateLeagueName}}">
+    <ion-content>
+        <ion-item>
+        <p>Name: {{privateLeague.privateLeagueName}}</p>
+        </ion-item>
+        <ion-item>
+            <p>Creator: {{privateLeague.creator}}</p>
+        </ion-item>
+        <ion-item ng-repeat="member in privateLeague.members"><p>{{member.username}} - {{member.score}}</p><p ng-if="member.status != 'accepted'">INVITED - WAITING FOR ACCEPTENCE</p></ion-item>
+        <button class="button button-block button-positive" ng-click="inviteUser()">
+            Invite New User
+        </button>
     </ion-content>
 </ion-view>

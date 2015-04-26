@@ -4,7 +4,7 @@ angular.module('starter.services', ['ngResource'])
     .factory('RunMode', [function(){
 
         //TO SET THE WHOLE APP TO RELEASE MODE CHANGE THIS HERE
-        var debugRelease = 'release';
+        var debugRelease = 'debug';
 
         var serverToUse = '';
 
@@ -19,7 +19,7 @@ angular.module('starter.services', ['ngResource'])
         //Now assign the server being used to a property of the service
         runMode.server = function() {
             return serverToUse;
-        }
+        };
 
         //return this object to quickly get which server to use
         return runMode;
@@ -165,6 +165,76 @@ angular.module('starter.services', ['ngResource'])
         }
     }])
 
+    .factory('PrivateLeagues', ['$http', '$q', 'RunMode', function($http, $q, RunMode) {
+
+        var SERVER = RunMode.server();
+        console.log(SERVER);
+
+        return {
+            all: function(user_id) {
+                var deferred = $q.defer();
+
+                //TODO: Replace the use of http with resource
+                // Make a call to ye olde server
+                $http.get(SERVER + '/users/private_leagues/list/' + user_id
+                ).success(function(data){
+                        deferred.resolve(data);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        //deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            get: function(user_id, privateLeagueId) {
+                var deferred = $q.defer();
+
+                //TODO: Replace the use of http with resource
+                // Make a call to ye olde server
+                $http.get(SERVER + '/users/private_leagues/get/' + user_id + '/' + privateLeagueId
+                ).success(function(data){
+                        deferred.resolve(data);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        //deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            inviteNewMember: function(user_id, userToInvite, privateLeagueId) {
+                var deferred = $q.defer();
+
+                //TODO: Replace the use of http with resource
+
+                console.log("Now sending an invite to user: " + userToInvite + " from user " + user_id);
+
+                $http.get(SERVER + '/users/private_leagues/invite/' + user_id + '/' + privateLeagueId + '/' + userToInvite
+                ).success(function(data){
+                        deferred.resolve(data);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        //deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            acceptInvitation: function(user_id, private_league_id) {
+                var deferred = $q.defer();
+
+                //TODO: Replace the use of http with resource
+
+                //sends the user_id of the invited user and the league to which they have been invited
+                console.log("Now accepting invitation for user: " + user_id + " into private league: " + private_league_id);
+
+                $http.get(SERVER + '/users/private_leagues/accept/' + user_id + '/' + private_league_id
+                ).success(function(data){
+                        deferred.resolve(data);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        //deferred.promise;
+                    });
+                return deferred.promise;
+            }
+        }
+    }])
+
     .factory('Scoreboard', ['$http', '$q', 'RunMode', function($http, $q, RunMode) {
 
         //TODO: Sort out the formatting and indentation of these promise functions
@@ -180,11 +250,10 @@ angular.module('starter.services', ['ngResource'])
                 // Make a call to ye olde server
                 $http.get(SERVER + '/scoreboard/'
                 ).success(function(data){
-                        rounds = data;
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        deferred.promise; //TODO: Remove these deferred.promise statements, not quite sure what they do.
+                        //deferred.promise; //TODO: Remove these deferred.promise statements, not quite sure what they do.
                     });
                 return deferred.promise;
             }
@@ -207,7 +276,7 @@ angular.module('starter.services', ['ngResource'])
                     }).error(
                     function(){
                         console.log("Error while making HTTP call.");
-                        deferred.promise;
+                        //deferred.promise;
                     });
                 return deferred.promise;
             }
@@ -218,23 +287,21 @@ angular.module('starter.services', ['ngResource'])
 
         var SERVER = RunMode.server();
 
+        //store the current users data in this service so it is globally accessible
+        //return this object once retrieved
+        var currentUserData = {};
+
         return {
             sync: function(user) {
-                //make a call to server to send predictions away
 
                 //prepend the predictions array with the necessary information
-                debugger;
-
                 console.log('CHECKING SERVER FOR USER:' + user.nickname);
-
-                debugger;
 
                 //need to convert the user object into a JSON string
                 user = JSON.stringify(user);
 
                 var deferred = $q.defer();
 
-                //TODO: Implement getting the username from the session somehow
                 //use dummy user sillybilly for now
                 $http.post(SERVER + '/users/sync/', user
                 ).success(function(response){
@@ -242,10 +309,34 @@ angular.module('starter.services', ['ngResource'])
                         //deferred.resolve(response); //TODO not sure this is necessary
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        alert("Something went wrong");
+                        alert("Something went wrong"); //TODO change this to be an ionic popup
                         //deferred.promise;
                     });
                 return deferred.promise;
+            },
+            getUserData: function(user_id) {
+
+                //get the data for a particular user from the server
+                //prepend the predictions array with the necessary information
+
+                var deferred = $q.defer();
+
+                $http.get(SERVER + '/users/' + user_id
+                ).success(function(response){
+                        console.log(response);
+                        //assign the returned user data to the factory
+                        currentUserData = response[0];
+                        deferred.resolve(response);
+                    }).error(function(){
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong"); //TODO: Replace this with an ionic popup
+                        deferred.promise;
+                    });
+                return deferred.promise;
+            },
+            currentUser: function() {
+                //simply return the user data of the user who is currently logged in
+                return currentUserData;
             }
         }
 

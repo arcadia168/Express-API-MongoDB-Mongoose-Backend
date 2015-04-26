@@ -8,6 +8,10 @@ var PrivateLeague = mongoose.model('PrivateLeague');
 var User = mongoose.model('User');
 var ObjectId = require('mongoose').Types.ObjectId;
 
+//TODO: Ensure that no 2 private leagues can share the same name!
+
+//TODO: implement reject and ignore invitation methods
+
 exports.createPrivateLeague = function(req, res){
     //Need to pass in creator user id as param
     var user_id = req.params.user_id;
@@ -45,11 +49,29 @@ exports.getPrivateLeagues = function(req, res){
     var user_id = req.params.user_id;
 
     //Need to search the database for members arrays where user_id is present
-    PrivateLeague.find({'members.user_id': user_id}, //{'members.$': 1},
+    PrivateLeague.find({'members.user_id': user_id}, 'privateLeagueId privateLeagueName', //{'members.$': 1},
         function (err, privateLeagues) {
             if (privateLeagues) {
                 console.log(privateLeagues);
                 return res.jsonp(privateLeagues);
+            }
+        }
+    );
+
+};
+
+exports.getPrivateLeague = function(req, res){
+
+    //Need to pass in the user_id
+    var user_id = req.params.user_id;
+    var privateLeagueId = req.params.private_league_id;
+
+    //Need to search the database for members arrays where user_id is present
+    PrivateLeague.find({'privateLeagueId': privateLeagueId},
+        function (err, privateLeague) {
+            if (privateLeague) {
+                console.log(privateLeague);
+                return res.jsonp(privateLeague);
             }
         }
     );
@@ -82,11 +104,11 @@ exports.removePrivateLeagueMember = function(req, res){
             return res.jsonp("No such private league exists.")
         }
 
-        console.log('The owner of this private league is user: ' + privateLeague.creator)
+        console.log('The owner of this private league is user: ' + privateLeague.creator);
         //ensure that the user attempting to make the change is entitle to do so
         if (!privateLeague.creator == user_id) { //todo: make this an array of league 'admins', maybe, later, yeah, later.
             //if the user making the request is not the owner, they can't do this
-            return res.jsonp(403) //code which denotes access denied
+            return res.jsonp(403); //code which denotes access denied
         }
 
         //Pull this member from the array
@@ -107,7 +129,7 @@ exports.removePrivateLeagueMember = function(req, res){
 
                 //get the id of this member
                 console.log('Getting the object id of the user to remove: ' + privateLeague.members[i]._id);
-                removeUserWithObjectId = privateLeague.members[i]._id
+                removeUserWithObjectId = privateLeague.members[i]._id;
 
                 //Now remove the object_id
                 privateLeague.members.id(removeUserWithObjectId).remove();
@@ -125,7 +147,7 @@ exports.removePrivateLeagueMember = function(req, res){
             }
         }
 
-        console.log('Specified user was not a member of the private league and was hence not removed, exiting.')
+        console.log('Specified user was not a member of the private league and was hence not removed, exiting.');
         return res.jsonp('member was not found in private league');
     });
 };
@@ -152,9 +174,9 @@ exports.deletePrivateLeague = function(req, res){
 
         //if user trying to delete is not the creator of the private league, they lack the priviledge to delete, so error
         if (creator.creator != user_id) {
-            console.log('The user attempting to delete the private league with id: ' + privateLeagueId + ' does not have sufficient priviledges')
+            console.log('The user attempting to delete the private league with id: ' + privateLeagueId + ' does not have sufficient priviledges');
             return res.jsonp('403'); //403 means insufficient priviledges/access denied.
-        };
+        }
     });
 
     //Get private league id to remove
@@ -198,8 +220,7 @@ exports.renamePrivateLeague = function(req, res) {
             //then the user making the command does not have persmission to change this private league
             console.log("the user attempting to change the name of the private league does not have sufficient priviledges as they are not the creator of the league.");
             return res.jsonp(403); //403 for permission denied
-        };
-
+        }
         console.log('Now changing the private league with id: ' + privateLeagueId + ' to have the name: ' + new_name);
         //now that that the league exists and the user has sufficient permission to change the name, do so
         foundPrivateLeague.privateLeagueName = new_name;
@@ -246,8 +267,7 @@ exports.invitePrivateLeagueMember = function(req, res){
             //assign the user id to a variable
             console.log('2. The user_id of the invited user is: ' + results.user_id);
             invitee_user_id = results.user_id;
-        };
-
+        }
         //Get privateLeagueId of the league to which you wish to invite the user
         var privateLeagueId = req.params.private_league_id;
         var privateLeagueName = '';
@@ -267,8 +287,7 @@ exports.invitePrivateLeagueMember = function(req, res){
                 //assign the user id to a variable
                 console.log('4. The privateLeaugeId to which the user is being invited is: ' + foundPrivateLeague.privateLeagueId);
                 privateLeagueName = foundPrivateLeague.privateLeagueName;
-            };
-
+            }
             var inviting_user = null;
 
             //Get the username of the user who is creating the invitation
@@ -282,13 +301,12 @@ exports.invitePrivateLeagueMember = function(req, res){
                 if (results == null) {
                     //exit out
                     console.log('No username with the provided user_id was found, exiting function.');
-                    return res.jsonp("The inviting user does not exist.");
+                    return res.jsonp("No user with that username was found!");
                 } else {
                     //assign the user id to a variable
                     console.log('6. The username of the inviting user is:' + foundUser.username);
                     inviting_user = foundUser.username;
-                };
-
+                }
                 //Print out required variables for debugging
                 console.log('About to attempt update variables are:');
                 console.log('inviting_user:' + inviting_user);
@@ -301,6 +319,18 @@ exports.invitePrivateLeagueMember = function(req, res){
 
                     console.log("7. The user about to be given an invitation is: " + user + ' and has invitations: ' + user.invitations);
 
+                    if (results == null) {
+                        //exit out
+                        console.log('No username with the provided user_id was found, exiting function.');
+                        return res.jsonp("No user with that username was found!");
+                    }
+
+                    //TODO: Remove these validation steps as they will have been done on the frontend
+                    //first check that a user has not invited themself
+                    if (invitee_user_id == user_id) {
+                        return res.jsonp("403 - You can not invite yourself to the league.")
+                    }
+
                     //check that an invitation for this private league does not already exist
                     for (var i = 0; i < user.invitations.length; i++) {
                         if (user.invitations[i].privateLeagueId == privateLeagueId) {
@@ -308,6 +338,17 @@ exports.invitePrivateLeagueMember = function(req, res){
                             console.log('The user has already been invited to this private league.');
 
                             return res.jsonp('The user has already been added to this private league');
+                        }
+                    }
+
+                    //TODO: CHECK THAT THE USER IS NOT INVITING THEMSELF
+
+                    for (var i = 0; i < foundPrivateLeague.members; i++) {
+                        //check to see if the user being invited has already been invited
+                        if (members[i].user_id == invitee_user_id) {
+                            //then exit, as we can not re-invite the user
+                            console.log('This user has already been invited and can not be so again, exiting function');
+                            return res.jsonp('503 - User has already been invited/added to the private league');
                         }
                     }
 
@@ -347,48 +388,83 @@ exports.invitePrivateLeagueMember = function(req, res){
 //upon accepting an invitation
 exports.addPrivateLeagueMember = function(req, res){
     //Get the user_id of the invitee, accepting the invitation
-    var user_id = req.params.user_id;
+    var invited_user_id = req.params.invited_user_id;
     var username = null;
     var user_score = null;
 
     //Get the privateLeagueId of the league to which the member is being added
     var privateLeagueId = req.params.private_league_id;
 
+    console.log('The user_id of the user who was invited to join the private league is: ' + invited_user_id);
     //also ADD THIS USERS NAME AND SCORE - or is this duplication of data!?
-    User.findOne({ 'user_id' : user_id}, 'username score', function(error, results){
-
+    //nest the functions as otherwise they all run ASYNC - oh no
+    User.findOne({ 'user_id' : invited_user_id}, 'username score', function(error, results){
         //first ensure that some results were returned
         if (results == null) {
             console.log('Requesting user was not found on server.');
             return res.jsonp(404); //user not found
-        };
+        }
 
         console.log('Now attempting to assign the username: ' + results.username + ' and the score ' + results.score);
 
         //assign the user's username and score to variables to be stored in private league
         username = results.username;
         user_score = results.score;
-    });
 
-    //Add this user_id to the privateLeague's members array - findOne, alter, save.
-    PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, 'members', function(error, members) {
+        //Add this user_id to the privateLeague's members array - findOne, alter, save.
+        PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, 'members', function(error, members) {
 
-        //ensure that the private league the user is attempting to add a member to exists
-        if (members == null) {
-            console.log('The private league ' + privateLeagueId + ' could not be found.')
-            return res.jsonp(403);
-        };
+            //ensure that the private league the user is attempting to add a member to exists
+            if (members == null) {
+                console.log('The private league ' + privateLeagueId + ' could not be found.');
+                return res.jsonp('403 - The private league you are attempting to add a member to could not be found.');
+            } else {
+                console.log('Successfully retrieved the private league\'s members to which the user will be added: ' + JSON.stringify(members));
+            }
 
-        //ensure that the user that is attempting to be added to the private league has been invited
-        for (var i = 0; i < members.length; i++) {
-            //compare user_id of the member being added and
-        };
+            var invited = false;
 
-        //construct the object to be added to the members array of the private league
+            //ensure that the user that is attempting to be added to the private league has been invited
+            for (var i = 0; i < members.length; i++) {
+                //compare user_id of the member being added and if not return with an error message
 
-        //push the new member
+                console.log('Now finding the invited user to accept thier invitation, comparing ' + invited_user_id + ' to member ' + members[i].user_id);
+                if (members[i].user_id == invited_user_id) {
+                    //then this person has been invited, accept
+                    invited = true;
+                    console.log('User attempting to join league has been properly invited');
 
-        //save the change made to this private league.
+                    //get user to add
+                    var userToUpdate = members[i];
+                    console.log('Accepting invitation for the user ' + userToUpdate);
+
+                    //now removing this invitation before adding the user
+                    console.log('Now removing this user from the array, to replace with accepted user');
+                    members[i].splice(i, 1);
+
+                    //now contstruct the new member object to be added
+                    userToUpdate.status = "accepted";
+                    userToUpdate.score = user_score;
+
+                    console.log('Now adding the accepted user to the members array');
+                    //now add this member to the league in the same position
+                    members.splice(i, 0, userToUpdate);
+
+                    console.log('User successfully added to the private league, the new members array is: ' + JSON.stringify(members));
+
+                    //Now save the changes into the database
+                    members.save();
+
+                    console.log('Successfully accepted the user invitation for the user ' + invited_user_id);
+
+                    //break out of the for loop execution
+                    return res.jsonp('202 - The user successfully accepted the invitation and was added the league.');
+                }
+            }
+
+            //else if all that has happened and the method has still not returned, the user was not added
+            return res.jsonp('403 - The user was not added to the private league successfully, something went wrong.');
+        });
     });
 };
 

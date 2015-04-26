@@ -1,12 +1,25 @@
 <ion-view view-title="Account">
-  <ion-content>
-    <ion-list>
-      <ion-item>
-        Log Out
-        <button class="button button-block button-assertive" ng-click="signOut()">Sign Out</button>
-      </ion-item>
-      <ion-item>Notifications</ion-item>
-      <ion-item>Invitations</ion-item>
-    </ion-list>
-  </ion-content>
+    <ion-content>
+        <ion-list show-delete="shouldShowDelete"
+                  show-reorder="shouldShowReorder"
+                  can-swipe="listCanSwipe">
+            <ion-item>
+                Log Out
+                <button class="button button-block button-assertive" ng-click="signOut()">Sign Out</button>
+            </ion-item>
+            <div class="item item-divider">
+                Notifications
+                <ion-item ng-model="$scope.userData.notifications" ng-if="$scope.userData.notifications == null">No notifications</ion-item>
+            </div>
+            <ion-item ng-repeat="notification in userData.notifications">{{notification.message}}</ion-item>
+            <div class="item item-divider">
+                Invitations
+            </div>
+            <ion-item ng-repeat="invitation in userData.invitations">Invitation to: {{invitation.privateLeagueName}} from {{invitation.invitedBy}}
+                <ion-option-button class="button button-balanced icon-right ion-ios-checkmark-empty" ng-click="acceptInvitation(invitation.privateLeagueId)">Accept</ion-option-button>
+                <ion-option-button class="button button-assertive icon-right ion-ios-close-empty">Reject</ion-option-button>
+                <ion-option-button class="button button-energized icon-right ion-ios-minus-empty">Ignore</ion-option-button>
+            </ion-item>
+        </ion-list>
+    </ion-content>
 </ion-view>

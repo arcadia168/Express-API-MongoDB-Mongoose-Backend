@@ -7,7 +7,7 @@
         <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
         <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="fixtures"
                   ng-repeat="fixture in fixtures track by fixture._id"
-                  on-swipe-right="predictHomeWin(fixture._id)" on-swipe-left="predictAwayWin(fixture._id)"
+                  on-swipe-left="predictHomeWin(fixture._id)" on-swipe-right="predictAwayWin(fixture._id)"
                   on-hold="predictDraw(fixture._id)" type="item-text-wrap"
                   ng-class="getBackgroundColour(fixture)">
             <i class="icon ion-tshirt-outline"></i>

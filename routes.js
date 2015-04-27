@@ -9,12 +9,13 @@ module.exports = function(app){
     app.get('/api/users/:user_id', users.getUserData); //protect
     app.get('/api/users/predictions/:user_id', users.getPredictions); //protect
     app.get('/api/users/predictions/:user_id/:round', users.findRoundPredictions); //protect
-    app.get('/api/users/create_private_league/:user_id/:private_league_name', privateLeagues.createPrivateLeague); //protect
+    app.get('/api/users/private_leagues/create/:user_id/:private_league_name', privateLeagues.createPrivateLeague); //protect
     app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect
     app.get('/api/users/private_leagues/invite/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember); //protect
     app.get('/api/users/private_leagues/accept/:invited_user_id/:private_league_id', privateLeagues.addPrivateLeagueMember);
+    app.get('/api/users/private_leagues/reject/:inviting_username/:invited_user_id/:private_league_id', privateLeagues.rejectPrivateLeagueInvitation); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect
     //app.post('api/users', users.addUser); //protect TODO: Remove as not necessary

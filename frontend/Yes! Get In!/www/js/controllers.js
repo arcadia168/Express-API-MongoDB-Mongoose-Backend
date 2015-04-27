@@ -18,24 +18,26 @@ angular.module('starter.controllers', [])
         }, function() {
             // Login was successful
 
+            //TODO: TEST THIS BY CREATING A NEW USER AND SEEING IF USER DATA GETS LOGGED
             //check to see if this user exists on the server already, if not, create this user using auth0 details
-            User.sync(auth.profile);
+            User.sync(auth.profile).then(function(){
+                //Once the user data has been synced, get the user data object from our server also
+                //Have to do in this callback otherwise we attempt to get the user data before the sync has finished
+                User.getUserData(auth.profile.user_id);
 
-            //Once the user data has been synced, get the user data object from our server also
-            User.getUserData(auth.profile.user_id);
+                //Testing the user global service
+                var currentUser = User.currentUser();
+                console.log("The current user data stored on our server is: " + JSON.stringify(currentUser));
 
-            //Testing the user global service
-            var currentUser = User.currentUser();
-            console.log("The current user data stored on our server is: " + JSON.stringify(currentUser));
+                $state.go('tab.rounds');
 
-            $state.go('tab.rounds');
-
-            //show an alert for testing purposes
-            $ionicPopup.alert({
-                title: 'Login successful!',
-                template: 'Welcome ' + auth.profile.nickname + '! <br> This version of the app is mainly used for testing the backend <br> (So be nice)'
-            }).then(function(res){
-                console.log(auth.profile);
+                //show an alert for testing purposes
+                $ionicPopup.alert({
+                    title: 'Login successful!',
+                    template: 'Welcome ' + auth.profile.nickname + '! <br> This version of the app is mainly used for testing the backend <br> (So be nice)'
+                }).then(function(res){
+                    console.log(auth.profile);
+                });
             });
 
         }, function(error) {
@@ -615,7 +617,7 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('PrivateLeaguesCtrl', function($scope, PrivateLeagues, auth) {
+    .controller('PrivateLeaguesCtrl', function($scope, PrivateLeagues, auth, $ionicPopup) {
 
         //get all of the private leagues for the user from the private league service
         PrivateLeagues.all(auth.profile.user_id).then(function(data){
@@ -646,9 +648,73 @@ angular.module('starter.controllers', [])
 
         });
 
+        $scope.data = {};
+        var cancelled = true;
+
+        $scope.createNewLeague = function() {
+
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.show({
+                template: '<input type="text" ng-model="data.leagueName">',
+                title: 'New Private League',
+                subTitle: 'Enter the name for the new league',
+                scope: $scope,
+                buttons: [
+                    { text: 'Cancel' },
+                    {
+                        text: '<b>Create</b>',
+                        type: 'button-positive',
+                        onTap: function(e) {
+                            if (!$scope.data.leagueName) {
+                                //don't allow the user to close unless he enters a username
+                                e.preventDefault();
+                            } else {
+                                cancelled = false;
+                                return $scope.data.leagueName;
+                            }
+                        }
+                    }
+                ]
+            });
+            myPopup.then(function(res) {
+
+                if (!cancelled) {
+                    //validate the username, check not user's or existing member
+
+                    console.log("Now attempting validation before renaming");
+
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.createNewLeague(auth.profile.user_id, $scope.data.leagueName).then(
+                        function(res) {
+
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'New Private League',
+                                template: res //TODO: Alter the multiple uses of this
+                            });
+
+                            //reset flag
+                            cancelled = true;
+                        }
+                    );
+                }
+            });
+        };
+
+
     })
 
-    .controller('PrivateLeaguesDetailCtrl', function($scope, PrivateLeagues, auth, $stateParams, $ionicPopup){
+    .controller('PrivateLeaguesDetailCtrl', function($scope, PrivateLeagues, auth, $stateParams, $ionicPopup, $state, User){
+
+        $scope.shouldShowDelete = false;
+
+        //enable delete buttons
+        $scope.toggleDelete = function() {
+            $scope.shouldShowDelete = !$scope.shouldShowDelete;
+        };
 
         console.log('Now getting the private league with id: ' + $stateParams.privateLeagueId);//Get the data for this particular league from the server
         //Get the data for this particular round from the server
@@ -662,6 +728,9 @@ angular.module('starter.controllers', [])
         //TODO: GO BACK AND ONLY EXPOSE DATA TO THE SCOPE VIA A DATA OBJECT IN THE SAME MANNER AS THIS
         //create scope variable to store provided usernames
         $scope.data = {};
+        $scope.user_id = auth.profile.user_id;
+
+        var cancelled = true;
 
         //function to facilitate inviting a new user
         $scope.inviteUser = function() {
@@ -681,6 +750,7 @@ angular.module('starter.controllers', [])
                                 //don't allow the user to close unless he enters a username
                                 e.preventDefault();
                             } else {
+                                cancelled = false;
                                 return $scope.data.userToInvite;
                             }
                         }
@@ -689,64 +759,248 @@ angular.module('starter.controllers', [])
             });
             myPopup.then(function(res) {
 
-                //validate the username, check not user's or existing member
+                if (!cancelled) {
+                    //validate the username, check not user's or existing member
 
-                console.log("Now attempting validation before sending invitation");
+                    console.log("Now attempting validation before sending invitation");
 
-                console.log("The creator of the private league is: " + $scope.privateLeague.creator);
+                    console.log("The creator of the private league is: " + $scope.privateLeague.creator);
 
-                //check that the user has not attempted to invite themselves
-                if ($scope.data.userToInvite == auth.profile.nickname) {
-                    console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
-                    console.log("The invitation was not sent because ysou can not invite yourself");
-
-                    //then this user has already been invited
-                    $ionicPopup.alert({
-                        title: 'Error! Invite Not Sent',
-                        template: 'You can not invite yourself to join this league! (You\'re already in it).'
-                    });
-
-                    return
-                }
-
-                //check that user has not already been invited
-                for (var i = 0; i < $scope.privateLeague.members.length; i++) {
-
-                    console.log("Now checking member in the private league: " + $scope.privateLeague.members[i].username);
-
-                    if ($scope.privateLeague.members[i].username == $scope.data.userToInvite) {
-
-                        validUser = false;
-                        memberExists = true;
+                    //check that the user has not attempted to invite themselves
+                    if ($scope.data.userToInvite == auth.profile.nickname) {
+                        console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
+                        console.log("The invitation was not sent because ysou can not invite yourself");
 
                         //then this user has already been invited
                         $ionicPopup.alert({
                             title: 'Error! Invite Not Sent',
-                            template: 'This user has already been invited/ is a member.'
+                            template: 'You can not invite yourself to join this league! (You\'re already in it).'
                         });
 
-                        console.log("The invitation was not sent as this user has already been invited to this league.");
-
-                        return;
+                        return
                     }
+
+                    //check that user has not already been invited
+                    for (var i = 0; i < $scope.privateLeague.members.length; i++) {
+
+                        console.log("Now checking member in the private league: " + $scope.privateLeague.members[i].username);
+
+                        if ($scope.privateLeague.members[i].username == $scope.data.userToInvite) {
+
+                            validUser = false;
+                            memberExists = true;
+
+                            //then this user has already been invited
+                            $ionicPopup.alert({
+                                title: 'Error! Invite Not Sent',
+                                template: 'This user has already been invited/ is a member.'
+                            });
+
+                            console.log("The invitation was not sent as this user has already been invited to this league.");
+
+                            return;
+                        }
+                    }
+
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.inviteNewMember(auth.profile.user_id, $scope.data.userToInvite, $scope.privateLeague.privateLeagueId).then(
+                        function(res) {
+
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'Invitation',
+                                template: res
+                            });
+
+                            //reset flag
+                            cancelled = true;
+                        }
+                    );
                 }
-
-                //use the data to call through to the user and pass through the provided username
-                PrivateLeagues.inviteNewMember(auth.profile.user_id, $scope.data.userToInvite, $scope.privateLeague.privateLeagueId).then(
-                    function(res) {
-
-                        //check the message that was returned...
-                        console.log(res);
-
-                        //Confirm that the invitation has been sent
-                        $ionicPopup.alert({
-                            title: 'Invitation',
-                            template: res
-                        });
-                    }
-                );
             });
         };
+
+        $scope.renameLeague = function() {
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.show({
+                template: '<input type="text" ng-model="data.newLeagueName">',
+                title: 'Rename league',
+                subTitle: 'Enter the new name for the league',
+                scope: $scope,
+                buttons: [
+                    { text: 'Cancel' },
+                    {
+                        text: '<b>Rename</b>',
+                        type: 'button-positive',
+                        onTap: function(e) {
+                            if (!$scope.data.newLeagueName) {
+                                //don't allow the user to close unless he enters a username
+                                e.preventDefault();
+                            } else {
+                                cancelled = false;
+                                return $scope.data.newLeagueName;
+                            }
+                        }
+                    }
+                ]
+            });
+            myPopup.then(function(res) {
+
+                if (!cancelled) {
+                    //validate the username, check not user's or existing member
+
+                    console.log("Now attempting validation before renaming");
+
+                    console.log("The creator of the private league is: " + $scope.privateLeague.creator);
+
+                    //check that the user has not attempted to invite themselves
+                    if ($scope.data.newLeagueName == $scope.privateLeague.privateLeagueName) {
+                        console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
+                        console.log("You can only rename the league if you are giving it a new name.");
+
+                        //then this user has already been invited
+                        $ionicPopup.alert({
+                            title: 'Error! League not renamed!',
+                            template: 'To rename this league you must give it a new name.'
+                        });
+
+                        return
+                    }
+
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.renameLeague(auth.profile.user_id, $scope.data.newLeagueName, $scope.privateLeague.privateLeagueId).then(
+                        function(res) {
+
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'Rename',
+                                template: res
+                            });
+
+                            //reset flag
+                            cancelled = true;
+                        }
+                    );
+                }
+            });
+        };
+
+        $scope.leaveLeague = function() {
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.confirm({
+                title: 'Confirm Leaving',
+                template: 'Are you sure you want to leave this private league?'
+            });
+            myPopup.then(function(res) {
+                if (res) {
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.leaveLeague(auth.profile.user_id, $scope.privateLeague.privateLeagueId).then(
+                        function(res) {
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'League Left',
+                                template: 'The private league was left successfully!'
+                            });
+
+                            //update the local user data
+                            User.getUserData();
+
+                            //take the user back to the list of private leagues
+                            $state.go('tab.scoreboard-private-leagues');
+                        }
+                    );
+                }
+            });
+        };
+
+        $scope.deleteMember = function(user_id_to_delete) {
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.confirm({
+                title: 'Confirm Deletion',
+                template: 'Are you sure you want to remove the member from this private league?'
+            });
+            myPopup.then(function(res) {
+                if (res) {
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.deleteMember(auth.profile.user_id, user_id_to_delete, $scope.privateLeague.privateLeagueId).then(
+                        function(res) {
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'Member Deleted',
+                                template: 'The member was removed from the league successfully!'
+                            });
+
+                            //update the local user data
+                            User.getUserData();
+
+                            //take the user back to the list of private leagues
+                            //TODO: REPLACE THIS WITH A PAGE REFRESH
+                            $state.go('tab.scoreboard-private-leagues');
+                        }
+                    );
+                }
+            });
+        };
+
+        $scope.deleteLeague = function() {
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.confirm({
+                title: 'Confirm Delete',
+                template: 'Are you sure you want to delete this entire private league?'
+            });
+            myPopup.then(function(res) {
+
+                if (res) {
+                    //validate the username, check not user's or existing member
+
+                    //TODO: Remove this is it is an unnecessary precaution
+                    //check that the user has not attempted to invite themselves
+                    if (!$scope.user_id == $scope.privateLeague.creator) {
+                        console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
+                        console.log("Only the creator of a league can delete it!.");
+
+                        //then this user has already been invited
+                        $ionicPopup.alert({
+                            title: 'Error! League not deleted!',
+                            template: 'To delete this league you must have created it.'
+                        });
+
+                        return
+                    }
+
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.deleteLeague(auth.profile.user_id, $scope.privateLeague.privateLeagueId).then(
+                        function(res) {
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'Deleted',
+                                template: 'The private league was deleted successfully!'
+                            });
+
+                            //take the user back to the list of private leagues
+                            $state.go('tab.scoreboard-private-leagues');
+                        }
+                    );
+                }
+            });
+        };
+
+
     })
 
     .controller('GlobalScoreboardCtrl', function($scope, Scoreboard, auth){
@@ -759,7 +1013,11 @@ angular.module('starter.controllers', [])
 
     })
 
-    .controller('AccountCtrl', function($scope, $state, User, auth) {
+    .controller('AccountCtrl', function($scope, $state, User, auth, $ionicPopup, PrivateLeagues) {
+
+        //hopefully this should get run every time the user navigates to this tab
+        User.getUserData(auth.profile.user_id);
+        $scope.userData = User.currentUser();
 
         //ionic list control values
         $scope.shouldShowDelete = false;
@@ -767,14 +1025,15 @@ angular.module('starter.controllers', [])
         $scope.listCanSwipe = true;
 
         $scope.signOut = function() {
+
+            //clear the stored user data in out service
+            User.clearCurrentUser();
+
             //call the signout method on the auth service
             auth.signout();
 
             //need to manually display the login screen again
             auth.signin({
-
-                //THIS IS WHERE TO CONFIGURE THE AUTH0 OPTIONS SUCH AS CLOSABLE ETC...
-
                 // This is a must for mobile projects
                 popup: true,
                 // Make the widget non closeable
@@ -789,47 +1048,131 @@ angular.module('starter.controllers', [])
 
                 //check to see if this user exists on the server already, if not, create this user using auth0 details
                 debugger;
-                User.sync(auth.profile);
+                User.sync(auth.profile).then(function(){
+                    //Once the user data has been synced, get the user data object from our server also
+                    //Have to do in this callback otherwise we attempt to get the user data before the sync has finished
+                    console.log('Logging in after logging out and sending user_id: ' + auth.profile.user_id);
+                    User.getUserData(auth.profile.user_id).then(function(results){
+                        console.log("Getting the current user data from our server... : " + JSON.stringify(User.currentUser()));
 
-                $state.go('tab.rounds');
+                        //expose the user's invitations to the scope
+                        $scope.userData = User.currentUser();
 
-                //show an alert for testing purposes
-                $ionicPopup.alert({
-                    title: 'Login successful!',
-                    template: 'Welcome ' + auth.profile.nickname + '!'
-                }).then(function(res){
-                    console.log(auth.profile);
+                        debugger;
+
+                        console.log("Invitations are: " + $scope.userData.invitations);
+                        console.log("Notifications are: " + $scope.userData.notifications);
+
+                        $state.go('tab.rounds');
+
+                        //show an alert for testing purposes
+                        $ionicPopup.alert({
+                            title: 'Login successful!',
+                            template: 'Welcome ' + auth.profile.nickname + '!'
+                        }).then(function(res){
+                            console.log(auth.profile);
+                        });
+                    });
                 });
-
             }, function(error) {
                 // Oops something went wrong during login:
                 console.log("There was an error logging in", error);
             });
         };
 
-        console.log("Getting the current user data from our server... : " + JSON.stringify(User.currentUser()));
-
-        //expose the user's invitations to the scope
-        $scope.userData = User.currentUser();
-
-        debugger;
-
-        console.log("Invitations are: " + $scope.userData.invitations);
-        console.log("Notifications are: " + $scope.userData.notifications);
-
         //function to accept an invitation
         //unique because a user can't be invited to the same private league more than once
         $scope.acceptInvitation = function(privateLeagueId) {
             //call the method in the service, passing in the user id of the logged in user (invitee)
             //as well as the private league id
-            PrivateLeague.acceptInvitation(auth.profile.user_id, $scope.privateLeague.privateLeagueId).then(
-                //popup to let the user know they are now a member of that league
 
-                //put the direct response from the server into the popup, test when back!
+            debugger;
 
-                //button to take the user directly to this league
+            PrivateLeagues.acceptInvitation(auth.profile.user_id, privateLeagueId).then(function(response){
+                    //popup to let the user know they are now a member of that league
+                    console.log("The response from the server was: " + JSON.stringify(response));
+                    if (response == 200) {
+                        //then everything went ok, let the user know
+                        //show an alert for testing purposes
+                        $ionicPopup.alert({
+                            title: 'Invitation was Accepted!',
+                            template: 'Go have a look at your new private league!'
+                        });
+
+                        //now delete the invitation from the user/reload the page!
+                        //TODO: Replace all fors used to find with findWhere in underscore.js
+                        for (var i = 0; i < $scope.userData.invitations.length; i++){
+                            if ($scope.userData.invitations[i].privateLeagueId == privateLeagueId) {
+                                //then this invitation has been successfully removed from the server, so delete
+                                $scope.userData.invitations.splice(i, 1); //this should now get removed from the view
+                                //if not view updated, then scope.apply. - test this.
+                            }
+                        }
+
+                    } else {
+                        //print the error message that was returned instead todo: Use error objects properly for this?
+                        $ionicPopup.alert({
+                            title: 'Something went awry!',
+                            template: response
+                        });
+                    }
+
+                    //TODO: button to take the user directly to this league, $state.go(...)
+                }
             );
-        }
+        };
 
+        $scope.rejectInvitation = function(invitedByUsername, privateLeagueId) {
+            //call through to service and then server
+            PrivateLeagues.rejectInvitation(auth.profile.user_id, invitedByUsername, privateLeagueId).then(
+                function(response){
+                    //popup to let the user know they are now a member of that league
+                    console.log("The response from the server was: " + JSON.stringify(response));
+                    if (response == 202) {
+                        //then everything went ok, let the user know
+                        //show an alert for testing purposes
+                        $ionicPopup.alert({
+                            title: 'Invitation was rejected!',
+                            template: 'Who needs friends anyway.'
+                        });
+
+                        //now delete the invitation from the user/reload the page!
+                        //TODO: Replace all fors used to find with findWhere in underscore.js
+                        for (var i = 0; i < $scope.userData.invitations.length; i++){
+                            if ($scope.userData.invitations[i].privateLeagueId == privateLeagueId) {
+                                //then this invitation has been successfully removed from the server, so delete
+                                $scope.userData.invitations.splice(i, 1); //this should now get removed from the view
+                                //if not view updated, then scope.apply. - test this.
+                            }
+                        }
+
+                    } else {
+                        //print the error message that was returned instead todo: Use error objects properly for this?
+                        $ionicPopup.alert({
+                            title: 'Something went awry!',
+                            template: response
+                        });
+                    }
+
+                    //TODO: button to take the user directly to this league, $state.go(...)
+                }
+            );
+
+            //popup to let user know of the result of that
+
+        };
+
+        //TODO: Update the user's info with a pull to refresh and push notifications
+        $scope.doRefresh = function() {
+
+            //Replace this with a manual check of new invitations and notifications
+            $scope.userData =  User.getUserData(auth.profile.user_id).then(function(){
+                //TODO: Ionic popup if new notifications here
+                $scope.$broadcast('scroll.refreshComplete');
+
+                //renew the scope
+                //$scope.userData = User.getUserData(); //TODO: may need to update the view
+            });
+        };
     });
 

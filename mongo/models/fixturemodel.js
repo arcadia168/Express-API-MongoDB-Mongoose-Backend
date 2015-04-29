@@ -7,6 +7,7 @@ var fixtureSchema = new Schema({
   round: { type: Number, required: true },
   fixDate: { type: Date, default: Date.now },
   fixResult: { type: Number, default: 0 }
+    //TODO: Add fixture time and match_id for football-api in here?
 });
 
 var Fixture = mongoose.model('Fixture', fixtureSchema);

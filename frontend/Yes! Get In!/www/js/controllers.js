@@ -607,8 +607,6 @@ angular.module('starter.controllers', [])
     })
 
     .controller('ScoreboardCtrl', function($scope, Scoreboard) {
-
-
         $scope.test = function() {
             $ionicPopup.alert({
                 title:    'Sup dawg!',
@@ -1160,6 +1158,38 @@ angular.module('starter.controllers', [])
 
             //popup to let user know of the result of that
 
+        };
+
+        //load the text of the notification into a modal/popup
+        $scope.showNotification = function (notification_index) {
+            //get the notification at the given index
+            var notification_text = $scope.userData.notifications[notification_index].message;
+
+            console.log("The notification text to display is: " + notification_text);
+
+            //now display this text within a modal or popup
+            $ionicPopup.alert({
+                title: 'Notification!',
+                template: notification_text
+            });
+        };
+
+        //remove the desired notification from the user on the server
+        $scope.deleteNotification = function (notification_id) {
+            //call  through to the server, sending user_id and notification_id
+            User.clearNotification(auth.profile.user_id, notification_id).then(
+                function (res) {
+                    console.log('Notification cleared');
+
+                    //splice the notification out to remove from view for now
+                    for (var i = 0; i < $scope.userData.notifications.length; i++) {
+                        if ($scope.userData.notifications[i].notification_id == notification_id) {
+                            $scope.userData.notifications.splice(i, 1); //TODO: implement some sort of model refresh from server for this.
+                            //TODO: Refresh in the same way as the predictions get refreshed after changes are made.
+                        }
+                    }
+                }
+            );
         };
 
         //TODO: Update the user's info with a pull to refresh and push notifications

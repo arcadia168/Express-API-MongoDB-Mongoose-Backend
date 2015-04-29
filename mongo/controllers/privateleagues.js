@@ -604,8 +604,12 @@ exports.rejectPrivateLeagueInvitation = function(req, res) {
                     return res.jsonp("The inviting user was not found, so may have been deleted.");
                 }
 
+                //Construct the object to pass in to creation
+                var id = mongoose.Types.ObjectId();
+
                 //generate the new notification to add
                 var notification = {
+                    notificationId: id,
                     message : "The user " + invitedUserName + " rejected the invitation from " + invitingUserName + " to join the private league " + privateLeagueName
                 };
 
@@ -621,12 +625,12 @@ exports.rejectPrivateLeagueInvitation = function(req, res) {
                     //if there is an error, this is due to a mongo issue so simply return this to the user
                     if (err) return res.jsonp(err);
                     console.log('The invitation that was rejected has now been deleted.');
+                    //Return accepted but not processed status code TODO: Implement this in other areas of the server where necessary
+                    return res.jsonp(202);
                 });
+                //TODO: Test this method
             });
         });
     });
-
-    //Return accepted but not processed status code TODO: Implement this in other areas of the server where necessary
-    return res.jsonp(202);
 };
 

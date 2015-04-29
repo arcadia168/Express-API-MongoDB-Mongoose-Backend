@@ -26,6 +26,7 @@ module.exports = function(app){
     //app.put('api/users/:user_id', users.updateUser); //protect TODO: Remove as not necessary
     app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
+    app.delete('/api/users/notifications/clear/:user_id/:notification_id', users.clearNotification); //protect
 
     //below API functionalities are not user dependent (don't need to be JWT protected)
     //DON'T NEED TO BE LOGGED IN TO ACCESS THESE
@@ -44,8 +45,9 @@ module.exports = function(app){
     //TODO: Remove these from the release version of the API
     //routes which quickly manipulate dummy data into the database
     //always disable these when pushing to the server.
-    //app.get('/api/dummy/users', users.dummyData);
-    //app.get('/api/dummy/fixtures', fixtures.dummyData);
-    //app.get('/api/dummy/results/:round', users.dummyResults);
-    //app.delete('/api/clear/all', users.wipe);
+    app.get('/api/dummy/users', users.dummyData);
+    app.get('/api/dummy/fixtures', fixtures.dummyData);
+    app.get('/api/dummy/results/:round', users.dummyResults);
+    app.delete('/api/clear/all', users.wipe);
+    app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
 };

@@ -7049,3 +7049,7 @@ ion-view[view-title="League Table"] .row:nth-child(2n) {
 
 .team {
   background: #fff; }
+
+.eighty {
+  width: 80%;
+}

@@ -49,7 +49,6 @@ angular.module('starter.services', ['ngResource'])
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        deferred.promise;
                     });
                 return deferred.promise;
             },
@@ -68,7 +67,6 @@ angular.module('starter.services', ['ngResource'])
                         deferred.resolve(data);
                     }).error(function(){
                         console.log("Error while making HTTP call.");
-                        deferred.promise;
                     });
                 return deferred.promise;
 
@@ -439,7 +437,6 @@ angular.module('starter.services', ['ngResource'])
             getUserData: function(user_id) {
 
                 //get the data for a particular user from the server
-                //prepend the predictions array with the necessary information
 
                 var deferred = $q.defer();
 
@@ -467,6 +464,21 @@ angular.module('starter.services', ['ngResource'])
                 currentUserData = {};
                 return "Stored user data cleared.";
                 //to avoid having old user data after logging out and back in again
+            },
+            clearNotification: function (user_id, notification_id) {
+                var deferred = $q.defer();
+
+                $http.delete(SERVER + '/api/users/notifications/clear/' + user_id + '/' + notification_id
+                ).success(function (response) {
+                        console.log("Notification deleted");
+                        //assign the returned user data to the factory
+                        deferred.resolve(response);
+                    }).error(function () {
+                        console.log("Error while making HTTP call.");
+                        alert("Something went wrong"); //TODO: Replace this with an ionic popup
+                        deferred.promise;
+                    });
+                return deferred.promise;
             }
         }
 

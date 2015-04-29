@@ -12,15 +12,24 @@
                 Notifications
             </div>
             <ion-item ng-if="userData.notifications.length == 0">No notifications</ion-item>
-            <ion-item ng-repeat="notification in userData.notifications">{{notification.message}}</ion-item>
+            <ion-item ng-repeat="notification in userData.notifications track by $index">
+                <p class="eighty" ng-click="showNotification($index)">{{notification.message}}</p>
+                <i class="icon ion-ios-close-empty" ng-click="clearNotification(notification.notificationId)"></i>
+            </ion-item>
             <div class="item item-divider">
                 Invitations
             </div>
             <ion-item ng-if="userData.invitations.length == 0">No invitations</ion-item>
-            <ion-item ng-repeat="invitation in userData.invitations">Invitation to: {{invitation.privateLeagueName}} from {{invitation.invitedBy}}
-                <ion-option-button class="button button-balanced" ng-click="acceptInvitation(invitation.privateLeagueId)">Accept</ion-option-button>
-                <ion-option-button class="button button-assertive" ng-click="rejectInvitation(invitation.invitedBy, invitation.privateLeagueId)" >Reject</ion-option-button>
-                <ion-option-button class="button button-energized">Ignore</ion-option-button>
+            <ion-item ng-repeat="invitation in userData.invitations track by $index">
+                Invitation to: {{invitation.privateLeagueName}} from {{invitation.invitedBy}}
+                <ion-option-button class="button button-balanced"
+                                   ng-click="acceptInvitation(invitation.privateLeagueId)">
+                    Accept
+                </ion-option-button>
+                <ion-option-button class="button button-assertive"
+                                   ng-click="rejectInvitation(invitation.invitedBy, invitation.privateLeagueId)">
+                    Reject
+                </ion-option-button>
             </ion-item>
         </ion-list>
     </ion-content>

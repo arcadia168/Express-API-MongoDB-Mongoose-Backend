@@ -10,26 +10,13 @@ var userSchema = new Schema({
     //email: { type: String, required: true },
     name: { type: String, required: true },
     predictions: [Prediction],
-    notifications: [{message: String}],
+    notifications: [{notificationId: String, message: String}],
     invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
     score: { type: Number, default: 0 } //TODO: Add a url to a user picture! - Get this from Auth0
 });
 
 userSchema.pre('save', function(next) { var user = this;
     if(!user.isModified('password')) return next();
-
-    //not necessary anymore as we do not store passwords ourselves
-    //bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-    //  if(err) return next(err);
-    //
-    //  bcrypt.hash(user.password, salt, function(err, hash) {
-    //    if (err) return next(err);
-    //
-    //    user.password = hash;
-    //    next();
-    //  });
-    //});
-
 });
 
 userSchema.methods.comparePassword = function(candidatePassword, cb) {

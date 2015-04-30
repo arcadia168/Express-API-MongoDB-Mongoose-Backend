@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var http = require('http');
 var https = require('https');
 var users = require('./users');
-var _ = require('underscore'); //todo: remove if not used, reduce server load as much as possible.
+var Agenda = require('agenda');
 var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 var User = mongoose.model('User');
@@ -260,7 +260,7 @@ exports.testGetResultThenScore = function (req, res) {
     //pass object in as json
     //TODO: evaulate if the callback is necessary?
     //TODO: SCHEDULE THIS TO GET RUN FOR EACH FIXTURE, AT THE END OF THE MATCH...
-    getFixtureResult(JSON.stringify(fixture), function () {
+    _getFixtureResult(JSON.stringify(fixture), function () {
         res.jsonp('THE USERS WHO PREDICTED FOR THIS FIXTURE WERE GIVEN SCORES BASED OFF OF LIVE RESULTS!!!')
     });
 
@@ -269,10 +269,44 @@ exports.testGetResultThenScore = function (req, res) {
 
 //PRIVATE FUNCTIONS
 
+//function to run through all of the fixtures and schedule for thier live results to be fetched
+//then users to be scored on thier predictions of these live results
+function _scheduleGetResultsAndScore() {
+    //instantiate agenda
+
+    //define the job to be run for each fixture
+
+    //loop through all fixtures, schedule job to run for each
+
+    //start the scheduler TODO: INVOKE THIS ELSEWHERE?
+}
+
+//function to fetch all the scheduled fixtures for an entire season and parse into our db
+function _getSeasonFixtures(competition, fromDate, toDate) {
+    //map competition to comp code for football api
+
+    //make a call to the api
+
+    //loop over returned fixtures and parse into our format and store in db
+}
+
+//function to check existing fixtures and live schedule, to update any changes to fixtures
+//SCHEDULE THIS TO BE RUN REGULARLY TO KEEP OUR FIXTURE DATA UP TO DATE.
+function _fixtureSync(competition) {
+    //get all fixtures from our db
+
+    //get all fixtures from api - set fromDate as today - or start of season
+    //if season started , today else, start of season in future
+    //to date is end of season
+
+    //compare stored fixtures to returned, if different, update
+
+}
+
 //this function will be sheduled to run for each fixture.
 //function to take a local fixture and retrieve the live result from 3rd party football-api
 //once this has been tested, pass in a callback and test it upon success.
-function getFixtureResult(fixture, callback) {
+function _getFixtureResult(fixture, callback) {
 
     //TODO: implement date validation here that the fixture occurred in the past
 

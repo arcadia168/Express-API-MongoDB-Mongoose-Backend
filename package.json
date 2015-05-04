@@ -30,7 +30,9 @@
     "express": "*",
     "express-jwt": "*",
     "mongoose": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "agenda" : "*",
+    "moment" : "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

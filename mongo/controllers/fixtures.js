@@ -279,7 +279,7 @@ exports.testGetRealFixtures = function (req, res) {
 
         console.log("Getting new fixtures");
         //GET NEW REAL FIXTURES
-        _getNextRealSeasonFixtures("EPL",null, null, null, null, null, function(result, data) { //todo: rearrange parameters to make arguments neater
+        _getNextRealSeasonFixtures("EPL", function(result, data) { //todo: rearrange parameters to make arguments neater
             res.jsonp({
                 "status" : result,
                 "data"  : data
@@ -304,10 +304,9 @@ function _scheduleGetResultsAndScore() {
 }
 
 //function to fetch all the scheduled fixtures for an entire season and parse into our db
-//USER HAS TO PASS IN START AND END DATES OF THE CHOSEN SEASON (NOT AVAILABLE VIA ANY API)
-//fuctoin assumes no fifa mandated breaks, if any feed them in as an array of the starting dates (saturday) of the break weeks
-//with the epl the only breaks are FIFA mandated break weeks.
-function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, seasonEnd, breakWeekStartDates, callback) {
+//USER MAY PASS IN START AND END DATES OF THE CHOSEN SEASON (NOT AVAILABLE VIA ANY API)
+//TODO: Evaulate the way in which rounds are assigned to fixtures, rounds are purely ours, not THAT important.
+function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, seasonStart, seasonEnd) {
     //map competition to comp code for football api
 
     //todo: Do we want dates that are in the past? For what purpose? NO PAST DATES.
@@ -320,46 +319,42 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
     //if no dates provided, use some specific ones.
     if (!fromDate) {
         //then set a default one
+        //default to today!!!!
 
-        //if no date is provided, use last year
-        //TODO: Change this to be today.
-        var today = new Date();
-        var lastYear = today.getFullYear() - 1;
-        fromDate = moment([lastYear, 07, 16]);//this league start 16 aug last year
+        fromDate = moment('01.01.2015', 'DD.MM.YYYY' );
+
         //use moment dates for ease of manipulation
         console.log("Will be retrieving fixtures from as early as: " + fromDate.toString());
     }
 
     if (!toDate) {
-        //then set a default one
+        //then set a default one as end of season
 
         //if no date is provided, use next year
+        var today = new Date ();
         var thisYear = today.getFullYear();
+        //toDate = moment([lastYear, 08, 13]); //this league ends 24 may this year
         toDate = moment([thisYear, 04, 24]); //this league ends 24 may this year
         console.log("Will be retrieving fixtures up to: " + toDate.toString());
     }
 
     //HERE, TAKE INTO ACCOUNT ANY BREAKS THAT HAVE OCCURED DURING SEASON, CHECK PARAM
-    if (!seasonStart) {
-        //then set a default one
-
-        //if no date is provided, use last year
-        //TODO: Change this to be today.
-        seasonStart = moment([lastYear, 07, 16]);//this league start 16 aug last year
-
-        console.log("Now incorporating offsets");
-
-        console.log("Setting the start of the season to be: " + seasonStart.toString());
-    }
-
-    if (!seasonEnd) {
-        //then set a default one
-
-        //todo: if there are any break weeks, take these into account when working out season end
-        //if no date is provided, use next year
-        seasonEnd = moment([thisYear, 04, 24]); //this league ends 24 may this year
-        console.log("Setting the end of the season to be: " + seasonEnd.toString());
-    }
+    //if (!seasonStart) {
+    //    //then set a default one
+    //
+    //    //if no date is provided, use last year
+    //    seasonStart = moment([lastYear, 07, 16]);//this league start 16 aug last year
+    //
+    //    console.log("Setting the start of the season to be: " + seasonStart.toString());
+    //}
+    //
+    //if (!seasonEnd) {
+    //    //then set a default one
+    //
+    //    //if no date is provided, use next year
+    //    seasonEnd = moment([thisYear, 04, 24]); //this league ends 24 may this year
+    //    console.log("Setting the end of the season to be: " + seasonEnd.toString());
+    //}
 
     //if no season dates, given set to default
 
@@ -420,14 +415,21 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
                 //console.log("Results returned from server: " + JSON.stringify(obj));
 
                 //if nothing went wrong, process returned fixtures
+                //this is api specific
                 if (obj.ERROR == 'OK') { //nothing went wrong
                     var seasonFixtures = obj.matches;
                     var fixturesToStore = [];
+                    console.log("The number of matches retrieved is: " + seasonFixtures.length);
 
                     //sort the results
+                    seasonFixtures = _sortByMomentDate(seasonFixtures, 'match_formatted_date');
+                    seasonFixtures.reverse(); //todo: replace this with sorting the properly (stop being lazy
+
+                    console.log("Fixtures from server have now been sorted by date");
+
                     //BELOW CODE ATTEMPTS TO WORK OUT SEASON DATES FROM DATA... START WORKS FINE... NOUT ELSE
-                    //seasonFixtures = _sortByMomentDate(seasonFixtures, 'match_formatted_date');
-                    //console.log("Fixtures from server have now been sorted by date");
+
+
                     //
                     ////take first fix date as start of season
                     //var seasonStartDateRaw = seasonFixtures[0].match_formatted_date;
@@ -443,33 +445,166 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
                     //        "\n Season Ends: " + seasonEnd.toString());
 
                     //loop over returned fixtures and parse into our format and store in db
-                    var currentFixture;
+                    var currentFixture = null; //todo: check if better to initialize to null?
+                    var previousFixtureDate = seasonEnd;
+                    var previousFixtureRound = 38;
+                    var fixtureRound = 38;
+
+                    //get fixtures from today until end of season...
                     for (var i = 0; i < seasonFixtures.length; i++) {
+
+                        //console.log("Iteration of fixtures: " + i);
                         //for each fixture from the 3rd party api, extract relevant details, construct doc and save to db
                         currentFixture = seasonFixtures[i];
 
                         //make the returned fix date into a usable moment.js date
                         var thisFixtureDate = moment(currentFixture.match_formatted_date, "DD.MM.YYYY");
-                        console.log("The current fixture date (in moment format) is: " + thisFixtureDate.toString());
+                        console.log("\nCurrent fixture date: " + thisFixtureDate.toString());
 
-                        //better to use season end as this is indifferent of breaks in the season
+                        //for the first fixture
+                        //if (i == 0) {
+
+                        //check to see if equal with the start of the season
+
+                        //console.log("Comparing season end: " + seasonEnd.toString() + " to last fixture: " +
+                        //    thisFixtureDate.toString() + "\n The result is: " + (thisFixtureDate.isSame(seasonStart, "day")));
+                        //
+                        //if (thisFixtureDate.isSame(seasonEnd, "day")) {
+                        //    console.log("The las fixture took place on the day of the season starting.");
+                        //    fixtureRound = 1;
+                        //} else {
+                        //    console.log("NOT getting fixtures from start of season, getting a mid-season leg from: " +
+                        //        fromDate.toString() + " and first fixture returned from API for this from_date is: " +
+                        //        thisFixtureDate.toString());
+                        //
+                        //    console.log("In this case, finding the preceeding fixture from our database (by date)");
+                        //
+                        //    //then we have found a fixture not at the start of the season, get a previous fixture
+                        //    Fixture.find({'fixDate' : { "$lte" : thisFixtureDate.toDate}}).sort({ 'fixDate' : -1}).exec(function(error, previousFixtures)
+                        //    {
+                        //
+                        //        if (previousFixtures) {
+                        //
+                        //            console.log("The previously stored fixtures that precede the current one are: \n" +
+                        //                JSON.stringify(previousFixtures));
+                        //
+                        //
+                        //            //assign the found round and date of the fixture to the variables
+                        //            previousFixtureDate = moment(previousFixtures[0].fixDate);
+                        //            previousFixtureRound = previousFixtures[0].round;
+                        //
+                        //            console.log("The preceeding fixture was played on: " + previousFixtureDate +
+                        //                " in round/gameweek: " + previousFixtureRound);
+                        //        } else {
+                        //            console.log("There were no previously stored fixtures, for our app, make this fixture be in the first round");
+                        //
+                        //            //leave previous fixture date null for now.
+                        //            previousFixtureRound = 1;
+                        //        }
+                        //    });
+                        //}
+                        //}
+
+                        //console.log("The current fixture date (in moment format) is: " + thisFixtureDate.toString());
+                        //console.log("The previous fixture date is: " + previousFixtureDate.toString());
+
 
                         //using moment.js, find the difference in weeks between the last game and this one
-                        var fixtureRound = 38 - seasonEnd.diff(thisFixtureDate, 'weeks');
+                        //if there is a previous fixture (not the first fixture of season which goes in round 1)
+                        //then work out which round this fixture belongs in
+                        //assumes chain and order of fixtures. BE SURE TO SORT.
+                        if (previousFixtureDate) {
+                            //then work out this fixture's round based on the previous one
+
+                            //find the monday which follows the previous fixture
+
+                            //if the previous date is already a monday, this is the end of the previous fixtures' end
+                            var previousTuesdayFound = false;
+                            var previousTuesday;
+                            var tempNextDay = moment(previousFixtureDate); //clone date properly, new object, not new pointer
+
+                            //this loop should run until the monday after the previous fixture is found
+                            //console.log("Now looping to find the Tuesday which follows the previous fixture, which was: " +
+                            //previousFixtureDate.toString());
+
+                            while(!previousTuesdayFound) {
+                                if (tempNextDay.day() == 2) { //if the date is a monday
+                                    //console.log("The previous Tuesday to the previous fixture has been found to be: " +
+                                    //tempNextDay.toString() + "\n Exiting while loop.");
+
+                                    //assign this date as following monday (end of previous round) - CLONE OBJECT
+                                    previousTuesday = moment(tempNextDay);
+
+                                    //close the loop
+                                    previousTuesdayFound = true;
+                                } else {
+                                    //console.log("Day " + tempNextDay.day() + " was not a previous Tuesday, iterating")
+                                    tempNextDay.subtract(1, 'day');
+                                }
+                            }
+
+                            //if current fixture is after this monday then place it in the next round else in same round
+                            if (thisFixtureDate < previousTuesday ) {
+                                console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+                                fixtureRound = previousFixtureRound - 1; //todo: check if ++ would mute original
+                                console.log("This fixture belongs in the previous round: " + fixtureRound);
+                            } else {
+                                fixtureRound = previousFixtureRound;
+                                console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+                                console.log("This fixture belongs in the same round as the previous fixture: " + fixtureRound);
+                            }
+                        }
+
                         console.log("This fixture belongs to gameweek/round: " + fixtureRound);
 
-                        //todo: make times in moment format so they are usable
+                        //todo: these are not being parsed properly
+                        //parse match times for storage
+                        var kickOffTime = moment(thisFixtureDate)
 
-                        //parse match times for storaage
-                        var kickOffTime = currentFixture.match_time.replace(/:/g, '');
-                        //console.log("The proposed kick off time is: " + kickOffTime);
+                        //parse this differently
+                        kickOffTime.hour(currentFixture.match_time.substr(0,1));
+                        kickOffTime.minutes(currentFixture.match_time.substr(3,4));
+                        console.log("The proposed kick off time is: " + kickOffTime.toString());
 
-                        var fullTime = kickOffTime + 90;
-                        //console.log("The fixture should end at: " + fullTime);
+                        var halfTime = moment(kickOffTime);
+                        halfTime.add(45, 'minutes');
+                        console.log("This fixture have half time at: " + halfTime.toString());
 
-                        //cast date here first
+                        var fullTime = moment(kickOffTime);
+                        fullTime.add(90, 'minutes');
+                        console.log("The fixture should end at: " + fullTime.toString());
+
+                        //cast dates and times here first
                         var convertedDate = thisFixtureDate.toDate();
-                        console.log("Original: " + thisFixtureDate.toString() + " converted date is: " + convertedDate.toString());
+                        var kickOffSave = kickOffTime.toDate(); //check if mutable as others, if so delete variables
+                        var halfTimeSave = halfTime.toDate();
+                        var fullTimeSave = fullTime.toDate();
+
+                        //extract the result and put into usable form
+                        var tempAPIResult = currentFixture.match_ft_score;
+                        //console.log("The result of the relelvant fixture from the football-api.com API is: " + tempAPIResult);
+
+                        //todo: extract this out into a function
+                        var homeTeamResult = tempAPIResult.charAt(1);
+                        var awayTeamResult = tempAPIResult.charAt(3);
+
+                        var localFixResult = 0;
+
+                        //Now process this result into a usable format for our server (1, 2 or 3)
+                        //1 = home win, 2 = away win, 3 = draw
+                        if (homeTeamResult > awayTeamResult) {
+                            //then this was a home win
+                            localFixResult = 1;
+                            //console.log("The match was a home win.");
+                        } else if (homeTeamResult < awayTeamResult) {
+                            //then this was an away win
+                            localFixResult = 2;
+                            //console.log("The match was an away win.");
+                        } else if (homeTeamResult == awayTeamResult) {
+                            //then this was a draw
+                            localFixResult = 3;
+                            //console.log("The match was a draw.");
+                        }
 
                         //now construct new object to add
                         //todo: decalre new fixture above and then redeclare on each iteration for efficiency?
@@ -477,10 +612,11 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
                             homeTeam: currentFixture.match_localteam_name,
                             awayTeam: currentFixture.match_visitorteam_name,
                             round: fixtureRound,
-                            fixDate: convertedDate, //convert from moment.js to js date
-                            fixResult: "0", //for no current result
-                            kickOff: kickOffTime, //times to be stored as 24 hr e.g 0830, 2359
-                            fullTime: fullTime //todo: may need to cast this to string for db
+                            fixDate: convertedDate,
+                            fixResult: localFixResult, //for no current result
+                            kickOff: kickOffSave,
+                            halfTime: halfTimeSave,
+                            fullTime: fullTimeSave
                         };
 
                         //console.log("The fixture being added to the database is: \n" + JSON.stringify(newFixture));
@@ -489,6 +625,10 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
 
                         //TODO: Implement break if something fucks up
                         //Now move on to the next fixture
+
+                        //Assign the previous fixture for the next iteration
+                        previousFixtureDate = thisFixtureDate;
+                        previousFixtureRound = fixtureRound; //todo: need to clear this variable before iterating?
                     }
 
                     fixturesToStore = "[" + fixturesToStore + "]";
@@ -504,6 +644,7 @@ function _getNextRealSeasonFixtures(competition, fromDate, toDate, seasonStart, 
                         console.log("All of the new fixtures were saved to the database successfully!");
                         callback(202, fixtures); //function's all done!
                     });
+
                 } else {
                     //something went wrong, return
                     console.log("Something went wrong: " + obj.ERROR);
@@ -571,6 +712,7 @@ function _getFixtureResult(fixtureData, callback) {
         });
 
         response.on('end', function () {
+
             obj = JSON.parse(output);
             console.log("Results returned from server: " + JSON.stringify(obj));
 
@@ -589,8 +731,8 @@ function _getFixtureResult(fixtureData, callback) {
 
             console.log("Now attempting to loop over the matches on the given day and select relevant one.");
             for (var i = 0; i < fixDateFixtures.length; i++) {
-                //compare api fixture properties to our own
 
+                //compare api fixture properties to our own
 
                 //place current fixture into variable to reduce number of reads
                 var currentAPIFixture = fixDateFixtures[i];
@@ -612,6 +754,7 @@ function _getFixtureResult(fixtureData, callback) {
                     var tempAPIResult = currentAPIFixture.match_ft_score;
                     console.log("The result of the relelvant fixture from the football-api.com API is: " + tempAPIResult);
 
+                    //todo: extract this out into a function
                     var homeTeamResult = tempAPIResult.charAt(1);
                     var awayTeamResult = tempAPIResult.charAt(3);
                     console.log("The home team " + currentAPIFixture.match_localteam_name + " result is: " + homeTeamResult);
@@ -684,13 +827,17 @@ function _sortByMomentDate(array, key) {
 
         var x = a[key];
 
-        x = moment([x.substr(6,9), x.substr(3,4), x.substr(0,1)]);
+        x = moment(x);
 
         var y = b[key];
 
-        y = moment([y.substr(6,9), y.substr(3,4), y.substr(0,1)]);
+        y = moment(y);
 
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        //sort by ascending, swap comparisons to make desc
+
+        //-1 for smaller, 1 for greater, 0 for equal.
+        //return moment.utc(x.timeStamp).diff(moment.utc(y.timeStamp))
+        return moment.utc(x.timeStamp).diff(moment.utc(y.timeStamp))
     });
 }
 

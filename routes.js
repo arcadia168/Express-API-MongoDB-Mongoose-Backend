@@ -53,5 +53,6 @@ module.exports = function(app){
     app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
     app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
     app.get('/api/dummy/fixtures/testgetfixtures', fixtures.testGetRealFixtures);
+    app.get('/api/dummy/fixtures/testagenda', fixtures.testScheduling);
 
 };

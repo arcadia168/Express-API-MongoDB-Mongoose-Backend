@@ -2,12 +2,13 @@ var mongoose = require('mongoose');
 var http = require('http');
 var https = require('https');
 var users = require('./users');
-//var Agenda = require('agenda');
+var Agenda = require('agenda');
 var moment = require('moment');
 var MiniSet = require('./miniset');
 var Fixture = mongoose.model('Fixture');
 var User = mongoose.model('User');
-
+var IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
 
 exports.getFixtures = function(req, res) {
     Fixture.find({}, function(err, results) {
@@ -169,65 +170,6 @@ exports.clearRound = function() {
     });
 };
 
-//TODO: ALTERNATIVELY, write method to pull these down from football-api and store all relevant details!
-var examples = [
-    {"homeTeam":"Arsenal", "awayTeam":"Crystal Palace","round":"1"},
-    {"homeTeam":"Burnley", "awayTeam":"Chelsea", "round":"1"},
-    {"homeTeam":"Leicester City", "awayTeam":"Everton", "round":"1"},
-    {"homeTeam":"Liverpool", "awayTeam":"Southampton", "round":"1"},
-    {"homeTeam":"Manchester United", "awayTeam":"Swansea City", "round":"1"},
-    {"homeTeam":"Newcastle United", "awayTeam":"Manchester City", "round":"1"},
-    {"homeTeam":"Queens Park Rangers", "awayTeam":"Everton", "round":"1"},
-    {"homeTeam":"Stoke City", "awayTeam":"Aston Villa", "round":"1"},
-    {"homeTeam":"West Bromwich Albion", "awayTeam":"Sunderland", "round":"1"},
-    {"homeTeam":"West Ham United", "awayTeam":"Tottenham Hotspur", "round":"1"},
-    {"homeTeam":"Aston Villa", "awayTeam":"Newcastle United", "round":"2"},
-    {"homeTeam":"Chelsea", "awayTeam":"Leicester City", "round":"2"},
-    {"homeTeam":"Crystal Palace", "awayTeam":"West Ham United", "round":"2"},
-    {"homeTeam":"Everton", "awayTeam":"Arsenal", "round":"2"},
-    {"homeTeam":"Hull City", "awayTeam":"Stoke City", "round":"2"},
-    {"homeTeam":"Manchester City", "awayTeam":"Liverpool", "round":"2"},
-    {"homeTeam":"Southampton", "awayTeam":"West Bromwich Album", "round":"2"},
-    {"homeTeam":"Sunderland", "awayTeam":"Manchester United", "round":"2"},
-    {"homeTeam":"Swansea City", "awayTeam":"Burnley", "round":"2"},
-    {"homeTeam":"Tottenham Hotspur", "awayTeam":"Swansea City", "round":"2"},
-    {"homeTeam":"Aston Villa", "awayTeam":"Hull City", "round":"3"},
-    {"homeTeam":"Burnley", "awayTeam":"Manchester United", "round":"3"},
-    {"homeTeam":"Everton", "awayTeam":"Chelsea", "round":"3"},
-    {"homeTeam":"Leicester City", "awayTeam":"Arsenal", "round":"3"},
-    {"homeTeam":"Manchester City", "awayTeam":"Stoke City", "round":"3"},
-    {"homeTeam":"Newcastle United", "awayTeam":"Crystal Palace", "round":"3"},
-    {"homeTeam":"Queens Park Rangers", "awayTeam":"Sunderland", "round":"3"},
-    {"homeTeam":"Swansea City", "awayTeam":"West Bromwich Albion", "round":"3"},
-    {"homeTeam":"Tottenham Hotspur", "awayTeam":"Liverpool", "round":"3"},
-    {"homeTeam":"West Ham United", "awayTeam":"Southampton", "round":"3"},
-    {"homeTeam":"Arsenal", "awayTeam":"Manchester City", "round":"4"},
-    {"homeTeam":"Chelsea", "awayTeam":"Swansea City", "round":"4"},
-    {"homeTeam":"Crystal Palace", "awayTeam":"Burnley", "round":"4"},
-    {"homeTeam":"Hull City", "awayTeam":"West Ham United", "round":"4"},
-    {"homeTeam":"Liverpool", "awayTeam":"Aston Villa", "round":"4"},
-    {"homeTeam":"Manchester United", "awayTeam":"Queens Park Rangers", "round":"4"},
-    {"homeTeam":"Southampton", "awayTeam":"Newcastle United", "round":"4"},
-    {"homeTeam":"Stoke City", "awayTeam":"Leicester City", "round":"4"},
-    {"homeTeam":"Sunderland", "awayTeam":"Tottenham Hotspur", "round":"4"},
-    {"homeTeam":"West Bromwich Albion", "awayTeam":"Everton", "round":"4"},
-    {"homeTeam":"Aston Villa", "awayTeam":"Arsenal", "round":"5"},
-    {"homeTeam":"Burnley", "awayTeam":"Sunderland", "round":"5"},
-    {"homeTeam":"Everton", "awayTeam":"Crystal Palace", "round":"5"},
-    {"homeTeam":"Leicester City", "awayTeam":"Manchester United", "round":"5"},
-    {"homeTeam":"Manchester City", "awayTeam":"Chelsea", "round":"5"},
-    {"homeTeam":"Newcastle United", "awayTeam":"Hull City", "round":"5"},
-    {"homeTeam":"Queens Park Rangers", "awayTeam":"Stoke City", "round":"5"},
-    {"homeTeam":"Swansea City", "awayTeam":"Southampton", "round":"5"},
-    {"homeTeam":"Tottenham Hotspur", "awayTeam":"West Bromwich Albion", "round":"5"},
-    {"homeTeam":"West Ham United", "awayTeam":"Liverpool", "round":"5"},
-    {"homeTeam":"Arsenal", "awayTeam":"Tottenham Hotspur", "round":"6"},
-    {"homeTeam":"Chelsea", "awayTeam":"Aston Villa", "round":"6"},
-    {"homeTeam":"Crystal Palace", "awayTeam":"Leicester City", "round":"6"},
-    {"homeTeam":"Hull City", "awayTeam":"Manchester City", "round":"6"},
-    {"homeTeam":"Liverpool", "awayTeam":"Everton", "round":"6"}
-];
-
 //this must come after examples, I think
 exports.dummyData = function(req, res) {
     Fixture.create(examples,
@@ -288,19 +230,96 @@ exports.testGetRealFixtures = function (req, res) {
     });
 };
 
+//to test that the scheduling library works properly...
+exports.testScheduling = function(req, res) {
+
+    //invoke scheduler and pass in callback to return data to client
+    _schedulerTest();
+
+    res.jsonp(202);
+};
+
 //PRIVATE FUNCTIONS
+
+//to test that agenda can be set up and invoked properly
+function _schedulerTest(callback) {
+    //instantiate agenda
+    var agenda = new Agenda({db: { address: mongoConnection}});
+    console.log("The agenda library has now been connected with the local database") //todo: can this be done globally?
+
+    //define a test job
+    agenda.define('test agenda', function(job, done) {
+        //retrieve data from parameters
+        var data = job.attrs.data;
+
+        //invoke the private function to retrieve users who made predictions on this fixture, and give them scores
+        //fixture should be being passed in as JSON, no need to parse.
+        console.log("THIS ALL WORKS YAAAAAAAAAAAAAAY " + Date.now());
+
+        //end job
+        done();
+
+        //callback(done);
+    });
+
+    agenda.define('test agenda 2', function(job, done) {
+        //retrieve data from parameters
+        var data = job.attrs.data;
+
+        //invoke the private function to retrieve users who made predictions on this fixture, and give them scores
+        //fixture should be being passed in as JSON, no need to parse.
+        var test = moment()
+        console.log("test 2: " + test.toString());
+
+        //end job
+        done();
+
+        //callback(done);
+    });
+
+    //schedule the job for near immediate running
+    agenda.schedule('in 10 seconds', 'test agenda');
+
+    //agenda.every('3 seconds', 'test agenda 2');
+
+    //start the scheduler TODO: INVOKE THIS ELSEWHERE?
+    agenda.start();
+}
 
 //function to run through all of the fixtures and schedule for thier live results to be fetched
 //then users to be scored on thier predictions of these live results
 function _scheduleGetResultsAndScore() {
     //instantiate agenda
-
+    var agenda = new Agenda({db: { address: mongoConnection}});
+    console.log("The agenda library has now been connected with the local database") //todo: can this be done globally?
 
     //define the job to be run for each fixture
+    agenda.define('score fixture predictors', function(job, done) {
+        //retrieve data from parameters
+        var data = job.attrs.data;
+
+        //invoke the private function to retrieve users who made predictions on this fixture, and give them scores
+        //fixture should be being passed in as JSON, no need to parse.
+        _getFixtureResult(data.fixture, function (done) { //let's get recursive... BITCCHHEEEESSSS
+            done(); //fire event to tell agenda job that this job has finished running
+            console.log('THE USERS WHO PREDICTED FOR THIS FIXTURE WERE GIVEN SCORES BASED OFF OF LIVE RESULTS!!!')
+        });
+    });
 
     //loop through all fixtures, schedule job to run for each
 
+    //first retrieve all fixtures from the database
+    Fixture.find({}, function(error, fixtures) {
+        if (fixtures) {
+            for (var i = 0; i < fixturs.length; i++) {
+                var fixture = fixtures[i];
+                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: JSON.stringify(fixture)});
+            }
+        }
+    });
+
     //start the scheduler TODO: INVOKE THIS ELSEWHERE?
+    agenda.start();
 }
 
 //function to fetch all the scheduled fixtures for an entire season and parse into our db
@@ -337,24 +356,6 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
         toDate = moment([thisYear, 04, 24]); //this league ends 24 may this year
         console.log("Will be retrieving fixtures up to: " + toDate.toString());
     }
-
-    //HERE, TAKE INTO ACCOUNT ANY BREAKS THAT HAVE OCCURED DURING SEASON, CHECK PARAM
-    //if (!seasonStart) {
-    //    //then set a default one
-    //
-    //    //if no date is provided, use last year
-    //    seasonStart = moment([lastYear, 07, 16]);//this league start 16 aug last year
-    //
-    //    console.log("Setting the start of the season to be: " + seasonStart.toString());
-    //}
-    //
-    //if (!seasonEnd) {
-    //    //then set a default one
-    //
-    //    //if no date is provided, use next year
-    //    seasonEnd = moment([thisYear, 04, 24]); //this league ends 24 may this year
-    //    console.log("Setting the end of the season to be: " + seasonEnd.toString());
-    //}
 
     //if no season dates, given set to default
 
@@ -427,23 +428,6 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
 
                     console.log("Fixtures from server have now been sorted by date");
 
-                    //BELOW CODE ATTEMPTS TO WORK OUT SEASON DATES FROM DATA... START WORKS FINE... NOUT ELSE
-
-
-                    //
-                    ////take first fix date as start of season
-                    //var seasonStartDateRaw = seasonFixtures[0].match_formatted_date;
-                    //console.log("The raw earliest date is: " + seasonStartDateRaw)
-                    //seasonStart = moment(seasonStartDateRaw, "DD.MM.YYYY");
-                    //
-                    ////take end date as end of season
-                    //var seasonEndDateRaw = seasonFixtures[seasonFixtures.length - 1].match_formatted_date;
-                    //console.log("The raw latest date is: " + seasonEndDateRaw)
-                    //seasonEnd = moment(seasonEndDateRaw, "DD.MM.YYYY");
-                    //
-                    //console.log("The new season start and end dates are:  \n Season Starts: " + seasonStart.toString() +
-                    //        "\n Season Ends: " + seasonEnd.toString());
-
                     //loop over returned fixtures and parse into our format and store in db
                     var currentFixture = null; //todo: check if better to initialize to null?
                     var previousFixtureDate = seasonEnd;
@@ -460,54 +444,6 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
                         //make the returned fix date into a usable moment.js date
                         var thisFixtureDate = moment(currentFixture.match_formatted_date, "DD.MM.YYYY");
                         console.log("\nCurrent fixture date: " + thisFixtureDate.toString());
-
-                        //for the first fixture
-                        //if (i == 0) {
-
-                        //check to see if equal with the start of the season
-
-                        //console.log("Comparing season end: " + seasonEnd.toString() + " to last fixture: " +
-                        //    thisFixtureDate.toString() + "\n The result is: " + (thisFixtureDate.isSame(seasonStart, "day")));
-                        //
-                        //if (thisFixtureDate.isSame(seasonEnd, "day")) {
-                        //    console.log("The las fixture took place on the day of the season starting.");
-                        //    fixtureRound = 1;
-                        //} else {
-                        //    console.log("NOT getting fixtures from start of season, getting a mid-season leg from: " +
-                        //        fromDate.toString() + " and first fixture returned from API for this from_date is: " +
-                        //        thisFixtureDate.toString());
-                        //
-                        //    console.log("In this case, finding the preceeding fixture from our database (by date)");
-                        //
-                        //    //then we have found a fixture not at the start of the season, get a previous fixture
-                        //    Fixture.find({'fixDate' : { "$lte" : thisFixtureDate.toDate}}).sort({ 'fixDate' : -1}).exec(function(error, previousFixtures)
-                        //    {
-                        //
-                        //        if (previousFixtures) {
-                        //
-                        //            console.log("The previously stored fixtures that precede the current one are: \n" +
-                        //                JSON.stringify(previousFixtures));
-                        //
-                        //
-                        //            //assign the found round and date of the fixture to the variables
-                        //            previousFixtureDate = moment(previousFixtures[0].fixDate);
-                        //            previousFixtureRound = previousFixtures[0].round;
-                        //
-                        //            console.log("The preceeding fixture was played on: " + previousFixtureDate +
-                        //                " in round/gameweek: " + previousFixtureRound);
-                        //        } else {
-                        //            console.log("There were no previously stored fixtures, for our app, make this fixture be in the first round");
-                        //
-                        //            //leave previous fixture date null for now.
-                        //            previousFixtureRound = 1;
-                        //        }
-                        //    });
-                        //}
-                        //}
-
-                        //console.log("The current fixture date (in moment format) is: " + thisFixtureDate.toString());
-                        //console.log("The previous fixture date is: " + previousFixtureDate.toString());
-
 
                         //using moment.js, find the difference in weeks between the last game and this one
                         //if there is a previous fixture (not the first fixture of season which goes in round 1)
@@ -545,24 +481,27 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
 
                             //if current fixture is after this monday then place it in the next round else in same round
                             if (thisFixtureDate < previousTuesday ) {
-                                console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+                                //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
                                 fixtureRound = previousFixtureRound - 1; //todo: check if ++ would mute original
-                                console.log("This fixture belongs in the previous round: " + fixtureRound);
+                                //console.log("This fixture belongs in the previous round: " + fixtureRound);
                             } else {
                                 fixtureRound = previousFixtureRound;
-                                console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
-                                console.log("This fixture belongs in the same round as the previous fixture: " + fixtureRound);
+                                //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+                                //console.log("This fixture belongs in the same round as the previous fixture: " + fixtureRound);
                             }
                         }
 
-                        console.log("This fixture belongs to gameweek/round: " + fixtureRound);
+                        //console.log("This fixture belongs to gameweek/round: " + fixtureRound);
 
                         //todo: these are not being parsed properly
                         //parse match times for storage
                         var kickOffTime = moment(thisFixtureDate)
 
                         //parse this differently
-                        kickOffTime.hour(currentFixture.match_time.substr(0,1));
+                        console.log("Fixture match time: " + currentFixture.match_time);
+                        console.log("Fixture match hour: " + currentFixture.match_time.substr(0,2));
+                        console.log("Fixture match minutes: " + currentFixture.match_time.substr(3,4))
+                        kickOffTime.hours(currentFixture.match_time.substr(0,2)); //todo: think misusing substr, fix
                         kickOffTime.minutes(currentFixture.match_time.substr(3,4));
                         console.log("The proposed kick off time is: " + kickOffTime.toString());
 
@@ -584,7 +523,7 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
                         var tempAPIResult = currentFixture.match_ft_score;
                         //console.log("The result of the relelvant fixture from the football-api.com API is: " + tempAPIResult);
 
-                        //todo: extract this out into a function
+                        //todo: extract this out into a function as used in multiple places - Stay DRY!
                         var homeTeamResult = tempAPIResult.charAt(1);
                         var awayTeamResult = tempAPIResult.charAt(3);
 
@@ -623,12 +562,11 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
 
                         fixturesToStore.push(JSON.stringify(newFixture));
 
-                        //TODO: Implement break if something fucks up
                         //Now move on to the next fixture
 
                         //Assign the previous fixture for the next iteration
                         previousFixtureDate = thisFixtureDate;
-                        previousFixtureRound = fixtureRound; //todo: need to clear this variable before iterating?
+                        previousFixtureRound = fixtureRound;
                     }
 
                     fixturesToStore = "[" + fixturesToStore + "]";
@@ -655,9 +593,9 @@ function _getNextRealSeasonFixtures(competition, callback, fromDate, toDate, sea
     }
 }
 
-
 //function to check existing fixtures and live schedule, to update any changes to fixtures
 //SCHEDULE THIS TO BE RUN REGULARLY TO KEEP OUR FIXTURE DATA UP TO DATE.
+//todo: write this function next - don't change rounds, just times if different, identify by teams
 function _fixtureSync(competition) {
     //get all fixtures from our db
 
@@ -779,6 +717,7 @@ function _getFixtureResult(fixtureData, callback) {
                     fixture.fixResult = localFixResult;
 
                     console.log("Now attempting to update the fixture with the obtained result");
+
                     //Now run a mongoose update
                     //TODO: Test this using simply {"_id" : fixture._id} also - more elegant
                     Fixture.update({"_id": fixture._id}, {fixResult: localFixResult}, function (err) {
@@ -903,3 +842,62 @@ function _scoreAdder(i, users, fixture, callback) {
         callback();
     }
 }
+
+var examples = [
+    {"homeTeam":"Arsenal", "awayTeam":"Crystal Palace","round":"1"},
+    {"homeTeam":"Burnley", "awayTeam":"Chelsea", "round":"1"},
+    {"homeTeam":"Leicester City", "awayTeam":"Everton", "round":"1"},
+    {"homeTeam":"Liverpool", "awayTeam":"Southampton", "round":"1"},
+    {"homeTeam":"Manchester United", "awayTeam":"Swansea City", "round":"1"},
+    {"homeTeam":"Newcastle United", "awayTeam":"Manchester City", "round":"1"},
+    {"homeTeam":"Queens Park Rangers", "awayTeam":"Everton", "round":"1"},
+    {"homeTeam":"Stoke City", "awayTeam":"Aston Villa", "round":"1"},
+    {"homeTeam":"West Bromwich Albion", "awayTeam":"Sunderland", "round":"1"},
+    {"homeTeam":"West Ham United", "awayTeam":"Tottenham Hotspur", "round":"1"},
+    {"homeTeam":"Aston Villa", "awayTeam":"Newcastle United", "round":"2"},
+    {"homeTeam":"Chelsea", "awayTeam":"Leicester City", "round":"2"},
+    {"homeTeam":"Crystal Palace", "awayTeam":"West Ham United", "round":"2"},
+    {"homeTeam":"Everton", "awayTeam":"Arsenal", "round":"2"},
+    {"homeTeam":"Hull City", "awayTeam":"Stoke City", "round":"2"},
+    {"homeTeam":"Manchester City", "awayTeam":"Liverpool", "round":"2"},
+    {"homeTeam":"Southampton", "awayTeam":"West Bromwich Album", "round":"2"},
+    {"homeTeam":"Sunderland", "awayTeam":"Manchester United", "round":"2"},
+    {"homeTeam":"Swansea City", "awayTeam":"Burnley", "round":"2"},
+    {"homeTeam":"Tottenham Hotspur", "awayTeam":"Swansea City", "round":"2"},
+    {"homeTeam":"Aston Villa", "awayTeam":"Hull City", "round":"3"},
+    {"homeTeam":"Burnley", "awayTeam":"Manchester United", "round":"3"},
+    {"homeTeam":"Everton", "awayTeam":"Chelsea", "round":"3"},
+    {"homeTeam":"Leicester City", "awayTeam":"Arsenal", "round":"3"},
+    {"homeTeam":"Manchester City", "awayTeam":"Stoke City", "round":"3"},
+    {"homeTeam":"Newcastle United", "awayTeam":"Crystal Palace", "round":"3"},
+    {"homeTeam":"Queens Park Rangers", "awayTeam":"Sunderland", "round":"3"},
+    {"homeTeam":"Swansea City", "awayTeam":"West Bromwich Albion", "round":"3"},
+    {"homeTeam":"Tottenham Hotspur", "awayTeam":"Liverpool", "round":"3"},
+    {"homeTeam":"West Ham United", "awayTeam":"Southampton", "round":"3"},
+    {"homeTeam":"Arsenal", "awayTeam":"Manchester City", "round":"4"},
+    {"homeTeam":"Chelsea", "awayTeam":"Swansea City", "round":"4"},
+    {"homeTeam":"Crystal Palace", "awayTeam":"Burnley", "round":"4"},
+    {"homeTeam":"Hull City", "awayTeam":"West Ham United", "round":"4"},
+    {"homeTeam":"Liverpool", "awayTeam":"Aston Villa", "round":"4"},
+    {"homeTeam":"Manchester United", "awayTeam":"Queens Park Rangers", "round":"4"},
+    {"homeTeam":"Southampton", "awayTeam":"Newcastle United", "round":"4"},
+    {"homeTeam":"Stoke City", "awayTeam":"Leicester City", "round":"4"},
+    {"homeTeam":"Sunderland", "awayTeam":"Tottenham Hotspur", "round":"4"},
+    {"homeTeam":"West Bromwich Albion", "awayTeam":"Everton", "round":"4"},
+    {"homeTeam":"Aston Villa", "awayTeam":"Arsenal", "round":"5"},
+    {"homeTeam":"Burnley", "awayTeam":"Sunderland", "round":"5"},
+    {"homeTeam":"Everton", "awayTeam":"Crystal Palace", "round":"5"},
+    {"homeTeam":"Leicester City", "awayTeam":"Manchester United", "round":"5"},
+    {"homeTeam":"Manchester City", "awayTeam":"Chelsea", "round":"5"},
+    {"homeTeam":"Newcastle United", "awayTeam":"Hull City", "round":"5"},
+    {"homeTeam":"Queens Park Rangers", "awayTeam":"Stoke City", "round":"5"},
+    {"homeTeam":"Swansea City", "awayTeam":"Southampton", "round":"5"},
+    {"homeTeam":"Tottenham Hotspur", "awayTeam":"West Bromwich Albion", "round":"5"},
+    {"homeTeam":"West Ham United", "awayTeam":"Liverpool", "round":"5"},
+    {"homeTeam":"Arsenal", "awayTeam":"Tottenham Hotspur", "round":"6"},
+    {"homeTeam":"Chelsea", "awayTeam":"Aston Villa", "round":"6"},
+    {"homeTeam":"Crystal Palace", "awayTeam":"Leicester City", "round":"6"},
+    {"homeTeam":"Hull City", "awayTeam":"Manchester City", "round":"6"},
+    {"homeTeam":"Liverpool", "awayTeam":"Everton", "round":"6"}
+];
+

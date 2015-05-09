@@ -12,4 +12,6 @@ var fixtureSchema = new Schema({
     fullTime: { type: Date}
 });
 
+//todo: add league and season fields?
+
 var Fixture = mongoose.model('Fixture', fixtureSchema);

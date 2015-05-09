@@ -51,8 +51,5 @@ module.exports = function(app){
     app.delete('/api/clear/all', users.wipe);
     app.delete('/api/clear/fixtures', fixtures.clearFixtures);
     app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
-    app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
-    app.get('/api/dummy/fixtures/testgetfixtures', fixtures.testGetRealFixtures);
-    app.get('/api/dummy/fixtures/testagenda', fixtures.testScheduling);
 
 };

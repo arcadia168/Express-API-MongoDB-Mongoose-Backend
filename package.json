@@ -32,7 +32,8 @@
     "mongoose": "*",
     "underscore": "*",
     "agenda" : "*",
-    "moment" : "*"
+    "moment" : "*",
+    "q" : "*"
   },
   "devDependencies": {},
   "bundleDependencies": [],

@@ -612,7 +612,7 @@ function _checkForProcessNewFixtures(fromDate) {
                 console.log("Scheduling for fixture:" + fixture._id);
 
                 //todo: also schedule for before kick off and half time notifictions here
-                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: JSON.stringify(fixture)});
+                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
             }
 
             //fulfill the promise, no data to return

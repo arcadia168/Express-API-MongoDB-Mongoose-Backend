@@ -11,6 +11,18 @@ var Fixture = mongoose.model('Fixture');
 var User = mongoose.model('User');
 var IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
+if (!process.env.OPENSHIFT_MONGODB_DB_PASSWORD) {
+    console.log("RUNNING SERVER LOCALLY, MONGO CONNECTION STRING IS: " + mongoConnection);
+} else {
+    mongoConnection = process.env.OPENSHIFT_MONGODB_DB_USERNAME + ":" +
+        process.env.OPENSHIFT_MONGODB_DB_PASSWORD + "@" +
+        process.env.OPENSHIFT_MONGODB_DB_HOST + ':' +
+        process.env.OPENSHIFT_MONGODB_DB_PORT + '/' +
+        process.env.OPENSHIFT_APP_NAME;
+
+    console.log("RUNNING SERVER ON OPENSHIFT, MONGO CONNECTION STRING IS: " + mongoConnection);
+}
+
 var agenda = new Agenda({db: { address: mongoConnection}}); //instantiate agenda
 
 //fire up the scheduler

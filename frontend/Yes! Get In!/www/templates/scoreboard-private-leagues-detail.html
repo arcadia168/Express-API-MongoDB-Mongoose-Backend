@@ -7,12 +7,14 @@
         <ion-list show-delete="shouldShowDelete">
             <ion-item>
                 <p>Name: {{privateLeague.privateLeagueName}}</p>
+                <p>Invite code: {{privateLeague.privateLeagueCode}}</p>
+                <button class="button icon ion-share" ng-click="share()"></button>
             </ion-item>
             <ion-item>
                 <p>Creator: {{privateLeague.creator}}</p>
             </ion-item>
             <ion-item ng-if="privateLeague.members.length == 0">No members</ion-item>
-            <ion-item ng-repeat="member in privateLeague.members"><p>{{member.username}} - {{member.score}}</p><p ng-if="member.status == 'Invited - awaiting acceptance'">INVITED - WAITING FOR ACCEPTENCE</p>
+            <ion-item ng-repeat="member in privateLeague.members"><p>{{member.username}} - {{member.score}}</p><p ng-if="member.status == 'Invited - awaiting acceptance'">INVITED - WAITING FOR ACCEPTANCE</p>
                 <ion-delete-button ng-if="member.user_id != privateLeague.creator" class="ion-minus-circled"
                                    ng-click="deleteMember(member.user_id)">
                 </ion-delete-button>

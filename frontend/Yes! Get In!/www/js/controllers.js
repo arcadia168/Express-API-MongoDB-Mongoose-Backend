@@ -1,6 +1,6 @@
 angular.module('starter.controllers', [])
 
-    .controller('LoginCtrl', function($scope, auth, $state, $ionicPopup, User) {
+    .controller('LoginCtrl', function ($scope, auth, $state, $ionicPopup, User) {
 
         auth.signin({
 
@@ -15,12 +15,12 @@ angular.module('starter.controllers', [])
             // So that the user never has to log in again
             offline_mode: true,
             device: 'Phone'
-        }, function() {
+        }, function () {
             // Login was successful
 
             //TODO: TEST THIS BY CREATING A NEW USER AND SEEING IF USER DATA GETS LOGGED
             //check to see if this user exists on the server already, if not, create this user using auth0 details
-            User.sync(auth.profile).then(function(){
+            User.sync(auth.profile).then(function () {
                 //Once the user data has been synced, get the user data object from our server also
                 //Have to do in this callback otherwise we attempt to get the user data before the sync has finished
                 User.getUserData(auth.profile.user_id);
@@ -35,22 +35,22 @@ angular.module('starter.controllers', [])
                 $ionicPopup.alert({
                     title: 'Login successful!',
                     template: 'Welcome ' + auth.profile.nickname + '! <br> This version of the app is mainly used for testing the backend <br> (So be nice)'
-                }).then(function(res){
+                }).then(function (res) {
                     console.log(auth.profile);
                 });
             });
 
-        }, function(error) {
+        }, function (error) {
             // Oops something went wrong during login:
             console.log("There was an error logging in", error);
         });
 
     })
 
-    .controller('LeagueTableCtrl', function($scope, LeagueTable) {
+    .controller('LeagueTableCtrl', function ($scope, LeagueTable) {
 
         //First retrieve all of the league table data and add it to the scope
-        LeagueTable.all().then(function(data){
+        LeagueTable.all().then(function (data) {
             debugger;
             $scope.standings = data.teams; //we only want the actual standings data
             console.log($scope.standings); //TODO: This is purely for debugging purposes, remove where necessary.
@@ -58,25 +58,25 @@ angular.module('starter.controllers', [])
 
     })
 
-    .controller('RoundsCtrl', function($scope, $ionicLoading, Rounds) {
+    .controller('RoundsCtrl', function ($scope, $ionicLoading, Rounds) {
 
         //only publicly accessible elements get added to the scope
 
-        Rounds.all().then(function(data){
+        Rounds.all().then(function (data) {
             //debugger;
             $scope.rounds = data.rounds;
         });
 
         //debugger
-        $scope.remove = function(round) {
+        $scope.remove = function (round) {
             Rounds.remove(round);
         };
 
     })
 
-    .controller('SaveCtrl', function($scope, $ionicPopup, $ionicHistory, SaveChanges){
+    .controller('SaveCtrl', function ($scope, $ionicPopup, $ionicHistory, SaveChanges) {
         //function to check that user is ready to leave without saving changes
-        $scope.makeUnsavedChanges = function() {
+        $scope.makeUnsavedChanges = function () {
 
             //ask if they are sure they want to go back if there are unsaved changes that would be lost
             debugger;
@@ -105,7 +105,7 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('RoundDetailCtrl', function($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges, auth) {
+    .controller('RoundDetailCtrl', function ($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges, auth) {
 
         var _predictions = [];
         var updatePredictions = false; //flag to update predictions if some already exist.
@@ -119,7 +119,7 @@ angular.module('starter.controllers', [])
         SaveChanges.saveChangesNotNeeded();
 
         //Get the data for this particular round from the server
-        Rounds.get($stateParams.roundId).then(function(data){
+        Rounds.get($stateParams.roundId).then(function (data) {
 
             //when first loading the page, clear out any local existing predictions.
             _predictions = [];
@@ -142,7 +142,7 @@ angular.module('starter.controllers', [])
         function _getExistingPredictions() {
 
             //go and get all of the predictions for the user
-            Rounds.getExistingPredictions(user, $stateParams.roundId).then(function(data){
+            Rounds.getExistingPredictions(user, $stateParams.roundId).then(function (data) {
                 //clear existing predictions
                 _predictions = [];
 
@@ -160,7 +160,7 @@ angular.module('starter.controllers', [])
                     $scope.clearDisabled = false;
 
                     //now loop over fixtures and add in these predictions!
-                    for (var i = 0; i < $scope.fixtures.length ; i++){
+                    for (var i = 0; i < $scope.fixtures.length; i++) {
 
                         currentFixturePrediction = predictionMap[$scope.existingPredictions[i].prediction];
 
@@ -175,7 +175,10 @@ angular.module('starter.controllers', [])
                 }
 
                 for (var j = 0; j < $scope.existingPredictions.length; j++) {
-                    _predictions.push({fixture: $scope.existingPredictions[j].fixture, prediction: $scope.existingPredictions[j].prediction});
+                    _predictions.push({
+                        fixture: $scope.existingPredictions[j].fixture,
+                        prediction: $scope.existingPredictions[j].prediction
+                    });
                 }
 
             });
@@ -258,12 +261,12 @@ angular.module('starter.controllers', [])
             3: "draw-predicted"
         };
 
-        $scope.getBackgroundColour = function(fixture) { //should be passing in the entire fixture object
+        $scope.getBackgroundColour = function (fixture) { //should be passing in the entire fixture object
 
             var predictionClass;
 
             //find prediction for this fixture
-            for(var i = 0; i < _predictions.length; i++) {
+            for (var i = 0; i < _predictions.length; i++) {
                 if (fixture._id == _predictions[i].fixture) {
                     //then return the prediction for this fixture else leave undefined
                     predictionClass = _predictions[i].prediction;
@@ -274,7 +277,7 @@ angular.module('starter.controllers', [])
         };
 
         //clear out all predictions at once
-        $scope.clearAllPredictions = function() {
+        $scope.clearAllPredictions = function () {
 
             debugger;
 
@@ -303,23 +306,23 @@ angular.module('starter.controllers', [])
         //clear out a single prediction at a time
         //will only not prompt if there were no predictions to begin with - dealing with this use case
 
-        $scope.clearSinglePrediction = function(fixture) {
+        $scope.clearSinglePrediction = function (fixture) {
 
             debugger;
 
             //clear prediction for given fixture
             for (var i = 0; i < $scope.fixtures.length; i++) {
-                if ($scope.fixtures[i]._id == fixture._id){
+                if ($scope.fixtures[i]._id == fixture._id) {
                     $scope.fixtures[i].prediction = null;
                 }
             }
 
             //delete the prediction from the private array
             //find prediction for this fixture
-            for(var i = 0; i < _predictions.length; i++) {
+            for (var i = 0; i < _predictions.length; i++) {
                 if (fixture._id == _predictions[i].fixture) {
                     //then return the prediction for this fixture else leave undefined
-                    _predictions.splice(i ,1); //delete this object from the predictions array.
+                    _predictions.splice(i, 1); //delete this object from the predictions array.
                 }
             }
 
@@ -372,7 +375,7 @@ angular.module('starter.controllers', [])
             var validPredictions = false;
             var indexOfTheFuckingLoop = 0; //TODO: Change the name, here because of a weird error I was getting;
             var predictionsToUpdate = [];
-            for(; indexOfTheFuckingLoop < $scope.fixtures.length; indexOfTheFuckingLoop++) {
+            for (; indexOfTheFuckingLoop < $scope.fixtures.length; indexOfTheFuckingLoop++) {
 
                 found = false;
 
@@ -405,7 +408,7 @@ angular.module('starter.controllers', [])
                 }
 
                 //if we are looking at the last fixture in the round, and all of them have been found.
-                if ((indexOfTheFuckingLoop == ($scope.fixtures.length - 1)) && (found)){
+                if ((indexOfTheFuckingLoop == ($scope.fixtures.length - 1)) && (found)) {
 
                     debugger;
                     validPredictions = true;
@@ -464,7 +467,7 @@ angular.module('starter.controllers', [])
                 //Send the validatied predictions
 
                 //check to see if we are making new predictions or updating old ones
-                if (updatePredictions){
+                if (updatePredictions) {
                     //update existing predictions!
                     debugger;
 
@@ -472,15 +475,15 @@ angular.module('starter.controllers', [])
                     $ionicPopup.confirm({
                         title: 'Updating means less points!',
                         template: 'Are you sure you want to update? Doing so will mean you earn less points.'
-                    }).then(function(res) {
-                        if(res) {
+                    }).then(function (res) {
+                        if (res) {
                             console.log('You are sure');
                             //then continue as normal
 
 
                             //compare differences of new predictions to old ones, add to array of predictions to update
                             //loop over old predictions and compare to new
-                            for (var i = 0; i < $scope.predictionsOnServer.length; i++){ //arrays are indexed by 0
+                            for (var i = 0; i < $scope.predictionsOnServer.length; i++) { //arrays are indexed by 0
 
                                 var currentExistingPrediction = $scope.predictionsOnServer[i];
 
@@ -503,10 +506,9 @@ angular.module('starter.controllers', [])
                             }
 
                             //once you have a list of predictions to update, async for loop and update
-                            for (var i = 0, c = predictionsToUpdate.length; i < c; i++)
-                            {
+                            for (var i = 0, c = predictionsToUpdate.length; i < c; i++) {
                                 // creating an Immiedately Invoked Function Expression
-                                (function( prediction ) {
+                                (function (prediction) {
 
                                     //call the async function
                                     Rounds.updatePrediction(user, prediction);
@@ -564,13 +566,13 @@ angular.module('starter.controllers', [])
                 template: 'Are you sure you want to delete the predictions for this round? \n You\'ll lose 20 points!'
             });
 
-            confirmPopup.then(function(res) {
+            confirmPopup.then(function (res) {
 
-                if(res) {
+                if (res) {
 
                     console.log('You are sure');
 
-                    Rounds.deleteRoundPredictions(user, $stateParams.roundId).then(function() {
+                    Rounds.deleteRoundPredictions(user, $stateParams.roundId).then(function () {
 
                             $ionicPopup.alert(
                                 {
@@ -606,19 +608,19 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('ScoreboardCtrl', function($scope, Scoreboard) {
-        $scope.test = function() {
+    .controller('ScoreboardCtrl', function ($scope, Scoreboard) {
+        $scope.test = function () {
             $ionicPopup.alert({
-                title:    'Sup dawg!',
+                title: 'Sup dawg!',
                 template: 'Sub bitchtits'
             });
         };
     })
 
-    .controller('PrivateLeaguesCtrl', function($scope, PrivateLeagues, auth, $ionicPopup) {
+    .controller('PrivateLeaguesCtrl', function ($scope, PrivateLeagues, auth, $ionicPopup) {
 
         //get all of the private leagues for the user from the private league service
-        PrivateLeagues.all(auth.profile.user_id).then(function(data){
+        PrivateLeagues.all(auth.profile.user_id).then(function (data) {
             //debugger;
             $scope.privateLeagues = data;
 
@@ -649,7 +651,7 @@ angular.module('starter.controllers', [])
         $scope.data = {};
         var cancelled = true;
 
-        $scope.createNewLeague = function() {
+        $scope.createNewLeague = function () {
 
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.show({
@@ -658,11 +660,11 @@ angular.module('starter.controllers', [])
                 subTitle: 'Enter the name for the new league',
                 scope: $scope,
                 buttons: [
-                    { text: 'Cancel' },
+                    {text: 'Cancel'},
                     {
                         text: '<b>Create</b>',
                         type: 'button-positive',
-                        onTap: function(e) {
+                        onTap: function (e) {
                             if (!$scope.data.leagueName) {
                                 //don't allow the user to close unless he enters a username
                                 e.preventDefault();
@@ -674,16 +676,11 @@ angular.module('starter.controllers', [])
                     }
                 ]
             });
-            myPopup.then(function(res) {
-
+            myPopup.then(function (res) {
                 if (!cancelled) {
-                    //validate the username, check not user's or existing member
-
-                    console.log("Now attempting validation before renaming");
-
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.createNewLeague(auth.profile.user_id, $scope.data.leagueName).then(
-                        function(res) {
+                        function (res) {
 
                             //check the message that was returned...
                             console.log(res);
@@ -701,22 +698,21 @@ angular.module('starter.controllers', [])
                 }
             });
         };
-
-
     })
 
-    .controller('PrivateLeaguesDetailCtrl', function($scope, PrivateLeagues, auth, $stateParams, $ionicPopup, $state, User){
+    .controller('PrivateLeaguesDetailCtrl', function ($scope, PrivateLeagues, auth, $stateParams, $ionicPopup, $state,
+                                                      $cordovaSocialSharing, User) {
 
         $scope.shouldShowDelete = false;
 
         //enable delete buttons
-        $scope.toggleDelete = function() {
+        $scope.toggleDelete = function () {
             $scope.shouldShowDelete = !$scope.shouldShowDelete;
         };
 
         console.log('Now getting the private league with id: ' + $stateParams.privateLeagueId);//Get the data for this particular league from the server
         //Get the data for this particular round from the server
-        PrivateLeagues.get(auth.profile.user_id, $stateParams.privateLeagueId).then(function(data){
+        PrivateLeagues.get(auth.profile.user_id, $stateParams.privateLeagueId).then(function (data) {
 
             //$ionicLoading.hide();
             $scope.privateLeague = data[0];
@@ -731,7 +727,7 @@ angular.module('starter.controllers', [])
         var cancelled = true;
 
         //function to facilitate inviting a new user
-        $scope.inviteUser = function() {
+        $scope.inviteUser = function () {
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.show({
                 template: '<input type="text" ng-model="data.userToInvite">',
@@ -739,11 +735,11 @@ angular.module('starter.controllers', [])
                 subTitle: 'Enter username of person to invite',
                 scope: $scope,
                 buttons: [
-                    { text: 'Cancel' },
+                    {text: 'Cancel'},
                     {
                         text: '<b>Invite</b>',
                         type: 'button-positive',
-                        onTap: function(e) {
+                        onTap: function (e) {
                             if (!$scope.data.userToInvite) {
                                 //don't allow the user to close unless he enters a username
                                 e.preventDefault();
@@ -755,7 +751,7 @@ angular.module('starter.controllers', [])
                     }
                 ]
             });
-            myPopup.then(function(res) {
+            myPopup.then(function (res) {
 
                 if (!cancelled) {
                     //validate the username, check not user's or existing member
@@ -802,7 +798,7 @@ angular.module('starter.controllers', [])
 
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.inviteNewMember(auth.profile.user_id, $scope.data.userToInvite, $scope.privateLeague.privateLeagueId).then(
-                        function(res) {
+                        function (res) {
 
                             //check the message that was returned...
                             console.log(res);
@@ -821,7 +817,7 @@ angular.module('starter.controllers', [])
             });
         };
 
-        $scope.renameLeague = function() {
+        $scope.renameLeague = function () {
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.show({
                 template: '<input type="text" ng-model="data.newLeagueName">',
@@ -829,11 +825,11 @@ angular.module('starter.controllers', [])
                 subTitle: 'Enter the new name for the league',
                 scope: $scope,
                 buttons: [
-                    { text: 'Cancel' },
+                    {text: 'Cancel'},
                     {
                         text: '<b>Rename</b>',
                         type: 'button-positive',
-                        onTap: function(e) {
+                        onTap: function (e) {
                             if (!$scope.data.newLeagueName) {
                                 //don't allow the user to close unless he enters a username
                                 e.preventDefault();
@@ -845,7 +841,7 @@ angular.module('starter.controllers', [])
                     }
                 ]
             });
-            myPopup.then(function(res) {
+            myPopup.then(function (res) {
 
                 if (!cancelled) {
                     //validate the username, check not user's or existing member
@@ -870,7 +866,7 @@ angular.module('starter.controllers', [])
 
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.renameLeague(auth.profile.user_id, $scope.data.newLeagueName, $scope.privateLeague.privateLeagueId).then(
-                        function(res) {
+                        function (res) {
 
                             //check the message that was returned...
                             console.log(res);
@@ -889,17 +885,17 @@ angular.module('starter.controllers', [])
             });
         };
 
-        $scope.leaveLeague = function() {
+        $scope.leaveLeague = function () {
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.confirm({
                 title: 'Confirm Leaving',
                 template: 'Are you sure you want to leave this private league?'
             });
-            myPopup.then(function(res) {
+            myPopup.then(function (res) {
                 if (res) {
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.leaveLeague(auth.profile.user_id, $scope.privateLeague.privateLeagueId).then(
-                        function(res) {
+                        function (res) {
                             //check the message that was returned...
                             console.log(res);
 
@@ -920,17 +916,17 @@ angular.module('starter.controllers', [])
             });
         };
 
-        $scope.deleteMember = function(user_id_to_delete) {
+        $scope.deleteMember = function (user_id_to_delete) {
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.confirm({
                 title: 'Confirm Deletion',
                 template: 'Are you sure you want to remove the member from this private league?'
             });
-            myPopup.then(function(res) {
+            myPopup.then(function (res) {
                 if (res) {
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.deleteMember(auth.profile.user_id, user_id_to_delete, $scope.privateLeague.privateLeagueId).then(
-                        function(res) {
+                        function (res) {
                             //check the message that was returned...
                             console.log(res);
 
@@ -952,13 +948,13 @@ angular.module('starter.controllers', [])
             });
         };
 
-        $scope.deleteLeague = function() {
+        $scope.deleteLeague = function () {
             //show the user a prompt to type in a username and
             var myPopup = $ionicPopup.confirm({
                 title: 'Confirm Delete',
                 template: 'Are you sure you want to delete this entire private league?'
             });
-            myPopup.then(function(res) {
+            myPopup.then(function (res) {
 
                 if (res) {
                     //validate the username, check not user's or existing member
@@ -980,7 +976,7 @@ angular.module('starter.controllers', [])
 
                     //use the data to call through to the user and pass through the provided username
                     PrivateLeagues.deleteLeague(auth.profile.user_id, $scope.privateLeague.privateLeagueId).then(
-                        function(res) {
+                        function (res) {
                             //check the message that was returned...
                             console.log(res);
 
@@ -998,20 +994,35 @@ angular.module('starter.controllers', [])
             });
         };
 
+        //Implementing sharing of the private league code - for an open invitation
+        $scope.share = function() {
+            //$cordovaSocialSharing.share("This is your message", "This is your subject", "www/imagefile.png", "http://blog.nraboy.com");
+            var GOOGLE_PLAY_URL = "test";
+            var ITUNES_URL = "test";
+            $cordovaSocialSharing.share("Join my Yes! Get In! Private league using code: \n\t" + $scope.privateLeague.privateLeagueCode + "\nGet the app for Android and iOS here!: \n\t Android: " + GOOGLE_PLAY_URL + "\n\t iOS " + ITUNES_URL);
+        };
+
+        //$scope.shareViaTwitter = function(message, image, link) {
+        //    $cordovaSocialSharing.canShareVia("twitter", message, image, link).then(function(result) {
+        //        $cordovaSocialSharing.shareViaTwitter(message, image, link);
+        //    }, function(error) {
+        //        alert("Cannot share on Twitter");
+        //    });
+        //}
 
     })
 
-    .controller('GlobalScoreboardCtrl', function($scope, Scoreboard, auth){
+    .controller('GlobalScoreboardCtrl', function ($scope, Scoreboard, auth) {
 
         //Get the global scoreboard
         //Get the data for scores for leaderboard
-        Scoreboard.all().then(function(data){
+        Scoreboard.all().then(function (data) {
             $scope.scores = data;
         });
 
     })
 
-    .controller('AccountCtrl', function($scope, $state, User, auth, $ionicPopup, PrivateLeagues) {
+    .controller('AccountCtrl', function ($scope, $state, User, auth, $ionicPopup, PrivateLeagues) {
 
         //hopefully this should get run every time the user navigates to this tab
         User.getUserData(auth.profile.user_id);
@@ -1022,7 +1033,7 @@ angular.module('starter.controllers', [])
         $scope.shouldShowReorder = false;
         $scope.listCanSwipe = true;
 
-        $scope.signOut = function() {
+        $scope.signOut = function () {
 
             //clear the stored user data in out service
             User.clearCurrentUser();
@@ -1041,16 +1052,16 @@ angular.module('starter.controllers', [])
                 // So that the user never has to log in again
                 offline_mode: true,
                 device: 'Phone'
-            }, function() {
+            }, function () {
                 // Login was successful
 
                 //check to see if this user exists on the server already, if not, create this user using auth0 details
                 debugger;
-                User.sync(auth.profile).then(function(){
+                User.sync(auth.profile).then(function () {
                     //Once the user data has been synced, get the user data object from our server also
                     //Have to do in this callback otherwise we attempt to get the user data before the sync has finished
                     console.log('Logging in after logging out and sending user_id: ' + auth.profile.user_id);
-                    User.getUserData(auth.profile.user_id).then(function(results){
+                    User.getUserData(auth.profile.user_id).then(function (results) {
                         console.log("Getting the current user data from our server... : " + JSON.stringify(User.currentUser()));
 
                         //expose the user's invitations to the scope
@@ -1067,12 +1078,12 @@ angular.module('starter.controllers', [])
                         $ionicPopup.alert({
                             title: 'Login successful!',
                             template: 'Welcome ' + auth.profile.nickname + '!'
-                        }).then(function(res){
+                        }).then(function (res) {
                             console.log(auth.profile);
                         });
                     });
                 });
-            }, function(error) {
+            }, function (error) {
                 // Oops something went wrong during login:
                 console.log("There was an error logging in", error);
             });
@@ -1080,13 +1091,13 @@ angular.module('starter.controllers', [])
 
         //function to accept an invitation
         //unique because a user can't be invited to the same private league more than once
-        $scope.acceptInvitation = function(privateLeagueId) {
+        $scope.acceptInvitation = function (privateLeagueId) {
             //call the method in the service, passing in the user id of the logged in user (invitee)
             //as well as the private league id
 
             debugger;
 
-            PrivateLeagues.acceptInvitation(auth.profile.user_id, privateLeagueId).then(function(response){
+            PrivateLeagues.acceptInvitation(auth.profile.user_id, privateLeagueId).then(function (response) {
                     //popup to let the user know they are now a member of that league
                     console.log("The response from the server was: " + JSON.stringify(response));
                     if (response == 200) {
@@ -1099,7 +1110,7 @@ angular.module('starter.controllers', [])
 
                         //now delete the invitation from the user/reload the page!
                         //TODO: Replace all fors used to find with findWhere in underscore.js
-                        for (var i = 0; i < $scope.userData.invitations.length; i++){
+                        for (var i = 0; i < $scope.userData.invitations.length; i++) {
                             if ($scope.userData.invitations[i].privateLeagueId == privateLeagueId) {
                                 //then this invitation has been successfully removed from the server, so delete
                                 $scope.userData.invitations.splice(i, 1); //this should now get removed from the view
@@ -1120,10 +1131,10 @@ angular.module('starter.controllers', [])
             );
         };
 
-        $scope.rejectInvitation = function(invitedByUsername, privateLeagueId) {
+        $scope.rejectInvitation = function (invitedByUsername, privateLeagueId) {
             //call through to service and then server
             PrivateLeagues.rejectInvitation(auth.profile.user_id, invitedByUsername, privateLeagueId).then(
-                function(response){
+                function (response) {
                     //popup to let the user know they are now a member of that league
                     console.log("The response from the server was: " + JSON.stringify(response));
                     if (response == 202) {
@@ -1136,7 +1147,7 @@ angular.module('starter.controllers', [])
 
                         //now delete the invitation from the user/reload the page!
                         //TODO: Replace all fors used to find with findWhere in underscore.js
-                        for (var i = 0; i < $scope.userData.invitations.length; i++){
+                        for (var i = 0; i < $scope.userData.invitations.length; i++) {
                             if ($scope.userData.invitations[i].privateLeagueId == privateLeagueId) {
                                 //then this invitation has been successfully removed from the server, so delete
                                 $scope.userData.invitations.splice(i, 1); //this should now get removed from the view
@@ -1193,10 +1204,10 @@ angular.module('starter.controllers', [])
         };
 
         //TODO: Update the user's info with a pull to refresh and push notifications
-        $scope.doRefresh = function() {
+        $scope.doRefresh = function () {
 
             //Replace this with a manual check of new invitations and notifications
-            $scope.userData =  User.getUserData(auth.profile.user_id).then(function(){
+            $scope.userData = User.getUserData(auth.profile.user_id).then(function () {
                 //TODO: Ionic popup if new notifications here
                 $scope.$broadcast('scroll.refreshComplete');
 

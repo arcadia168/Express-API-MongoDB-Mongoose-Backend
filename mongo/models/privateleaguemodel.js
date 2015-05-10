@@ -9,6 +9,7 @@ var ObjectId = mongoose.Schema.Types.ObjectId;
 var privateLeagueSchema = new Schema({
     privateLeagueId: { type: ObjectId},
     privateLeagueName: { type: String},
+    privateLeagueCode: { type: String},
     creator: { type: String, index: true},
     members: [{ user_id: String, username: String, score: Number, status: String}], //include pic url?
     dateCreated: { type: Date, default: Date.now }

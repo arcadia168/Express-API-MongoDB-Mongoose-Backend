@@ -5,20 +5,18 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'auth0',
-    'angular-storage',
+angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter.services', 'auth0', 'angular-storage',
     'angular-jwt'])
 
-    .config(function($stateProvider, $urlRouterProvider, authProvider, $httpProvider,
-                     jwtInterceptorProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, authProvider, $httpProvider, jwtInterceptorProvider) {
 
-        $httpProvider.interceptors.push(function($rootScope) {
+        $httpProvider.interceptors.push(function ($rootScope) {
             return {
-                request: function(config) {
+                request: function (config) {
                     $rootScope.$broadcast('loading:show');
                     return config
                 },
-                response: function(response) {
+                response: function (response) {
                     $rootScope.$broadcast('loading:hide');
                     return response
                 }
@@ -26,7 +24,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         });
 
         //add the auth0 jwt http interceptor
-        jwtInterceptorProvider.tokenGetter = function(store, jwtHelper, auth) {
+        jwtInterceptorProvider.tokenGetter = function (store, jwtHelper, auth) {
             var idToken = store.get('token');
             var refreshToken = store.get('refreshToken');
             // If no token return null
@@ -35,7 +33,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             }
             // If token is expired, get a new one
             if (jwtHelper.isTokenExpired(idToken)) {
-                return auth.refreshIdToken(refreshToken).then(function(idToken) {
+                return auth.refreshIdToken(refreshToken).then(function (idToken) {
                     store.set('token', idToken);
                     return idToken;
                 });
@@ -125,7 +123,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             .state('tab.scoreboard-private-leagues', {
                 url: '/scoreboard/privateleagues',
                 views: {
-                    'tab-scoreboard' : {
+                    'tab-scoreboard': {
                         templateUrl: 'templates/scoreboard-private-leagues.html',
                         controller: 'PrivateLeaguesCtrl'
                     }
@@ -140,7 +138,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             .state('tab.scoreboard-private-leagues-detail', {
                 url: '/scoreboard/privateleagues/:privateLeagueId',
                 views: {
-                    'tab-scoreboard' : {
+                    'tab-scoreboard': {
                         templateUrl: 'templates/scoreboard-private-leagues-detail.html',
                         controller: 'PrivateLeaguesDetailCtrl'
                     }
@@ -155,9 +153,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             .state('tab.scoreboard-global', {
                 url: '/scoreboard/global',
                 views: {
-                    'tab-scoreboard' : {
+                    'tab-scoreboard': {
                         templateUrl: 'templates/scoreboard-global.html',
-                        controller:  'GlobalScoreboardCtrl'
+                        controller: 'GlobalScoreboardCtrl'
                     }
                 },
                 data: {
@@ -211,22 +209,22 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     })
 
-    .run(function($ionicPlatform, $rootScope, $ionicLoading, auth, store, jwtHelper, $location) {
+    .run(function ($ionicPlatform, $rootScope, $ionicLoading, auth, store, jwtHelper, $location) {
 
         //this function contains globally run application functions.
 
         // This hooks all auth events to check everything as soon as the app starts
         auth.hookEvents();
 
-        $rootScope.$on('loading:show', function() {
+        $rootScope.$on('loading:show', function () {
             $ionicLoading.show({template: 'Fetching data from server'}); //TODO: ADD A SPINNER IN HERE
         });
 
-        $rootScope.$on('loading:hide', function() {
+        $rootScope.$on('loading:hide', function () {
             $ionicLoading.hide()
         });
 
-        $ionicPlatform.ready(function() {
+        $ionicPlatform.ready(function () {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
             if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -239,7 +237,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         });
 
         // This events gets triggered on refresh or URL change
-        $rootScope.$on('$locationChangeStart', function() {
+        $rootScope.$on('$locationChangeStart', function () {
             if (!auth.isAuthenticated) {
                 var token = store.get('token');
                 if (token) {

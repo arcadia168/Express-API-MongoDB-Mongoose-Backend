@@ -26,6 +26,8 @@ if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
     process.env.OPENSHIFT_APP_NAME;
 }
 
+console.log("The mongo db is on port:" + process.env.OPENSHIFT_MONGODB_DB_PORT);
+
 //Define middlewares
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -40,8 +42,7 @@ app.use(function(req, res, next) {
 });
 
 //define this for each app route that is user specific - apply middleware express-jwt to route, supply app secret.
-app.use('/users/rounds', jwtCheck);
-app.use('/api/users/', jwtCheck); //todo: test to see if this encompasses all sub-routes, if not, list all explicitly
+//app.use('/api/users/', jwtCheck); //todo: test to see if this encompasses all sub-routes, if not, list all explicitly
 
 //TODO: protect various endpoints here and the routes explicitly
 

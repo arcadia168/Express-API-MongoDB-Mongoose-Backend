@@ -43,9 +43,9 @@ agenda.define('get new and update existing fixtures', function(job, done){
 
 //Put any global scheduled events in here
 // FOR TESTING
-agenda.schedule('in 5 seconds', 'get new and update existing fixtures');
+//agenda.schedule('in 5 seconds', 'get new and update existing fixtures');
 
-agenda.every('24 hours', 'get new and update existing fixtures');
+agenda.every('day', 'get new and update existing fixtures');
 
 exports.getFixtures = function(req, res) {
     Fixture.find({}, function(err, results) {
@@ -64,7 +64,7 @@ exports.getGroupedFixtures = function(req, res) {
 
     console.log('Getting rounds');
 
-    Fixture.find({}).sort({ 'round' : 1}).exec(function(err, results) {
+    Fixture.find({}).sort({ 'round' : -1 }).exec(function(err, results) {
 
         var data = JSON.parse(JSON.stringify(results));
 
@@ -73,41 +73,65 @@ exports.getGroupedFixtures = function(req, res) {
         var newData = {
             rounds: []
         };
+
         console.log('The new data variable is: ' + JSON.stringify(newData));
 
         var newSet = new MiniSet();
         //console.log(newSet);
 
+        console.log('The data should now have been sorted, and the resulting sorted fixtures are:' + JSON.stringify(fixture));
+        // if this round already exists in the list add it else make a new JSON object
+
         //loop over each fixture, assign to a round
         for(var i = 0; i < data.length; i++) {
 
-            var fixtures = data[i];
+            console.log("ITERATION " + (i + 1) + " OF " + (data.length - 1));
+            console.log("FOR THIS ITERATION THE NEW SET BEGINS AS: \t" + JSON.stringify(newSet));
 
-            console.log('The data should now have been sorted, and the resulting sorted fixtures are:' + JSON.stringify(fixtures));
-            // if this round already exists in the list add it else make a new JSON object
+            var fixture = data[i];
+            console.log("The value of the data[i] variable is: " + JSON.stringify(fixture));
 
-            var roundNum = Number(fixtures.round.toString());
+            var roundNum = Number(fixture.round.toString());
+
             console.log('Now working on round number: ' + roundNum);
+            console.log("Does the newSet variable already contain the round number?:\t " + newSet.has(roundNum));
 
             if(newSet.has(roundNum)) {
 
-                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(fixtures));
+                console.log('The set already has the round ' + roundNum + ' just adding in ' + JSON.stringify(fixture));
 
                 // there is a fatal flaw in which we assume the rounds[number] exists in order, fix later lol
 
                 console.log('Now pushing the fixture into the round ' + roundNum);
-                newData.rounds[roundNum-1].data.push(fixtures);
+                console.log(JSON.stringify(newData));
+
+                //trying to find round using array index instead of key/value pair!!!
+                //use underscore to do this?
+                //where the round = roundNum, add in this fixture.
+                //do with utility function or look for it with a for loop.
+                for (var j = 0; j < newData.rounds.length; j++){
+                    if (newData.rounds[j].round == roundNum) {
+                        newData.rounds[j].data.push(fixture);
+                    }
+                }
 
             } else {
 
-                var stringData = JSON.stringify(fixtures);
+                console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + JSON.stringify(fixture));
 
-                console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + stringData);
+                var nextData = {
+                    round: roundNum,
+                    data : []
+                };
+                console.log("Adding a round object to array of rounds: " + JSON.stringify(nextData));
 
-                var nextData = JSON.parse("{\"round\":\""+roundNum+"\",\"data\":["+stringData+"]}");
+                nextData.data.push(fixture);
+                console.log("Added the first fixture to this round: " + JSON.stringify(nextData.data));
 
                 newData.rounds.push(nextData);
+                console.log("Now added this round to the newdata rounds object array");
 
+                //adding this round to the set used to keep track of rounds
                 newSet.add(roundNum);
             }
         }
@@ -609,7 +633,7 @@ function _checkForProcessNewFixtures(fromDate) {
             for (var i = 0; i < fixturesToStore.length; i++) {
                 var fixture = fixturesToStore[i];
 
-                console.log("Scheduling for fixture:" + fixture._id);
+                console.log("Scheduling to check results and score users for fixture:" + fixture.fullTime);
 
                 //todo: also schedule for before kick off and half time notifictions here
                 agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});

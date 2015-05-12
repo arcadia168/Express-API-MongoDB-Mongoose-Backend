@@ -8,7 +8,6 @@
             <ion-item>
                 <p>Name: {{privateLeague.privateLeagueName}}</p>
                 <p>Invite code: {{privateLeague.privateLeagueCode}}</p>
-                <button class="button icon ion-share" ng-click="share()"></button>
             </ion-item>
             <ion-item>
                 <p>Creator: {{privateLeague.creator}}</p>
@@ -20,6 +19,7 @@
                 </ion-delete-button>
             </ion-item>
         </ion-list>
+        <button class="button icon ion-share" ng-click="shareLeague()"></button>
         <button class="button button-block button-positive" ng-click="inviteUser()">
             Invite New User
         </button>

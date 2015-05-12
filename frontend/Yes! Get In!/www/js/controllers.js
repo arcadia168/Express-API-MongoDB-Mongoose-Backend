@@ -42,7 +42,7 @@ angular.module('starter.controllers', [])
 
         }, function (error) {
             // Oops something went wrong during login:
-            console.log("There was an error logging in", error);
+            console.log("There was an error logging in", JSON.stringify(error));
         });
 
     })
@@ -105,7 +105,36 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('RoundDetailCtrl', function ($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges, auth) {
+    .controller('RoundDetailCtrl', function ($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges,
+                                             auth, TDCardDelegate) {
+        var cardTypes = [
+            { image: '../img/***REMOVED***.png', title: 'So much grass #hippster'},
+            { image: '../img/max.jpg', title: 'Way too much Sand, right?'},
+            { image: '../img/perry.jpg', title: 'Beautiful sky from wherever'},
+        ];
+
+        $scope.cards = [];
+
+        $scope.addCard = function(i) {
+            var newCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
+            newCard.id = Math.random();
+            $scope.cards.push(angular.extend({}, newCard));
+        }
+
+        for(var i = 0; i < 3; i++) $scope.addCard();
+
+        $scope.cardSwipedLeft = function(index) {
+            console.log('Left swipe');
+        }
+
+        $scope.cardSwipedRight = function(index) {
+            console.log('Right swipe');
+        }
+
+        $scope.cardDestroyed = function(index) {
+            $scope.cards.splice(index, 1);
+            console.log('Card removed');
+        }
 
         var _predictions = [];
         var updatePredictions = false; //flag to update predictions if some already exist.
@@ -240,18 +269,19 @@ angular.module('starter.controllers', [])
         }
 
         $scope.predictHomeWin = function (fixture) {
+            console.log("Predict home win");
             _addFixturePrediction(fixture, 1);
-
         };
 
         $scope.predictAwayWin = function (fixture) {
+            console.log("Predict away win");
             _addFixturePrediction(fixture, 2);
-
         };
 
-        $scope.predictDraw = function (fixture) {
+        $scope.predictDraw = function (fixture, index) {
+            console.log("Predict draw")
             _addFixturePrediction(fixture, 3);
-
+            $scope.cardDestroyed(index) //give this the index
         };
 
         //uncomment this section to re-instate background colour functionality
@@ -606,6 +636,21 @@ angular.module('starter.controllers', [])
                 }
             });
         };
+
+        //here parse the round's fixture data into the cards to be rendered
+        $scope.cards = [
+            { test: "test1" },
+            { test: "test2" }
+        ];
+
+        $scope.cardDestroyed = function(index) {
+            $scope.cards.splice(index, 1);
+        };
+
+        $scope.cardSwiped = function(index) {
+            var newCard = // new card data
+                $scope.cards.push(newCard);
+        };
     })
 
     .controller('ScoreboardCtrl', function ($scope, Scoreboard) {
@@ -617,36 +662,42 @@ angular.module('starter.controllers', [])
         };
     })
 
-    .controller('PrivateLeaguesCtrl', function ($scope, PrivateLeagues, auth, $ionicPopup) {
+    .controller('PrivateLeaguesCtrl', function ($scope, $state, PrivateLeagues, auth, $ionicPopup) {
 
         //get all of the private leagues for the user from the private league service
-        PrivateLeagues.all(auth.profile.user_id).then(function (data) {
-            //debugger;
-            $scope.privateLeagues = data;
+        //call this  whenever the user's leagues need to be updated within the app
+        function _getUserLeagues () {
+            PrivateLeagues.all(auth.profile.user_id).then(function (data) {
+                //debugger;
+                $scope.privateLeagues = data;
 
-            console.log(data);
+                console.log(data);
 
-            //work out which of the private leagues were made by user and which part of
-            $scope.createdLeagues = [];
+                //work out which of the private leagues were made by user and which part of
+                $scope.createdLeagues = [];
 
-            //the private league's of which the user is only a member
-            $scope.inLeagues = [];
+                //the private league's of which the user is only a member
+                $scope.inLeagues = [];
 
-            for (var i = 0; i < data.length; i++) {
-                if (data[i].creator = auth.profile.user_id) {
-                    //then is a league created by the currently logged in user, so add to list
-                    console.log('Now pushing private league ' + data[i] + ' on to user\'s created league\'s array');
-                    $scope.createdLeagues.push(data[i]);
-                } else {
-                    //the user is simply a participating member of this league
-                    console.log('Now pushing private league ' + data[i] + ' on to user\'s member array');
-                    $scope.inLeagues.push(data[i]);
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].creator = auth.profile.user_id) {
+                        //then is a league created by the currently logged in user, so add to list
+                        console.log('Now pushing private league ' + data[i] + ' on to user\'s created league\'s array');
+                        $scope.createdLeagues.push(data[i]);
+                    } else {
+                        //the user is simply a participating member of this league
+                        console.log('Now pushing private league ' + data[i] + ' on to user\'s member array');
+                        $scope.inLeagues.push(data[i]);
+                    }
                 }
-            }
 
-            console.log('User\'s created leagues are: ' + $scope.createdLeagues);
+                console.log('User\'s created leagues are: ' + $scope.createdLeagues);
 
-        });
+            });
+        }
+
+        //when page first loads
+        _getUserLeagues();
 
         $scope.data = {};
         var cancelled = true;
@@ -698,6 +749,81 @@ angular.module('starter.controllers', [])
                 }
             });
         };
+
+        //function to join a private league using its code
+        $scope.joinLeagueWithCode = function () {
+            //show the user a prompt to type in a username and
+            var myPopup = $ionicPopup.show({
+                template: '<input type="text" ng-model="data.leagueToJoin">',
+                title: 'Join league with code',
+                subTitle: 'Enter the code of the private league to join.',
+                scope: $scope,
+                buttons: [
+                    {text: 'Cancel'},
+                    {
+                        text: '<b>Join</b>',
+                        type: 'button-positive',
+                        onTap: function (e) {
+                            if (!$scope.data.leagueToJoin) {
+                                //don't allow the user to close unless he enters a code
+                                e.preventDefault();
+                            } else {
+                                cancelled = false;
+                                return $scope.data.leagueToJoin;
+                            }
+                        }
+                    }
+                ]
+            });
+            myPopup.then(function (res) {
+
+                if (!cancelled) {
+                    //validate the code, check 8 characters and all numbers
+
+                    console.log("Now attempting validation before sending code");
+
+                    //check that the code is 7 characters long
+                    var isnum = /^\d+$/.test($scope.data.leagueToJoin);
+
+                    //check that the code contains only numbers
+                    if (!isnum || $scope.data.leagueToJoin.length != 7) {
+                        //then invalid code was entered
+                        $ionicPopup.alert({
+                            title: 'Error! Invalid League Code',
+                            template: 'Please ensure you are entering a valid 7 digit numerical league code.'
+                        });
+
+                        return;
+                    }
+
+                    //use the data to call through to the user and pass through the provided username
+                    PrivateLeagues.joinLeagueWithCode(auth.profile.user_id, $scope.data.leagueToJoin).then(
+                        function (res) {
+
+                            //check the message that was returned...
+                            console.log(res);
+
+                            //Confirm that the invitation has been sent
+                            $ionicPopup.alert({
+                                title: 'Private League Joined',
+                                template: 'Yes! Get In! You\'ve joined the private league ' + $scope.data.leagueToJoin
+                            });
+
+                            //reset flag
+                            cancelled = true;
+
+                            //TODO: look up how to take that user directly to that league now
+                            //TODO: REFRESH  the page to display that new league
+                            //Would have to go and get leagues again
+
+                            console.log("Now attempting to refresh the page")
+                            _getUserLeagues();
+                        }
+                    );
+                }
+            });
+        };
+
     })
 
     .controller('PrivateLeaguesDetailCtrl', function ($scope, PrivateLeagues, auth, $stateParams, $ionicPopup, $state,
@@ -712,12 +838,19 @@ angular.module('starter.controllers', [])
 
         console.log('Now getting the private league with id: ' + $stateParams.privateLeagueId);//Get the data for this particular league from the server
         //Get the data for this particular round from the server
-        PrivateLeagues.get(auth.profile.user_id, $stateParams.privateLeagueId).then(function (data) {
 
-            //$ionicLoading.hide();
-            $scope.privateLeague = data[0];
-            console.log('Retrieved private leauge:' + JSON.stringify(data));
-        });
+        //call this functino whenever the private leage data needs to be refreshed
+        function _getPrivateLeagueData () {
+            PrivateLeagues.get(auth.profile.user_id, $stateParams.privateLeagueId).then(function (data) {
+
+                //$ionicLoading.hide();
+                $scope.privateLeague = data[0];
+                console.log('Retrieved private leauge:' + JSON.stringify(data));
+            });
+        }
+
+        //when first loading in the tab, get league data
+        _getPrivateLeagueData();
 
         //TODO: GO BACK AND ONLY EXPOSE DATA TO THE SCOPE VIA A DATA OBJECT IN THE SAME MANNER AS THIS
         //create scope variable to store provided usernames
@@ -727,95 +860,99 @@ angular.module('starter.controllers', [])
         var cancelled = true;
 
         //function to facilitate inviting a new user
-        $scope.inviteUser = function () {
-            //show the user a prompt to type in a username and
-            var myPopup = $ionicPopup.show({
-                template: '<input type="text" ng-model="data.userToInvite">',
-                title: 'Invite new member',
-                subTitle: 'Enter username of person to invite',
-                scope: $scope,
-                buttons: [
-                    {text: 'Cancel'},
-                    {
-                        text: '<b>Invite</b>',
-                        type: 'button-positive',
-                        onTap: function (e) {
-                            if (!$scope.data.userToInvite) {
-                                //don't allow the user to close unless he enters a username
-                                e.preventDefault();
-                            } else {
-                                cancelled = false;
-                                return $scope.data.userToInvite;
-                            }
-                        }
-                    }
-                ]
-            });
-            myPopup.then(function (res) {
-
-                if (!cancelled) {
-                    //validate the username, check not user's or existing member
-
-                    console.log("Now attempting validation before sending invitation");
-
-                    console.log("The creator of the private league is: " + $scope.privateLeague.creator);
-
-                    //check that the user has not attempted to invite themselves
-                    if ($scope.data.userToInvite == auth.profile.nickname) {
-                        console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
-                        console.log("The invitation was not sent because ysou can not invite yourself");
-
-                        //then this user has already been invited
-                        $ionicPopup.alert({
-                            title: 'Error! Invite Not Sent',
-                            template: 'You can not invite yourself to join this league! (You\'re already in it).'
-                        });
-
-                        return
-                    }
-
-                    //check that user has not already been invited
-                    for (var i = 0; i < $scope.privateLeague.members.length; i++) {
-
-                        console.log("Now checking member in the private league: " + $scope.privateLeague.members[i].username);
-
-                        if ($scope.privateLeague.members[i].username == $scope.data.userToInvite) {
-
-                            validUser = false;
-                            memberExists = true;
-
-                            //then this user has already been invited
-                            $ionicPopup.alert({
-                                title: 'Error! Invite Not Sent',
-                                template: 'This user has already been invited/ is a member.'
-                            });
-
-                            console.log("The invitation was not sent as this user has already been invited to this league.");
-
-                            return;
-                        }
-                    }
-
-                    //use the data to call through to the user and pass through the provided username
-                    PrivateLeagues.inviteNewMember(auth.profile.user_id, $scope.data.userToInvite, $scope.privateLeague.privateLeagueId).then(
-                        function (res) {
-
-                            //check the message that was returned...
-                            console.log(res);
-
-                            //Confirm that the invitation has been sent
-                            $ionicPopup.alert({
-                                title: 'Invitation',
-                                template: res
-                            });
-
-                            //reset flag
-                            cancelled = true;
-                        }
-                    );
-                }
-            });
-        };
+        //$scope.inviteUser = function () {
+        //    //show the user a prompt to type in a username and
+        //    var myPopup = $ionicPopup.show({
+        //        template: '<input type="text" ng-model="data.userToInvite">',
+        //        title: 'Invite new member',
+        //        subTitle: 'Enter username of person to invite',
+        //        scope: $scope,
+        //        buttons: [
+        //            {text: 'Cancel'},
+        //            {
+        //                text: '<b>Invite</b>',
+        //                type: 'button-positive',
+        //                onTap: function (e) {
+        //                    if (!$scope.data.userToInvite) {
+        //                        //don't allow the user to close unless he enters a username
+        //                        e.preventDefault();
+        //                    } else {
+        //                        cancelled = false;
+        //                        return $scope.data.userToInvite;
+        //                    }
+        //                }
+        //            }
+        //        ]
+        //    });
+        //    myPopup.then(function (res) {
+        //
+        //        if (!cancelled) {
+        //            //validate the username, check not user's or existing member
+        //
+        //            console.log("Now attempting validation before sending invitation");
+        //
+        //            console.log("The creator of the private league is: " + $scope.privateLeague.creator);
+        //
+        //            //check that the user has not attempted to invite themselves
+        //            if ($scope.data.userToInvite == auth.profile.nickname) {
+        //                console.log("The username of the creator of the private league is: " + $scope.privateLeague.creator);
+        //                console.log("The invitation was not sent because ysou can not invite yourself");
+        //
+        //                //then this user has already been invited
+        //                $ionicPopup.alert({
+        //                    title: 'Error! Invite Not Sent',
+        //                    template: 'You can not invite yourself to join this league! (You\'re already in it).'
+        //                });
+        //
+        //                return
+        //            }
+        //
+        //            //check that user has not already been invited
+        //            for (var i = 0; i < $scope.privateLeague.members.length; i++) {
+        //
+        //                console.log("Now checking member in the private league: " + $scope.privateLeague.members[i].username);
+        //
+        //                if ($scope.privateLeague.members[i].username == $scope.data.userToInvite) {
+        //
+        //                    validUser = false;
+        //                    memberExists = true;
+        //
+        //                    //then this user has already been invited
+        //                    $ionicPopup.alert({
+        //                        title: 'Error! Invite Not Sent',
+        //                        template: 'This user has already been invited/ is a member.'
+        //                    });
+        //
+        //                    console.log("The invitation was not sent as this user has already been invited to this league.");
+        //
+        //                    return;
+        //                }
+        //            }
+        //
+        //            //use the data to call through to the user and pass through the provided username
+        //            PrivateLeagues.inviteNewMember(auth.profile.user_id, $scope.data.userToInvite, $scope.privateLeague.privateLeagueId).then(
+        //                function (res) {
+        //
+        //                    //check the message that was returned...
+        //                    console.log(res);
+        //
+        //                    //Confirm that the invitation has been sent
+        //                    $ionicPopup.alert({
+        //                        title: 'Invitation',
+        //                        template: res
+        //                    });
+        //
+        //                    //reset flag
+        //                    cancelled = true;
+        //
+        //                    //Refresh the list of invited users
+        //                    _getPrivateLeagueData();
+        //
+        //                }
+        //            );
+        //        }
+        //    });
+        //};
 
         $scope.renameLeague = function () {
             //show the user a prompt to type in a username and
@@ -879,6 +1016,10 @@ angular.module('starter.controllers', [])
 
                             //reset flag
                             cancelled = true;
+
+                            //Refresh the name of the league as stored on the server
+                            _getPrivateLeagueData();
+
                         }
                     );
                 }
@@ -939,9 +1080,8 @@ angular.module('starter.controllers', [])
                             //update the local user data
                             User.getUserData();
 
-                            //take the user back to the list of private leagues
-                            //TODO: REPLACE THIS WITH A PAGE REFRESH
-                            $state.go('tab.scoreboard-private-leagues');
+                            _getPrivateLeagueData();
+
                         }
                     );
                 }
@@ -995,11 +1135,10 @@ angular.module('starter.controllers', [])
         };
 
         //Implementing sharing of the private league code - for an open invitation
-        $scope.share = function() {
+        $scope.shareLeague = function() {
             //$cordovaSocialSharing.share("This is your message", "This is your subject", "www/imagefile.png", "http://blog.nraboy.com");
-            var GOOGLE_PLAY_URL = "test";
-            var ITUNES_URL = "test";
-            $cordovaSocialSharing.share("Join my Yes! Get In! Private league using code: \n\t" + $scope.privateLeague.privateLeagueCode + "\nGet the app for Android and iOS here!: \n\t Android: " + GOOGLE_PLAY_URL + "\n\t iOS " + ITUNES_URL);
+            console.log("Share functin invoked.");
+            $cordovaSocialSharing.share("Join my Yes! Get In! Private league using code: \n\t" + $scope.privateLeague.privateLeagueCode, "Join my Yes! Get In! Private League", null, "http://www.yesgetin.com");
         };
 
         //$scope.shareViaTwitter = function(message, image, link) {

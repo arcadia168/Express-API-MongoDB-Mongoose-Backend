@@ -6,7 +6,18 @@
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter.services', 'auth0', 'angular-storage',
-    'angular-jwt'])
+    'angular-jwt', 'ionic.contrib.ui.tinderCards'])
+
+    .directive('noScroll', function() {
+        return {
+            restrict: 'A',
+            link: function($scope, $element, $attr) {
+                $element.on('touchmove', function(e) {
+                    e.preventDefault();
+                });
+            }
+        }
+    })
 
     .config(function ($stateProvider, $urlRouterProvider, authProvider, $httpProvider, jwtInterceptorProvider) {
 

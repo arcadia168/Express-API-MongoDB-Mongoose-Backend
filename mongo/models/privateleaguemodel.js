@@ -11,7 +11,7 @@ var privateLeagueSchema = new Schema({
     privateLeagueName: { type: String},
     privateLeagueCode: { type: String},
     creator: { type: String, index: true},
-    members: [{ user_id: String, username: String, score: Number, status: String}], //include pic url?
+    members: [{ user_id: String, username: String, score: Number, status: String}], //todo: include pic url?
     dateCreated: { type: Date, default: Date.now }
 });
 

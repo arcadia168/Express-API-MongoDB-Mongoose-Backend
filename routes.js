@@ -11,6 +11,7 @@ module.exports = function(app){
     app.get('/api/users/predictions/:user_id/:round', users.findRoundPredictions); //protect
     app.get('/api/users/private_leagues/create/:user_id/:private_league_name', privateLeagues.createPrivateLeague); //protect
     app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //protect
+    app.get('/api/users/private_leagues/join/:user_id/:private_league_code', privateLeagues.joinPrivateLeagueWithCode); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect
     app.get('/api/users/private_leagues/invite/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember); //protect
@@ -22,7 +23,7 @@ module.exports = function(app){
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.post('/api/users/predictions/:user_id/:round', users.addPredictions); //protect
     app.put('/api/users/predictions/update/:user_id', users.updatePrediction);//protect  //for the sake of ease these get done one by one
-    //todo: attempt to implement a single call which takes a list of predictions and updates them
+    //todo: attempt to implement a single call which takes a list of predictions and updates them, use promises, now easy!
     //app.put('api/users/:user_id', users.updateUser); //protect TODO: Remove as not necessary
     app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
@@ -38,9 +39,9 @@ module.exports = function(app){
 
     //TODO: Review how necessary/remove these routes.
     //routes used for server/db admin, not used by app
-    //app.post('/api/fixtures/createfixtures', fixtures.addFixtures); //protect
-    //app.delete('/api/fixtures/clearfixtures', fixtures.clearFixtures); //protect
-    //app.delete('/api/fixtures/:round', fixtures.clearRound); //protect
+    app.post('/api/fixtures/createfixtures', fixtures.addFixtures); //protect
+    app.delete('/api/fixtures/clearfixtures', fixtures.clearFixtures); //protect
+    app.delete('/api/fixtures/:round', fixtures.clearRound); //protect
 
     //TODO: Remove these from the release version of the API
     //routes which quickly manipulate dummy data into the database

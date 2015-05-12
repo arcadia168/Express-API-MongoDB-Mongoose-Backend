@@ -4,6 +4,8 @@
         </button>
     </ion-nav-buttons>
     <ion-content>
+        <!-- TODO: button here to join a league using a given code -->
+        <button class="button button-balanced icon-right ion-person-add button-balanced" ng-click="joinLeagueWithCode()">Enter League Code</button>
         <div class="item item-divider">Your created leagues</div>
         <ion-item class="item-remove-animate item item-icon-left item-icon-right" type="item-text-wrap" ng-model="createdLeagues"
                   href="#/tab/scoreboard/privateleagues/{{league.privateLeagueId}}"

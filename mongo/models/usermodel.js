@@ -11,7 +11,7 @@ var userSchema = new Schema({
     name: { type: String, required: true },
     predictions: [Prediction],
     notifications: [{notificationId: String, message: String}],
-    invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
+    //invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
     score: { type: Number, default: 0 } //TODO: Add a url to a user picture! - Get this from Auth0
 });
 

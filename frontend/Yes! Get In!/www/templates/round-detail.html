@@ -1,29 +1,27 @@
-<!--
-    Load all the details
--->
 <ion-view view-title="Round {{fixtures[0].round}} Fixtures">
-    <ion-content class="padding">
+    <ion-content no-scroll>
+        <td-cards>
+            <td-card id="td-card" ng-repeat="card in cards" on-destroy="cardDestroyed($index)"
+                     on-swipe-left="predictAwayWin(fixture._id)"
+                     on-swipe-right="predictHomeWin(fixture._id)"
+                     on-swipe-down="predictDraw(fixture._id, $index)"
+                     on-partial-swipe="cardPartialSwipe(amt)">
+                <div class="title">
+                    {{card.title}}
+                </div>
+                <div>
+                    <div class="no-text overlayBox"><div class="noBox boxed">Home Win</div></div>
 
-        <!-- Need to ng-repeat  the list of fixtures for the chosen round here -->
-        <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="fixtures"
-                  ng-repeat="fixture in fixtures track by fixture._id"
-                  on-swipe-left="predictHomeWin(fixture._id)" on-swipe-right="predictAwayWin(fixture._id)"
-                  on-hold="predictDraw(fixture._id)" type="item-text-wrap"
-                  ng-class="getBackgroundColour(fixture)">
-            <i class="icon ion-tshirt-outline"></i>
-            <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}}<br><em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
-            <p ng-model="fixture">Prediction: {{fixture.prediction || "No prediction made"}}</p>
-            <i class="icon ion-tshirt right-shirt"></i>
-            <i class="icon ion-ios-close-empty" ng-click="clearSinglePrediction(fixture)"></i>
-        </ion-item>
-        <button class="button button-block button-balanced" ng-click="sendPredictions()">
-            Submit/Update Predictions for Round {{fixtures[0].round}}
-        </button>
-        <button class="button button-block button-energized" ng-click="clearAllPredictions()" ng-disabled="clearDisabled">
-            Clear Currently Selected Predictions
-        </button>
-        <button class="button button-block button-assertive" ng-click="deleteRoundPredictions()" ng-disabled="deleteDisabled">
-            Withdraw Predictions for Round {{fixtures[0].round}}
-        </button>
+                    <i class="icon ion-tshirt-outline"></i>
+                    <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}}<br><em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
+                    <p ng-model="fixture">Prediction: {{fixture.prediction || "No prediction made"}}</p>
+                    <i class="icon ion-tshirt right-shirt"></i>
+                    <!--<i class="icon ion-ios-close-empty" ng-click="clearSinglePrediction(fixture)"></i>-->
+
+                    <div class="yes-text overlayBox"><div class="yesBox boxed" id="centerMe">Away Win</div></div>
+                </div>
+            </td-card>
+        </td-cards>
     </ion-content>
 </ion-view>
+                

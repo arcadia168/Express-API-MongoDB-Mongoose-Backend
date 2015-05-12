@@ -15,7 +15,7 @@ module.exports = function(app){
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect
     app.get('/api/users/private_leagues/invite/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember); //protect
-    app.get('/api/users/private_leagues/accept/:invited_user_id/:private_league_id', privateLeagues.addPrivateLeagueMember);
+    //app.get('/api/users/private_leagues/accept/:invited_user_id/:private_league_id', privateLeagues.addPrivateLeagueMember);
     app.get('/api/users/private_leagues/reject/:inviting_username/:invited_user_id/:private_league_id', privateLeagues.rejectPrivateLeagueInvitation); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect

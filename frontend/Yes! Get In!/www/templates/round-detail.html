@@ -1,10 +1,10 @@
-<ion-view view-title="Round {{fixtures[0].round}} Fixtures">
+<ion-view view-title="Round Fixtures">
     <ion-content no-scroll>
         <td-cards>
-            <td-card id="td-card" ng-repeat="card in cards" on-destroy="cardDestroyed($index)"
+            <td-card id="td-card" ng-repeat="fixture in fixtures track by fixture._id" on-destroy="cardDestroyed($index)"
                      on-swipe-left="predictAwayWin(fixture._id)"
                      on-swipe-right="predictHomeWin(fixture._id)"
-                     on-swipe-down="predictDraw(fixture._id, $index)"
+                     on-swipe-up="predictDraw(fixture._id, $index)"
                      on-partial-swipe="cardPartialSwipe(amt)">
                 <div class="title">
                     {{card.title}}

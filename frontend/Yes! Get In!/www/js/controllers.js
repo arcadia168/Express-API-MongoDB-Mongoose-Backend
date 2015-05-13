@@ -107,6 +107,8 @@ angular.module('starter.controllers', [])
 
     .controller('RoundDetailCtrl', function ($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges,
                                              auth, TDCardDelegate) {
+        debugger;
+
         var cardTypes = [
             { image: '../img/***REMOVED***.png', title: 'So much grass #hippster'},
             { image: '../img/max.jpg', title: 'Way too much Sand, right?'},
@@ -275,13 +277,14 @@ angular.module('starter.controllers', [])
 
         $scope.predictAwayWin = function (fixture) {
             console.log("Predict away win");
-            _addFixturePrediction(fixture, 2);
+            _addFixturePrediction(fixtre, 2);
+
         };
 
         $scope.predictDraw = function (fixture, index) {
             console.log("Predict draw")
-            _addFixturePrediction(fixture, 3);
-            $scope.cardDestroyed(index) //give this the index
+            _addFixturePrediction(fixture);
+            $scope.cardDestroyed(index) //give this the indexre, 3);
         };
 
         //uncomment this section to re-instate background colour functionality

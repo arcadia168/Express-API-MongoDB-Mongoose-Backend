@@ -36,7 +36,14 @@
       this.el = opts.el;
 
       this.parentWidth = this.el.parentNode.offsetWidth;
+
+      //add for up down drag
+      this.parentHeight = this.el.parentNode.offsetHeight;
+
       this.width = this.el.offsetWidth;
+
+      //add height for an up down swipe
+      this.height = this.el.offSetHeight
 
       this.startX = this.startY = this.x = this.y = 0;
 
@@ -116,7 +123,7 @@
     swipe: function() {
       this.transitionOut();
     },
-    
+
     /**
      * Snap the card back to its original position
      */
@@ -128,48 +135,76 @@
       //return true;
       return Math.abs(this.thresholdAmount) < 0.4;
     },
+
     /**
      * Fly the card out or animate back into resting position.
      */
     transitionOut: function(e) {
       var self = this;
 
-      if(this.isUnderThreshold()) {
+      if((!this.isUnderThreshold()) && (this.y < 200)) {
+        console.log("SWIPED LEFT OR RIGHT");
+
+        self.onTransitionOut(self.thresholdAmount);
+
+        var angle = Math.atan(e.gesture.deltaX / e.gesture.deltaY);
+
+        var dir = this.thresholdAmount < 0 ? -1 : 1;
+        var targetX;
+        if(this.x > 0) {
+          targetX = (this.parentWidth / 2) + (this.width);
+        } else {
+          targetX = - (this.parentWidth + this.width);
+        }
+
+        // Target Y is just the "opposite" side of the triangle of targetX as the adjacent edge (sohcahtoa yo)
+        var targetY = targetX / Math.tan(angle);
+
+        // Fly out
+        var rotateTo = this.rotationAngle;//(this.rotationAngle this.rotationDirection * 0.2));// || (Math.random() * 0.4);
+
+        var duration = 0.3 - Math.min(Math.max(Math.abs(e.gesture.velocityX)/10, 0.05), 0.2);
+
+        ionic.requestAnimationFrame(function() {
+          self.el.style.transform = self.el.style.webkitTransform = 'translate3d(' + targetX + 'px, ' + targetY + 'px,0) rotate(' + self.rotationAngle + 'rad)';
+          self.el.style.transition = self.el.style.webkitTransition = 'all ' + duration + 's ease-in-out';
+        });
+
+        //this.onSwipe && this.onSwipe();
+
+        // Trigger destroy after card has swiped out
+        setTimeout(function() {
+          self.onDestroy && self.onDestroy();
+        }, duration * 1000);
+
+        return;
+      } else if (this.y > 150) {  //CHECK Y VALUE, IF OVER THRESHOLD, FLY OUT
+        console.log("SWIPED DOWN");
+        //CHECK WHAT THIS DOES
+        self.onTransitionOut(self.thresholdAmount);
+
+
+        //FLY OUT CODE
+        var rotateTo = (this.rotationAngle + (this.rotationDirection * 0.6)) || (Math.random() * 0.4);
+        var duration = this.rotationAngle ? 0.2 : 0.5;
+
+        ionic.requestAnimationFrame(function() {
+          debugger;
+          self.el.style.transform = self.el.style.webkitTransform = 'translate3d(' + this.x + ',' + (window.innerHeight * 1.5) + 'px, 0) rotate(' + rotateTo + 'rad)';
+          self.el.style.transition = self.el.style.webkitTransition = 'all ' + duration + 's ease-in-out';
+        });
+
+        // Trigger destroy after card has swiped out
+        setTimeout(function() {
+          self.onDestroy && self.onDestroy();
+        }, duration * 200);
+
+        return;
+      } else {
         self.onSnapBack(this.x, this.y, this.rotationAngle);
         return;
       }
 
-      self.onTransitionOut(self.thresholdAmount);
-      
-      var angle = Math.atan(e.gesture.deltaX / e.gesture.deltaY);
-
-      var dir = this.thresholdAmount < 0 ? -1 : 1;
-      var targetX;
-      if(this.x > 0) {
-        targetX = (this.parentWidth / 2) + (this.width);
-      } else {
-        targetX = - (this.parentWidth + this.width);
-      }
-
-      // Target Y is just the "opposite" side of the triangle of targetX as the adjacent edge (sohcahtoa yo)
-      var targetY = targetX / Math.tan(angle);
-
-      // Fly out
-      var rotateTo = this.rotationAngle;//(this.rotationAngle this.rotationDirection * 0.2));// || (Math.random() * 0.4);
-
-      var duration = 0.3 - Math.min(Math.max(Math.abs(e.gesture.velocityX)/10, 0.05), 0.2);
-      
-      ionic.requestAnimationFrame(function() {
-        self.el.style.transform = self.el.style.webkitTransform = 'translate3d(' + targetX + 'px, ' + targetY + 'px,0) rotate(' + self.rotationAngle + 'rad)';
-        self.el.style.transition = self.el.style.webkitTransition = 'all ' + duration + 's ease-in-out';
-      });
-
-      //this.onSwipe && this.onSwipe();
-
-      // Trigger destroy after card has swiped out
-      setTimeout(function() {
-        self.onDestroy && self.onDestroy();
-      }, duration * 1000);
     },
 
     /**
@@ -274,6 +309,7 @@
       scope: {
         onSwipeLeft: '&',
         onSwipeRight: '&',
+        onSwipeDown: '&', //& means whatever the user puts as function in the DOM template
         onTransitionLeft: '&',
         onTransitionRight: '&',
         onTransitionOut: '&',
@@ -286,7 +322,7 @@
           var el = $element[0];
           var leftText = el.querySelector('.no-text');
           var rightText = el.querySelector('.yes-text');
-          
+
           // Force hardware acceleration for animation - better performance on first touch
           el.style.transform = el.style.webkitTransform = 'translate3d(0px, 0px, 0px)';
 
@@ -362,7 +398,7 @@
                 frequency: 15,
                 friction: 250,
                 initialForce: false
-              }) 
+              })
 
               .on('step', function(v) {
                 //Have the element spring over 400px
@@ -381,7 +417,7 @@
                 return el.style.transform = el.style.webkitTransform = 'translate3d(' + x + 'px,0,0)';
               });
               */
-            },
+            }
           });
           $scope.$parent.swipeCard = swipeableCard;
 

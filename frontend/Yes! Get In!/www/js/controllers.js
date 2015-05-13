@@ -107,36 +107,6 @@ angular.module('starter.controllers', [])
 
     .controller('RoundDetailCtrl', function ($scope, $ionicPopup, $stateParams, $ionicActionSheet, Rounds, SaveChanges,
                                              auth, TDCardDelegate) {
-        debugger;
-
-        var cardTypes = [
-            { image: '../img/***REMOVED***.png', title: 'So much grass #hippster'},
-            { image: '../img/max.jpg', title: 'Way too much Sand, right?'},
-            { image: '../img/perry.jpg', title: 'Beautiful sky from wherever'},
-        ];
-
-        $scope.cards = [];
-
-        $scope.addCard = function(i) {
-            var newCard = cardTypes[Math.floor(Math.random() * cardTypes.length)];
-            newCard.id = Math.random();
-            $scope.cards.push(angular.extend({}, newCard));
-        }
-
-        for(var i = 0; i < 3; i++) $scope.addCard();
-
-        $scope.cardSwipedLeft = function(index) {
-            console.log('Left swipe');
-        }
-
-        $scope.cardSwipedRight = function(index) {
-            console.log('Right swipe');
-        }
-
-        $scope.cardDestroyed = function(index) {
-            $scope.cards.splice(index, 1);
-            console.log('Card removed');
-        }
 
         var _predictions = [];
         var updatePredictions = false; //flag to update predictions if some already exist.
@@ -269,23 +239,6 @@ angular.module('starter.controllers', [])
             //Now check to see if
 
         }
-
-        $scope.predictHomeWin = function (fixture) {
-            console.log("Predict home win");
-            _addFixturePrediction(fixture, 1);
-        };
-
-        $scope.predictAwayWin = function (fixture) {
-            console.log("Predict away win");
-            _addFixturePrediction(fixtre, 2);
-
-        };
-
-        $scope.predictDraw = function (fixture, index) {
-            console.log("Predict draw")
-            _addFixturePrediction(fixture);
-            $scope.cardDestroyed(index) //give this the indexre, 3);
-        };
 
         //uncomment this section to re-instate background colour functionality
         var colourMap = {
@@ -640,20 +593,30 @@ angular.module('starter.controllers', [])
             });
         };
 
-        //here parse the round's fixture data into the cards to be rendered
-        $scope.cards = [
-            { test: "test1" },
-            { test: "test2" }
-        ];
+        $scope.predictHomeWin = function (fixture) {
+            debugger;
+            console.log("Predict home win");
+            _addFixturePrediction(fixture, 1);
+        };
+
+        $scope.predictAwayWin = function (fixture) {
+            debugger;
+            console.log("Predict away win");
+            _addFixturePrediction(fixture, 2);
+
+        };
+
+        $scope.predictDraw = function (fixture, index) {
+            debugger;
+            console.log("Predict draw")
+            _addFixturePrediction(fixture);
+            $scope.cardDestroyed(index);
+        };
 
         $scope.cardDestroyed = function(index) {
-            $scope.cards.splice(index, 1);
-        };
-
-        $scope.cardSwiped = function(index) {
-            var newCard = // new card data
-                $scope.cards.push(newCard);
-        };
+            console.log("Destroy called - Fixture card removed")
+            $scope.fixtures.splice(index, 1);
+        }
     })
 
     .controller('ScoreboardCtrl', function ($scope, Scoreboard) {

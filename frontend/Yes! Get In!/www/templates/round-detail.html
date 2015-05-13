@@ -1,10 +1,10 @@
 <ion-view view-title="Round Fixtures">
-    <ion-content no-scroll>
+    <ion-pane no-scroll ng-controller="RoundDetailCtrl">
         <td-cards>
-            <td-card id="td-card" ng-repeat="fixture in fixtures track by fixture._id" on-destroy="cardDestroyed($index)"
+            <td-card id="td-card" ng-repeat="fixture in fixtures track by $index" on-destroy="cardDestroyed($index)"
                      on-swipe-left="predictAwayWin(fixture._id)"
                      on-swipe-right="predictHomeWin(fixture._id)"
-                     on-swipe-up="predictDraw(fixture._id, $index)"
+                     on-tap="predictDraw(fixture._id)"
                      on-partial-swipe="cardPartialSwipe(amt)">
                 <div class="title">
                     {{card.title}}
@@ -22,6 +22,6 @@
                 </div>
             </td-card>
         </td-cards>
-    </ion-content>
+    </ion-pane>
 </ion-view>
                 

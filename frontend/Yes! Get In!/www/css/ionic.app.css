@@ -7144,3 +7144,90 @@ ion-item.item.draw-predicted {
 /* Styling the ng-table standings */
 .ng-table {
   border: 1px solid #00A000; }
+
+td-cards {
+  display: block; }
+
+td-card {
+  position: absolute;
+  left: 50%;
+  margin-top: 80px;
+  margin-bottom: 40px;
+  margin-left: -150px;
+  width: 300px;
+  height: 300px;
+  border: 1px solid #999;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 6px; }
+
+/*
+td-card.card-0 {
+  -webkit-transform: translate3d(0, 0px, 0);
+  transform: translate3d(0, 0px, 0);
+  top: 0px;
+  z-index: 10;
+}
+td-card.card-1 {
+  -webkit-transform: translate3d(0, 4px, 0);
+  transform: translate3d(0, 4px, 0);
+  z-index: 9;
+}
+td-card.card-2 {
+  -webkit-transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, 8px, 0);
+  z-index: 8;
+}
+*/
+td-card {
+  margin-top: 7.5rem; }
+
+td-card .image {
+  position: relative; }
+
+td-card img {
+  max-width: 100%;
+  border-radius: 6px; }
+
+.yes-text {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 30px;
+  color: #6ffa6f;
+  opacity: 0; }
+
+.no-text {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 30px;
+  color: #ff7373;
+  opacity: 0; }
+
+.fade {
+  -webkit-transition: 0.2s opacity linear;
+  transition: 0.2s opacity linear;
+  opacity: 0; }
+
+.td-card {
+  margin-top: 4rem; }
+
+.card-content {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem; }
+
+.home-shirt-icon, .away-shirt-icon {
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem;
+  background: green;
+  border-radius: 100%; }
+
+.home-team.col-33, .away-team.col33 {
+  text-align: -webkit-center; }
+
+.team-label {
+  margin-top: -1rem; }

@@ -1,27 +1,47 @@
 <ion-view view-title="Round Fixtures">
-    <ion-pane no-scroll ng-controller="RoundDetailCtrl">
-        <td-cards>
-            <td-card id="td-card" ng-repeat="fixture in fixtures track by $index" on-destroy="cardDestroyed($index)"
-                     on-swipe-left="predictAwayWin(fixture._id)"
-                     on-swipe-right="predictHomeWin(fixture._id)"
-                     on-tap="predictDraw(fixture._id)"
-                     on-partial-swipe="cardPartialSwipe(amt)">
-                <div class="title">
-                    {{card.title}}
-                </div>
-                <div>
-                    <div class="no-text overlayBox"><div class="noBox boxed">Home Win</div></div>
+    <ion-content ng-controller="RoundDetailCtrl">
+        <td-cards ng-if="cardView">
+            <td-card ng-repeat="fixture in fixtures track by $index"
+                     on-destroy="cardDestroyed($index)"
+                     on-transition-left="cardSwipedLeft(fixture._id)"
+                     on-transition-right="cardSwipedRight(fixture._id)"
+                     on-swipe-down="cardSwipedDown(fixture._id, $index)"
+                     on-partial-swipe="cardPartialSwipe(amt)" class="card-{{$index}}">
+                <div class="card-content">
+                    <!--<div class="no-text">HOME</div>-->
 
-                    <i class="icon ion-tshirt-outline"></i>
-                    <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}}<br><em>{{fixture.fixDate | date: 'dd/MM/yyyy' }}</em></p>
-                    <p ng-model="fixture">Prediction: {{fixture.prediction || "No prediction made"}}</p>
-                    <i class="icon ion-tshirt right-shirt"></i>
-                    <!--<i class="icon ion-ios-close-empty" ng-click="clearSinglePrediction(fixture)"></i>-->
+                    <div class="home-team col-33">
+                        <img class="image home-shirt-icon" ng-src="../img/team_shirts/{{fixture.homeTeam}}.svg">
+                        <em class="team-label">{{fixture.homeTeam}}</em>
+                    </div>
 
-                    <div class="yes-text overlayBox"><div class="yesBox boxed" id="centerMe">Away Win</div></div>
+                    <h2>vs.</h2>
+
+                    <div class="away-team col-33">
+                        <img class="image away-shirt-icon" ng-src="../img/team_shirts/{{fixture.awayTeam}}.svg">
+                        <em class="team-label">{{fixture.awayTeam}}</em>
+                    </div>
+
+                    <!--<div class="yes-text">AWAY</div>-->
                 </div>
             </td-card>
         </td-cards>
-    </ion-pane>
+        <ion-list class="list" ng-if="!cardView">
+            <ion-item class="item-remove-animate item item-icon-left item-icon-right" ng-model="fixtures"
+                      ng-repeat="fixture in listFixtures track by fixture._id"
+                      on-swipe-left="predictHomeWin(fixture._id)" on-swipe-right="predictAwayWin(fixture._id)"
+                      on-tap="predictDraw(fixture._id)" type="item-text-wrap"
+                      ng-class="getBackgroundColour(fixture)">
+                <img class="image list-home-shirt-icon" ng-src="../img/team_shirts/{{fixture.homeTeam}}.svg">
+
+                <p>{{fixture.homeTeam}} <em>vs</em> {{fixture.awayTeam}}<br><em>{{fixture.fixDate | date: 'dd/MM/yyyy'
+                    }}</em></p>
+
+                <p ng-model="fixture">Prediction: {{fixture.prediction || "No prediction made"}}</p>
+                <img class="image list-away-shirt-icon" ng-src="../img/team_shirts/{{fixture.awayTeam}}.svg">
+                <i class="icon ion-ios-close-empty" ng-click="clearSinglePrediction(fixture)"></i>
+            </ion-item>
+        </ion-list>
+    </ion-content>
 </ion-view>
                 

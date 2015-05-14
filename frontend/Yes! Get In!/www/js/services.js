@@ -4,7 +4,7 @@ angular.module('starter.services', ['ngResource'])
     .factory('RunMode', [function(){
 
         //TO SET THE WHOLE APP TO RELEASE MODE CHANGE THIS HERE
-        var debugRelease = 'deviceDebug';//'release';//'deviceDebug';
+        var debugRelease = 'debug';//'debug'//'release';//'deviceDebug';
 
         var serverToUse = '';
 
@@ -15,7 +15,7 @@ angular.module('starter.services', ['ngResource'])
         } else if (debugRelease == 'deviceDebug') {
             //running the app on the device hosting server on mac
             //use the ip address of mac from router, port 8000 as usual
-            var code = 'fclqxwcnrf';
+            var code = 'otezjzjjqr';
             var localTunnelUrl = 'https://' + code + '.localtunnel.me'; //THIS WILL CHANGE DYNAMICALLY, UPDATE ALWAYS
             console.log("Local tunnel url is: %s", localTunnelUrl);
             serverToUse = localTunnelUrl + "/api";

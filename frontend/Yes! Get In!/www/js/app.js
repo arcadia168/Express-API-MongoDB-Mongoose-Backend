@@ -115,6 +115,21 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
                     requiresLogin: true
                 }
             })
+            .state('tab.round-review', {
+                url: '/rounds/review/:roundId',
+                views: {
+                    'tab-rounds': {
+                        templateUrl: 'templates/round-detail.html',
+                        controller: 'RoundDetailCtrl'
+                    }
+                },
+                data: {
+                    // This tells Auth0 that this state requires the user to be logged in.
+                    // If the user isn't logged in and he tries to access this state
+                    // he'll be redirected to the login page
+                    requiresLogin: true
+                }
+            })
 
             .state('tab.scoreboard', {
                 url: '/scoreboard',

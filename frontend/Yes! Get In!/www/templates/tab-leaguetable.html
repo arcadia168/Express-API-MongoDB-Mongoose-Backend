@@ -1,14 +1,14 @@
-<ion-view view-title="LEAGUETABLE">
-    <ion-content class="padding">
-        <div class="row row-header"><p class="col">Pos</p><p class="col-25">Team</p><p class="col">GP</p><p class="col">W</p><p class="col">D</p><p class="col">L</p><p class="col">Pts</p></div>
+<ion-view view-title="LEAGUE TABLE">
+    <ion-content class="padding live-table">
+        <div class="row row-header"><p class="col-10">Pos</p><p class="col-47">Team</p><p class="col-10">GP</p><p class="col-10">W</p><p class="col-10">D</p><p class="col-10">L</p><p class="col-10">Pts</p></div>
         <div class="row" ng-model="standings" ng-repeat="standing in standings track by $index">
-            <div class="col">{{standing.stand_position}}</div>
-            <div class="col-25">{{standing.stand_team_name}}</div>
-            <div class="col">{{standing.stand_overall_gp}}</div>
-            <div class="col">{{standing.stand_overall_w}}</div>
-            <div class="col">{{standing.stand_overall_d}}</div>
-            <div class="col">{{standing.stand_overall_l}}</div>
-            <div class="col">{{standing.stand_points}}</div>
+            <div class="col-10 stat"><p>{{standing.stand_position}}</p></div>
+            <div class="team-name-shirt col-47"><img class="standing-shirt" ng-src="img/team_shirts/{{standing.stand_team_name}}.png"><p class="team-name">{{standing.stand_team_name}}</p></div>
+            <div class="col-10 stat"><p>{{standing.stand_overall_gp}}</p></div>
+            <div class="col-10 stat"><p>{{standing.stand_overall_w}}</p></div>
+            <div class="col-10 stat"><p>{{standing.stand_overall_d}}</p></div>
+            <div class="col-10 stat"><p>{{standing.stand_overall_l}}</p></div>
+            <div class="col-10 stat"><p>{{standing.stand_points}}</p></div>
         </div>
     </ion-content>
 </ion-view>

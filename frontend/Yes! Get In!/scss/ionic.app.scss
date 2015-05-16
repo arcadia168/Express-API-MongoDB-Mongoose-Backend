@@ -7,563 +7,253 @@ For example, you might change some of the default colors:
 YES! GET IN! GREEN  #50EF8C !default !important;
 
 */
-$light:                           #e9f5e7 !default !important;
-$stable:                          #f8f8f8 !default !important;
-$positive:                        #387ef5 !default !important;
-$calm:                            #11c1f3 !default !important;
-$balanced:                        #33cd5f !default !important;
-$energized:                       #ffc900 !default !important;
-$assertive:                       #ef473a !default !important;
-$royal:                           #886aea !default !important;
-$dark:                            #444 !default !important;
-$ygi-green:                       #3bb665 !default !important;
+$light:                           #e9f5e7 !default ;
+$stable:                          #f8f8f8 !default ;
+$positive:                        #387ef5 !default ;
+$calm:                            #11c1f3 !default ;
+$balanced:                        #33cd5f !default ;
+$energized:                       #ffc900 !default ;
+$assertive:                       #ef473a !default ;
+$royal:                           #886aea !default ;
+$dark:                            #444 !default ;
+$ygi-green:                       #3bb665 !default ;
 
 // The path for our ionicons font files, relative to the built CSS in www/css
-$ionicons-font-path: "../lib/ionic/fonts" !default !important;
+$ionicons-font-path: "../lib/ionic/fonts" !default ;
 
 // Include all of Ionic
-@import "www/lib/ionic/scss/ionic" !important;
-
-ion-item.item.home-win-predicted {
-  background-color: #00A000 !important;
-  color: #ffffff  !important;
-}
-
-ion-item.item.away-win-predicted {
-  background-color: #880000 !important;
-  color: #ffffff  !important;
-}
-
-ion-item.item.draw-predicted {
-  background-color: #0000FF !important;
-  color: #ffffff  !important;
-}
-
-.right-shirt {
-  left: 83%  !important;
-}
-
-.ion-ios-close-empty {
-  right: 0%  !important;
-}
-
-/* 
-  ng-table standings 
-*/
-.ng-table {
-  border: 1px solid #00A000 !important;
-}
-
-ion-view[view-title="League Table"] {
-
-  .row-header {
-    background: $stable !important;
-    color:#fff !important;
-    font-weight: bold !important;
-    text-transform: uppercase !important;
-  }
-
-  .row:nth-child(2n) {
-    background: $light !important;
-  }
-
-}
-
-.col-25 {
-  padding-top: 5px !important;
-}
-
-.left {
-  position: absolute !important;
-  left: 1rem !important;
-}
-
-.team {
-  background: $calm !important;
-}
-
-.eighty {
-  width: 80% !important;
-}
-
-/* Card styling */
-
-td-cards {
-  display: block !important;
-}
-
-td-card {
-  position: absolute !important;
-  left: 50% !important;
-  margin: 80px 0 40px -150px !important;
-  width: 300px !important;
-  height: 300px !important;
-  border: 1px solid #999 !important;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.2) !important;
-  border-radius: 6px !important;
-  background-color: rgb(255,255,255) !important;
-}
-
-.td-card .title {
-  height: 40px !important;
-  font-size: 15px !important;
-  padding: 15px !important;
-}
-
-td-card .image {
-  position: absolute !important;
-  top: 40px !important;
-  width: 100% !important;
-}
-
-td-card img {
-  height: 258px !important;
-  width: 100% !important;
-  border-radius: 6px !important;
-}
-
-/* Overlay styling*/
-
-.overlayBox {
-  position: absolute !important;
-  left: 50% !important;
-  height: 98% !important;
-  width: 100% !important;
-  top: -80px !important;
-  opacity: 0 !important;
-  margin: 80px 0 0 -149px !important;
-}
-
-.boxed {
-  height: 50px !important;
-  width: 100px !important;
-  padding: 10px !important;
-  border-radius: 6px !important;
-  font-size: 30px !important;
-}
-
-.yes-text {
-  background-color: rgba(0,255,0,0.2) !important;
-}
-
-.yesBox {
-  margin: 10% 60% 0% 10% !important;
-  border: 2px solid #00FF00 !important;
-  color: rgb(0, 255, 0) !important;
-  -webkit-transform: rotate(-25deg) !important;
-}
-
-.no-text {
-  background-color: rgba(255,0,0,0.2) !important;
-}
-
-.noBox {
-  margin: 10% 10% 0% 60% !important;
-  border: 2px solid #FF0000 !important;
-  color: rgb(255, 0, 0) !important;
-  -webkit-transform: rotate(25deg) !important;
-}
-
-.fade {
-  -webkit-transition: 0.2s opacity linear !important;
-  transition: 0.2s opacity linear !important;
-  opacity: 0 !important;
-}
-
-ion-item.item.home-win-predicted {
-  background-color: #00A000 !important;
-  color: #ffffff  !important;
-}
-
-ion-item.item.away-win-predicted {
-  background-color: #880000 !important;
-  color: #ffffff  !important;
-}
-
-ion-item.item.draw-predicted {
-  background-color: #0000FF !important;
-  color: #ffffff  !important;
-}
-
-.right-shirt {
-  left: 83%  !important;
-}
-
-.ion-ios-close-empty {
-  right: 0%  !important;
-}
-
-/* Styling the ng-table standings */
-.ng-table {
-  border: 1px solid #00A000 !important;
-}
-
-td-cards {
-  display: block !important;
-}
-
-td-card {
-  position: absolute !important;
-  left: 50% !important;
-  margin-top: 80px !important;
-  margin-bottom: 40px !important;
-  margin-left: -150px !important;
-  width: 300px !important;
-  height: 300px !important;
-
-  border: 1px solid #999 !important;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.2) !important;
-  border-radius: 6px  !important;
-}
-/*
-td-card.card-0 {
-  -webkit-transform: translate3d(0, 0px, 0) !important;
-  transform: translate3d(0, 0px, 0) !important;
-  top: 0px !important;
-  z-index: 10 !important;
-}
-td-card.card-1 {
-  -webkit-transform: translate3d(0, 4px, 0) !important;
-  transform: translate3d(0, 4px, 0) !important;
-  z-index: 9 !important;
-}
-td-card.card-2 {
-  -webkit-transform: translate3d(0, 8px, 0) !important;
-  transform: translate3d(0, 8px, 0) !important;
-  z-index: 8 !important;
-}
-*/
-
-td-card {
-  margin-top: 7.5rem !important;
-}
-
-td-card .image {
-  position: relative !important;
-}
-
-td-card img {
-  max-width: 100% !important;
-  border-radius: 6px !important;
-}
-
-.yes-text {
-  position: absolute !important;
-  top: 10px !important;
-  left: 10px !important;
-  font-size: 30px !important;
-  color: rgb(111, 250, 111) !important;
-  opacity: 0 !important;
-}
-.no-text {
-  position: absolute !important;
-  top: 10px !important;
-  right: 10px !important;
-  font-size: 30px !important;
-  color: rgb(255, 115, 115) !important;
-  opacity: 0 !important;
-}
-
-.fade {
-  -webkit-transition: 0.2s opacity linear !important;
-  transition: 0.2s opacity linear !important;
-  opacity: 0 !important;
-}
-
-//.td-card {
-//  margin-top: 4rem !important;
-//}
-
-.card-header {
-  text-align: center !important;
-  background-color: $ygi-green !important;
-  height: 2.5rem !important;
-  color: white !important;
-}
-
-.shirt-container {
-  height: 100% !important;
-  display: flex !important;
-  display: -webkit-flex !important''
-  justify-content: space-between !important;
-  -webkit-justify-content: space-between !important;
-  align-items: center !important;
-  padding: 0.5rem !important;
-}
-
-.home-shirt-icon, .away-shirt-icon {
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.home-team , .away-team {
-  text-align: -webkit-center !important;
-}
-
-.home-team-label {
-  margin-left: 0.5rem !important;
-}
-
-.away-team-label {
-  margin-right: 0.5rem !important;
-}
+@import "www/lib/ionic/scss/ionic";
 
 body {
-  background: url(../img/pitch_bg.jpg) !important;
-  background-attachment:fixed !important;
-  background-position: center !important;
+  /*Set the background image of the body here*/
+  background: url(../img/pitch_bg.jpg) fixed center;
+
+  .view-container.tab-content {
+    background-color: transparent;
+  }
+
+  .pane, .menu, .view, .list, .item {
+    background: transparent;
+  }
 }
 
-body .view-container.tab-content {
-  background-color: transparent !important;
-}
-
-body .pane, .menu, .view, .list, .item       {
-  background: transparent !important;
-}
-
-.card-fix-date {
-  margin: 1.25rem auto -0.75rem 5.5rem  !important;
-}
-
+/*Styling the nav and tab bars along the top and bottom of apps */
 ion-header-bar, .tab-nav {
   background-color: $ygi-green  !important;
 
-  .title {
-    color: white  !important;
+  .title, .icon, .tab-title {
+    color: white !important;
+  }
+
+  .tab-item-active {
+    background-color: white;
+
+    .icon, .tab-title {
+      color: black  !important;
+    }
   }
 }
 
-.icon, .tab-title {
-  color: white !important;
-}
+/*Styling for the live table standings */
+ion-view[view-title="LEAGUE TABLE"] {
 
-.tab-item-active {
-  background-color: white  !important;
-
-  .icon {
-    color: black  !important;
+  .col-25 {
+    padding-top: 5px ;
   }
 
-  .tab-title {
-    color: black !important;
+  .row {
+    background: white;
+
+    .team-name-shirt {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      .stat {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .standing-shirt {
+        width: 19%;
+        margin-right: 0.2rem;
+      }
+
+      .team-name {
+        display: inline;
+        padding-top: 0.5rem;
+      }
+    }
+
+  }
+
+  .row-header {
+    background-color: $ygi-green;
+    color: white;
+    font-weight: bold ;
+    text-transform: uppercase ;
   }
 
 }
 
-.fix-title {
-  padding-top: 0.5rem !important;
-}
+/* Styling for the card view */
+td-cards {
+  display: block ;
 
-.list-home-shirt-icon, .list-away-shirt-icon {
-  width: 50% !important;
-  margin: 0 auto !important;
+  td-card {
+    position: absolute ;
+    left: 50% ;
+    margin-top: 80px ;
+    margin-bottom: 40px ;
+    margin-left: -150px ;
+    width: 300px ;
+    height: 300px ;
+    border: 1px solid #999 ;
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.2) ;
+    border-radius: 6px  ;
+    background-color: white;
 
-  .faded {
-    //-webkit-filter: opacity(0.2) !important;
+    .card-header {
+      text-align: center ;
+      background-color: $ygi-green ;
+      height: 2.5rem ;
+      color: white ;
+
+      .fix-title {
+        padding-top: 0.5rem ;
+      }
+    }
+
+    .card-fix-date {
+      margin: 1.25rem auto -0.75rem 5.5rem  ;
+    }
+
+    .shirt-container {
+      height: 100%;
+      margin-top: 2.3rem;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.5rem;
+
+      .image {
+        position: relative ;
+      }
+
+      img {
+        max-width: 100% ;
+        border-radius: 6px ;
+      }
+
+      h4 {
+        width: 60%;
+        margin: 0 auto 25px auto;
+      }
+
+      .home-team, .away-team {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+
+        .home-shirt-icon, .away-shirt-icon {
+          top: 10px;
+          width: 70%;
+          margin: 0 auto 1.5rem auto;
+        }
+      }
+    }
   }
 
-  .slightlyfaded {
-    width: 5%  !important;
-    //-webkit-filter: opacity(0.4) !important;
+  .yes-text {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+    color: rgb(111, 250, 111);
+    opacity: 0;
+  }
+
+  .no-text {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: rgb(255, 115, 115);
+    opacity: 0;
+  }
+
+  .fade {
+    -webkit-transition: 0.2s opacity linear;
+    transition: 0.2s opacity linear;
+    opacity: 0;
   }
 }
 
+/*Styling for the list view of fixture predictions*/
 .fix-pred-li {
-  display: flex !important;
-  display: -webkit-flex !important;
-  flex-direction: column !important;
-  -webkit-flex-direction: column !important;
-  justify-content: space-between !important;
-  -webkit-justify-content: space-between !important;
-  height: 10rem !important;
-  background-color: white  !important;
-  padding: 0.25rem 0.1rem !important;
+  display: flex ;
+  flex-direction: column ;
+  justify-content: space-between ;
+  height: 10rem ;
+  background-color: white !important;
+  padding: 0.25rem 0.1rem ;
 
   p {
-    text-align: center !important;
-    font-size: 0.75rem !important;
-    font-weight: 800 !important;
-  }
-}
-
-.fix-pred-header {
-  background-color: green !important;
-  border-radius: 4px !important;
-  text-align: center !important;
-  color: white !important;
-  font-size: 0.75rem !important;
-}
-
-.fix-pred-li-shirts {
-  display: flex !important;
-  display: -webkit-flex !important;
-  flex-direction: row !important;
-  -webkit-flex-direction: row;
-  justify-content: space-between !important;
-  -webkit-justify-content: space-between !important;
-  margin-top: 0.4rem !important;
-
-  .vs {
-    width: 100% !important;
-    text-align: center !important;
-    padding-top: 2rem !important;
+    text-align: center ;
+    font-size: 0.75rem ;
+    font-weight: 800 ;
   }
 
-}
-
-.fix-home-away {
-  display: flex !important;
-  display: -webkit-flex !important
-  flex-direction: column !important;
-  -webkit-flex-direction: column;
-
-  em {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    margin: 0.25rem auto !important;
+  .fix-pred-header {
+    background-color: green ;
+    border-radius: 4px ;
+    text-align: center ;
+    color: white ;
+    font-size: 0.75rem ;
   }
-}
 
-//CSS HACK BECAUSE NG-SRC AND IONIC HAS BUGZZZ
-//todo: write a sass mixin which takes a list of teams and produces following code
-.arsenal {
-  content: url("../img/team_shirts/Arsenal.svg") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+  .fix-pred-li-shirts {
+    display: flex ;
+    flex-direction: row ;
+    justify-content: space-between ;
+    margin-top: 0.4rem ;
 
-.aston-villa {
-  content: url("../img/team_shirts/Aston%20Villa.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+    .ion-ios-close-empty {
+      right: 0%  ;
+    }
 
-.burnley {
-  content: url("../img/team_shirts/Burnley.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+    .fix-home-away {
+      display: flex ;
+      flex-direction: column ;
+      text-align: center;
 
-.chelsea {
-  content: url("../img/team_shirts/Chelsea.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+      em {
+        font-size: 0.75rem ;
+        font-weight: 700 ;
+        padding-top: 0.75rem;
+      }
 
-.crystal-palace {
-  content: url("../img/team_shirts/Crystal%20Palace.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+      .list-home-shirt-icon, .list-away-shirt-icon {
+        width: 50%;
+        margin: 0 auto;
 
-.everton {
-  content: url("../img/team_shirts/Everton.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+        .faded {
+          //-webkit-filter: opacity(0.2) ;
+        }
 
-.hull-city {
-  content: url("../img/team_shirts/Hull%20City.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
+        .slightlyfaded {
+          width: 5%  ;
+          //-webkit-filter: opacity(0.4) ;
+        }
+      }
+    }
 
-.leicester {
-  content: url("../img/team_shirts/Leicester.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.liverpool {
-  content: url("../img/team_shirts/Liverpool.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.manchester-city {
-  content: url("../img/team_shirts/Manchester%20City.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.manchester-united {
-  content: url("../img/team_shirts/Manchester%20United.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.newcastle-utd {
-  content: url("../img/team_shirts/Newcastle%20Utd.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.qpr {
-  content: url("img/team_shirts/QPR.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.southampton {
-  content: url("../img/team_shirts/Southampton.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.stoke-city {
-  content: url("../img/team_shirts/Stoke%20City.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.sunderland {
-  content: url("../img/team_shirts/Sunderland.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.swansea {
-  content: url("../img/team_shirts/Swansea.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.tottenham {
-  content: url("../img/team_shirts/Tottenham.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.west-brom {
-  content: url("../img/team_shirts/West%20Brom.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.west-ham {
-  content: url("../img/team_shirts/West%20Ham.png") !important;
-  top: 20px  !important;
-  height: 15%  !important;
-  margin-bottom: 1.5rem !important;
+    .vs {
+      width: 100% ;
+      text-align: center ;
+      padding-top: 2rem ;
+    }
+  }
 }

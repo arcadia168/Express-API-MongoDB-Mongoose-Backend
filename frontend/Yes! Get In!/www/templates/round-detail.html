@@ -14,18 +14,20 @@
                     <div class="card-fix-date">{{fixture.fixDate | date:'EEE d y'}}, {{fixture.kickOff | date: 'hh:mm'}}</div>
 
                     <div class="shirt-container">
-                        <div class="home-team col-35">
-                            <!--<img class="image home-shirt-icon" ng-src="img/team_shirts/{{fixture.homeTeam}}.png">-->
+                        <div class="home-team col-40">
+                            <img class="image home-shirt-icon" ng-src="img/team_shirts/{{fixture.homeTeam}}.png">
+                            <!-- TODO: team league pos here -->
                             <em class="home-team-label">{{fixture.homeTeam | uppercase}}</em>
+                            <!-- TODO: wld for past six matches here -->
                         </div>
 
                         <h4>VS</h4>
 
-                        <div class="away-team col-35">
-                            <!--<img class="image away-shirt-icon" ng-src="img/team_shirts/{{fixture.awayTeam}}.png"">-->
-                            <!--team league pos here -->
+                        <div class="away-team col-40">
+                            <img class="image away-shirt-icon" ng-src="img/team_shirts/{{fixture.awayTeam}}.png"">
+                            <!-- TODO: team league pos here -->
                             <em class="away-team-label">{{fixture.awayTeam | uppercase}}</em>
-                            <!--wld for past six matches here -->
+                            <!-- TODO: wld for past six matches here -->
                         </div>
                     </div>
 
@@ -41,14 +43,14 @@
                 <div class="fix-pred-header">FIXTURE {{$index}}</div>
                 <div class="fix-pred-li-shirts">
                     <div class="fix-home-away">
-                        <!--<img ng-class="{faded : fixture.prediction == 'AWAY WIN', slightlyfaded: fixture.prediction == 'DRAW'}" class="image list-home-shirt-icon" ng-src="img/team_shirts/{{fixture.homeTeam}}.png">-->
+                        <img ng-class="{faded : fixture.prediction == 'AWAY WIN', slightlyfaded: fixture.prediction == 'DRAW'}" class="image list-home-shirt-icon" ng-src="img/team_shirts/{{fixture.homeTeam}}.png">
                         <em>{{fixture.homeTeam | uppercase}}</em>
                     </div>
 
-                    <h2 class="vs">vs</h2>
+                    <h1 class="vs">vs</h1>
 
                     <div class="fix-home-away">
-                        <!--<img ng-class="{faded : fixture.prediction == 'HOME WIN', slightlyfaded: fixture.prediction == 'DRAW'}" class="image list-away-shirt-icon" ng-src="img/team_shirts/{{fixture.awayTeam}}.png">-->
+                        <img ng-class="{faded : fixture.prediction == 'HOME WIN', slightlyfaded: fixture.prediction == 'DRAW'}" class="image list-away-shirt-icon" ng-src="img/team_shirts/{{fixture.awayTeam}}.png">
                         <em>{{fixture.awayTeam | uppercase}}</em>
                     </div>
 

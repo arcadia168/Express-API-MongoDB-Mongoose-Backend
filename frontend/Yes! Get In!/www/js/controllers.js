@@ -111,9 +111,31 @@ angular.module('starter.controllers', [])
         var updatePredictions = false; //flag to update predictions if some already exist.
         var user = auth.profile.user_id; //get the universally unique user_id
         var predictionMap = {
-            1: "Home Win!",
-            2: "Away Win!",
-            3: "Draw!"
+            1: 'HOME WIN',
+            2: 'AWAY WIN',
+            3: 'DRAW'
+        };
+        var shirtMap = {
+            "Arsenal": "arsenal",
+            "Aston Villa": "aston-villa",
+            "Burnley": "burnley",
+            "Chelsea": "chelsea",
+            "Crystal Palace": "crystal-palace",
+            "Everton": "everton",
+            "Hull City": "hull-city",
+            "Leicester": "leicester",
+            "Liverpool" : "liverpool",
+            "Manchester City": "manchester-city",
+            "Manchester United": "manchester-united",
+            "Newcastle Utd": "newcastle-utd",
+            "QPR" : "qpr",
+            "Southampton": "southampton",
+            "Stoke CIty": "stoke-city",
+            "Sunderland": "sunderland",
+            "Swansea" : "swansea",
+            "Tottenham" : "tottenham",
+            "West Brom" : "west-brom",
+            "West Ham": "west-ham"
         };
 
         //create variables to tell the delete and clear buttons whether or not they should be enabled
@@ -137,7 +159,16 @@ angular.module('starter.controllers', [])
             //clone into a separate array to use for the cards
             $scope.listFixtures = angular.copy(data);
 
-            console.log(JSON.stringify($scope.cards));
+            angular.forEach($scope.listFixtures, function(fixture, key) {
+                //home team url, encode as url
+                fixture.homeTeamImgUrl = "../img/team_shirts/" + encodeURIComponent(fixture.homeTeam)  + ".svg";
+                console.log(fixture.homeTeamImgUrl);
+                //away team url, encode as url
+                fixture.awayTeamImgUrl = "../img/team_shirts/" + encodeURIComponent(fixture.awayTeam)  + ".svg";
+                console.log(fixture.awayTeamImgUrl);
+            });
+
+            console.log($scope.listFixtures);
 
             //every time a new set of fixtures is loaded, clear predictions
             debugger;
@@ -249,31 +280,40 @@ angular.module('starter.controllers', [])
                 Rounds.get($stateParams.roundId).then(function (data) {
                     $scope.fixtures = data;
                     //_getExistingPredictions();
+                    //todo: send predictions off to server here
                     $scope.cardView = false; //maybe run this as promise.
                 });
             }
         }
 
-        //uncomment this section to re-instate background colour functionality
-        var colourMap = {
-            1: "home-win-predicted",
-            2: "away-win-predicted",
-            3: "draw-predicted"
-        };
+        //function to return the class which should be assigned to the div
+        $scope.getTeamShirtImg = function (locality, teamName, prediction) {
 
-        $scope.getBackgroundColour = function (fixture) { //should be passing in the entire fixture object
+            //get the shirt image class
+            var shirtImgClass = shirtMap[teamName];
+            console.log("The image class being applied to the DIV is: " + shirtImgClass);
 
-            var predictionClass;
+            //get the faded class dependent on result
 
-            //find prediction for this fixture
-            for (var i = 0; i < _predictions.length; i++) {
-                if (fixture._id == _predictions[i].fixture) {
-                    //then return the prediction for this fixture else leave undefined
-                    predictionClass = _predictions[i].prediction;
-                }
+            //if its a draw, the locality doesn't matter
+            if (prediction == 'DRAW') {
+                shirtImgClass.concat(" slightly-faded");
+                console.log("The class for the shirt should be: " + shirtImgClass);
+            } else if ((prediction == 'AWAY WIN' && locality == 'homeTeam') || (prediction == 'HOME WIN' && locality == 'awayTeam')) {
+                //fade out when the image being classified, and the prediction for the fixture differ
+                shirtImgClass.concat(" faded");
+                console.log("The class for the shirt should be: " + shirtImgClass);
+            };
+
+            if ((prediction == "HOME WIN" && locality == "homeTeam")|| prediction == "AWAY WIN") {
+
+            } else { //the fade would be a draw
+                shirtImgClass.concat(" slightly-faded");
+                console.log("The class for the shirt should be: " + shirtImgClass);
             }
 
-            return colourMap[predictionClass];
+            //append classes and return to DOM
+            return shirtImgClass;
         };
 
         //clear out all predictions at once

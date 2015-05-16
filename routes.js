@@ -10,7 +10,7 @@ module.exports = function(app){
     app.get('/api/users/predictions/:user_id', users.getPredictions); //protect
     app.get('/api/users/predictions/:user_id/:round', users.findRoundPredictions); //protect
     app.get('/api/users/private_leagues/create/:user_id/:private_league_name', privateLeagues.createPrivateLeague); //protect
-    app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //protect
+    app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //
     app.get('/api/users/private_leagues/join/:user_id/:private_league_code', privateLeagues.joinPrivateLeagueWithCode); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect

@@ -1,1 +1,0 @@
-{"indexes":[{"v":1,"key":{"_id":1},"name":"_id_","ns":"nodejs.users"},{"v":1,"key":{"username":1},"name":"username_1","ns":"nodejs.users","background":true,"safe":null},{"v":1,"key":{"predictions.fixture":1},"name":"predictions.fixture_1","ns":"nodejs.users","background":true,"safe":null}]}

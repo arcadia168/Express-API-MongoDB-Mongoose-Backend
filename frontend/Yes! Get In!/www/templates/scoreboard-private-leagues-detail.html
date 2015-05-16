@@ -1,9 +1,9 @@
-<ion-view view-title="Private League {{privateLeague.privateLeagueName}}">
+<ion-view view-title="PRIVATE LEAGUE  {{privateLeague.privateLeagueName | uppercase}}">
     <ion-nav-buttons side="secondary">
         <button class="button icon ion-ios-minus-outline" ng-click="toggleDelete()">
         </button>
     </ion-nav-buttons>
-    <ion-content>
+    <ion-content class="padding">
         <ion-list show-delete="shouldShowDelete">
             <ion-item>
                 <p>Name: {{privateLeague.privateLeagueName}}</p>

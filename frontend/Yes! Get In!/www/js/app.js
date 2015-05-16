@@ -19,7 +19,13 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers', 'starter
         }
     })
 
-    .config(function ($stateProvider, $urlRouterProvider, authProvider, $httpProvider, jwtInterceptorProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, authProvider, $httpProvider, jwtInterceptorProvider, $ionicConfigProvider, $compileProvider) {
+
+        $ionicConfigProvider.tabs.position('bottom');
+
+        $compileProvider.imgSrcSanitizationWhitelist('img/');
+
+        //$compileProvider.imgSrcSanitizationWhitelist(/^\s(https|file|blob|cdvfile|content):|data:image\//);
 
         $httpProvider.interceptors.push(function ($rootScope) {
             return {

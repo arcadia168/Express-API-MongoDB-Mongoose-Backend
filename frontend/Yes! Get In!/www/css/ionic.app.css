@@ -7209,10 +7209,13 @@ td-card img {
   transition: 0.2s opacity linear;
   opacity: 0; }
 
-.td-card {
-  margin-top: 4rem; }
+.card-header {
+  text-align: center;
+  background-color: #3bb665;
+  height: 2.5rem;
+  color: white; }
 
-.card-content {
+.shirt-container {
   height: 100%;
   display: flex;
   justify-content: space-between;
@@ -7222,12 +7225,208 @@ td-card img {
 .home-shirt-icon, .away-shirt-icon {
   top: 20px !important;
   height: 15% !important;
-  margin-bottom: 1.5rem;
-  background: green;
-  border-radius: 100%; }
+  margin-bottom: 1.5rem; }
 
-.home-team.col-33, .away-team.col33 {
+.home-team, .away-team {
   text-align: -webkit-center; }
 
-.team-label {
-  margin-top: -1rem; }
+.home-team-label {
+  margin-left: 0.5rem; }
+
+.away-team-label {
+  margin-right: 0.5rem; }
+
+body {
+  background: url(../img/pitch_bg.jpg);
+  background-attachment: fixed;
+  background-position: center; }
+
+body .view-container.tab-content {
+  background-color: transparent; }
+
+body .pane, .menu, .view, .list, .item {
+  background: transparent; }
+
+.card-fix-date {
+  margin: 1.25rem auto -0.75rem 5.5rem !important; }
+
+ion-header-bar, .tab-nav {
+  background-color: #3bb665 !important; }
+  ion-header-bar .title, .tab-nav .title {
+    color: white !important; }
+
+.icon, .tab-title {
+  color: white; }
+
+.tab-item-active {
+  background-color: white !important; }
+  .tab-item-active .icon {
+    color: black !important; }
+  .tab-item-active .tab-title {
+    color: black; }
+
+.fix-title {
+  padding-top: 0.5rem; }
+
+.list-home-shirt-icon, .list-away-shirt-icon {
+  width: 50%;
+  margin: 0 auto; }
+  .list-home-shirt-icon .slightlyfaded, .list-away-shirt-icon .slightlyfaded {
+    width: 5% !important; }
+
+.fix-pred-li {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 10rem;
+  background-color: white !important;
+  padding: 0.25rem 0.1rem; }
+  .fix-pred-li p {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 800; }
+
+.fix-pred-header {
+  background-color: green;
+  border-radius: 4px;
+  text-align: center;
+  color: white;
+  font-size: 0.75rem; }
+
+.fix-pred-li-shirts {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 0.4rem; }
+  .fix-pred-li-shirts .vs {
+    width: 100%;
+    text-align: center;
+    padding-top: 2rem; }
+
+.fix-home-away {
+  display: flex;
+  flex-direction: column; }
+  .fix-home-away em {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin: 0.25rem auto; }
+
+.arsenal {
+  content: url("../img/team_shirts/Arsenal.svg");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.aston-villa {
+  content: url("../img/team_shirts/Aston%20Villa.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.burnley {
+  content: url("../img/team_shirts/Burnley.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.chelsea {
+  content: url("../img/team_shirts/Chelsea.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.crystal-palace {
+  content: url("../img/team_shirts/Crystal%20Palace.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.everton {
+  content: url("../img/team_shirts/Everton.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.hull-city {
+  content: url("../img/team_shirts/Hull%20City.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.leicester {
+  content: url("../img/team_shirts/Leicester.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.liverpool {
+  content: url("../img/team_shirts/Liverpool.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.manchester-city {
+  content: url("../img/team_shirts/Manchester%20City.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.manchester-united {
+  content: url("../img/team_shirts/Manchester%20United.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.newcastle-utd {
+  content: url("../img/team_shirts/Newcastle%20Utd.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.qpr {
+  content: url("img/team_shirts/QPR.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.southampton {
+  content: url("../img/team_shirts/Southampton.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.stoke-city {
+  content: url("../img/team_shirts/Stoke%20City.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.sunderland {
+  content: url("../img/team_shirts/Sunderland.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.swansea {
+  content: url("../img/team_shirts/Swansea.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.tottenham {
+  content: url("../img/team_shirts/Tottenham.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.west-brom {
+  content: url("../img/team_shirts/West%20Brom.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }
+
+.west-ham {
+  content: url("../img/team_shirts/West%20Ham.png");
+  top: 20px !important;
+  height: 15% !important;
+  margin-bottom: 1.5rem; }

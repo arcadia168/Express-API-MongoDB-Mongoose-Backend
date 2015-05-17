@@ -6807,10 +6807,51 @@ ion-header-bar, .tab-nav {
       color: black !important; }
 
 /*Styling for the live table standings */
-ion-view[view-title="LEAGUE TABLE"] .col-25 {
-  padding-top: 5px; }
+ion-view[view-title="LEAGUE TABLE"] .scroll {
+  border: 2px solid #3bb665;
+  border-radius: 5px; }
+ion-view[view-title="LEAGUE TABLE"] .row-header {
+  background-color: #3bb665 !important;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-justify-content: space-around;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
+  text-align: center;
+  border-radius: 3px; }
+  ion-view[view-title="LEAGUE TABLE"] .row-header .team-column-title {
+    -webkit-flex-basis: 8rem !important;
+    -ms-flex-preferred-size: 8rem !important;
+    flex-basis: 8rem !important; }
+  ion-view[view-title="LEAGUE TABLE"] .row-header .gp {
+    margin-left: 1rem; }
+ion-view[view-title="LEAGUE TABLE"] .row:nth-child(2) {
+  border-top: 5px solid white; }
 ion-view[view-title="LEAGUE TABLE"] .row {
-  background: white; }
+  background: white;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-weight: 700;
+  padding: 0; }
+  ion-view[view-title="LEAGUE TABLE"] .row .border {
+    border-right: 1px solid #3bb665 !important; }
+  ion-view[view-title="LEAGUE TABLE"] .row .stat {
+    margin-top: 0.5rem !important;
+    text-align: center !important; }
   ion-view[view-title="LEAGUE TABLE"] .row .team-name-shirt {
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -6821,27 +6862,21 @@ ion-view[view-title="LEAGUE TABLE"] .row {
     -webkit-align-items: center;
     -ms-flex-align: center;
     align-items: center; }
-    ion-view[view-title="LEAGUE TABLE"] .row .team-name-shirt .stat {
-      display: -webkit-flex;
-      display: -ms-flexbox;
-      display: flex;
-      -webkit-align-items: center;
-      -ms-flex-align: center;
-      align-items: center;
-      -webkit-justify-content: center;
-      -ms-flex-pack: center;
-      justify-content: center; }
     ion-view[view-title="LEAGUE TABLE"] .row .team-name-shirt .standing-shirt {
       width: 19%;
-      margin-right: 0.2rem; }
+      margin: 0 0.2rem; }
     ion-view[view-title="LEAGUE TABLE"] .row .team-name-shirt .team-name {
       display: inline;
       padding-top: 0.5rem; }
-ion-view[view-title="LEAGUE TABLE"] .row-header {
-  background-color: #3bb665;
-  color: white;
-  font-weight: bold;
-  text-transform: uppercase; }
+ion-view[view-title="LEAGUE TABLE"] .row:nth-last-child(4) {
+  border-top: 1px solid #3bb665; }
+ion-view[view-title="LEAGUE TABLE"] .row:nth-last-child(2) {
+  border-bottom: 10px solid white !important; }
+ion-view[view-title="LEAGUE TABLE"] .last-empty-row {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  height: 1.75rem;
+  border-top: 1px solid #3bb665 !important; }
 
 /* Styling for the card view */
 td-cards {
@@ -6958,6 +6993,10 @@ td-cards {
     margin-top: 0.4rem; }
     .fix-pred-li .fix-pred-li-shirts .ion-ios-close-empty {
       right: 0%; }
+    .fix-pred-li .fix-pred-li-shirts .vs {
+      width: 100%;
+      text-align: center;
+      font-size: x-large; }
     .fix-pred-li .fix-pred-li-shirts .fix-home-away {
       display: -webkit-flex;
       display: -ms-flexbox;
@@ -6973,9 +7012,7 @@ td-cards {
       .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-home-shirt-icon, .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-away-shirt-icon {
         width: 50%;
         margin: 0 auto; }
-        .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-home-shirt-icon .slightlyfaded, .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-away-shirt-icon .slightlyfaded {
-          width: 5%; }
-    .fix-pred-li .fix-pred-li-shirts .vs {
-      width: 100%;
-      text-align: center;
-      padding-top: 2rem; }
+        .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-home-shirt-icon.faded, .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-away-shirt-icon.faded {
+          opacity: 0.3 !important; }
+        .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-home-shirt-icon.slightlyfaded, .fix-pred-li .fix-pred-li-shirts .fix-home-away .list-away-shirt-icon.slightlyfaded {
+          opacity: 0.5; }

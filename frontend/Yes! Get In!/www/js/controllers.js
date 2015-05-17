@@ -53,26 +53,38 @@ angular.module('starter.controllers', [])
         LeagueTable.all().then(function (data) {
             debugger;
             $scope.standings = data.teams; //we only want the actual standings data
-            console.log($scope.standings); //TODO: This is purely for debugging purposes, remove where necessary.
-        });
 
+            //Go through and replace 'United' with 'Utd' and 'Manchester' with 'Man'
+            //maybe make reusable
+            angular.forEach($scope.standings, function(standing, key) {
+                if (standing.stand_team_name.indexOf("United" > -1)) {
+                    console.log("Standing with \'United\' in team name has been altered");
+                    standing.stand_team_name = standing.stand_team_name.replace('United', 'Utd');
+                }
+
+                if (standing.stand_team_name.indexOf("Manchester" > -1)) {
+                    console.log("Standing with \'Manchester\' in team name has been altered");
+                    standing.stand_team_name = standing.stand_team_name.replace('Manchester', 'Man');
+                }
+            });
+        });
     })
 
-    .controller('RoundsCtrl', function ($scope, $ionicLoading, Rounds) {
+.controller('RoundsCtrl', function ($scope, $ionicLoading, Rounds) {
 
-        //only publicly accessible elements get added to the scope
+    //only publicly accessible elements get added to the scope
 
-        Rounds.all().then(function (data) {
-            //debugger;
-            $scope.rounds = data.rounds;
-        });
+    Rounds.all().then(function (data) {
+        //debugger;
+        $scope.rounds = data.rounds;
+    });
 
-        //debugger
-        $scope.remove = function (round) {
-            Rounds.remove(round);
-        };
+    //debugger
+    $scope.remove = function (round) {
+        Rounds.remove(round);
+    };
 
-    })
+})
 
     .controller('SaveCtrl', function ($scope, $ionicPopup, $ionicHistory, SaveChanges) {
         //function to check that user is ready to leave without saving changes

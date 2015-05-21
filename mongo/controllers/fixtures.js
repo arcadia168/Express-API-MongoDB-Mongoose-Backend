@@ -1393,8 +1393,7 @@ function _scoreAdder(i, users, fixture, callback) {
             //if the prediction was made for the current fixture
             if (preds[j].fixture == fixture._id) {
 
-                //is this method of scoring correct? yes, if correct get a varying score, if wrong, get nothing
-                //if the prediction was correct, update the user's score!
+                //if the prediction was correct, update the user's score! Or if prediction skipped, add -6 point penalty
                 if (preds[j].prediction == fixture.fixResult) {
                     score += preds[j].predictValue;
                 }

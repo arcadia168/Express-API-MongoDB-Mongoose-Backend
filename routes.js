@@ -14,17 +14,12 @@ module.exports = function(app){
     app.get('/api/users/private_leagues/join/:user_id/:private_league_code', privateLeagues.joinPrivateLeagueWithCode); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect
-    //app.get('/api/users/private_leagues/invite/:user_id/:private_league_id/:invited_user_name', privateLeagues.invitePrivateLeagueMember); //protect
-    //app.get('/api/users/private_leagues/accept/:invited_user_id/:private_league_id', privateLeagues.addPrivateLeagueMember);
-    //app.get('/api/users/private_leagues/reject/:inviting_username/:invited_user_id/:private_league_id', privateLeagues.rejectPrivateLeagueInvitation); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect
-    //app.post('api/users', users.addUser); //protect TODO: Remove as not necessary
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.post('/api/users/predictions/:user_id/:round', users.addPredictions); //protect
     app.put('/api/users/predictions/update/:user_id', users.updatePrediction);//protect  //for the sake of ease these get done one by one
     //todo: attempt to implement a single call which takes a list of predictions and updates them, use promises, now easy!
-    //app.put('api/users/:user_id', users.updateUser); //protect TODO: Remove as not necessary
     app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
     app.delete('/api/users/notifications/clear/:user_id/:notification_id', users.clearNotification); //protect

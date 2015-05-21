@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
+var _ = require('underscore');
 
 //so that mongoose now queries by object id
 String.prototype.toObjectId = function() {
@@ -82,12 +83,19 @@ exports.addPredictions = function(req, res) {
                     // wont apply right now using test data
                     //if(!result.fixDate || result.fixDate.getTime() <= (date.getTime() + (1000*60*60)))
                     //  return res.jsonp(400);
-                    var predVal = _allocatePoints(result.fixDate, date);
+                    var predVal;
+
+                    console.log("Now working out how many points prediction should get.")
+                    if (!predictions[i].prediction == 0) {
+                        predVal = _allocatePoints(result.fixDate, date);
+                    }
+
                     predictions[i]["predictValue"] = predVal;
                     break;
                 }
             }
         }
+
         User.update({'user_id': user_id}, { $push: {'predictions': { $each: predictions}}},
             {safe: true, upsert: false},
             function(err, number) {
@@ -106,31 +114,108 @@ exports.getPredictions = function(req, res) {
 };
 
 //get called one prediction at a time.
+//todo: make this function take a list of all predictions and intelligently update if required
 exports.updatePrediction = function(req, res) {
+
     var user_id = req.params.user_id; //get username from request
+    var functionDone = false;
+
     Fixture.findOne({'_id':req.body.fixture}, 'fixDate', function(err, result) { //find specific fixure from params
         var date = new Date(); //get today's date
-        if(result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
+
+        //Error check the fixture, exit if error
+        if(result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') {
+            // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
             return res.jsonp(400); //check to see if we have fixture in db (has it finished yet)?
-        req.body["predictValue"] = _allocatePoints(result.fixDate, date); //allocate points for the fixture based on date
-        req.body["predictDate"] = date; //set the date of the prediction to be today
-        User.findOneAndUpdate({'user_id': user_id, //update the prediction for the user
-                'predictions.fixture': req.body.fixture}, //where username is same and predictions.fixture is same
-            { $set: {'predictions.$': req.body}}, //add new prediction
-            {upsert : false, setDefaultsOnInsert: true, runValidators: true},
-            function(err, number) {
-                if(err) return console.log(err);
-                return res.jsonp(202);
+        } else {
+            User.findOne({'user_id' : user_id}, function(error, foundUser) {
+
+                if (error || foundUser == null) {
+                    console.log(error);
+                    functionDone = true;
+                    return res.jsonp(404);
+                } else {
+                    //find the fixture which is having it's prediction altered
+                    for (var i = 0; i < foundUser.predictions.length; i++) {
+
+                        var predictionToUpdate = foundUser.predictions[i];
+
+                        if (foundUser.predictions[i].fixture == req.body.fixture) {
+                            console.log("The prediction being updated is: " + JSON.stringify(foundUser.predictions[i]));
+
+                            //Determine whether or not the user is deleting an existing prediction
+                            if ((foundUser.predictions[i].fixture.prediction != 0) && (req.body["prediction"] == 0)) {
+                                //Remove 2 points from the user
+                                console.log("The user is deleting a prediction, reducing user's score by 2");
+                                foundUser.score = foundUser.score - 2;
+
+                                console.log("Deleting prediction");
+
+                                //Delete the prediction
+                                foundUser.predictions.pull({ _id: foundUser.predictions[i]._id});
+
+                                //Now save the changes and exit the function
+                                foundUser.save(function(err) {
+                                    if (err) {
+                                        console.log(err);
+                                        console.log("\n END CALL \n");
+                                        functionDone = true;
+                                        return res.jsonp(503);
+                                    } else {
+                                        console.log("User prediction deleted successfully, exiting function");
+                                        console.log("\n END CALL \n");
+                                        return res.jsonp(202);
+                                    }
+                                });
+                            } else {
+                                //If not deleting, but updating, update values and save.
+
+                                //Work out how many points this prediction is worth
+                                console.log("An actual prediction is being made, so work out how many point it will score.");
+                                req.body["predictValue"] = _allocatePoints(result.fixDate, date); //allocate points for the fixture based on date
+
+                                //Set the date of the prediction to be today
+                                console.log("A prediction value has now been calculated for this update and is: " + req.body["predictValue"]);
+                                req.body["predictDate"] = date; //set the date of the prediction to be today
+
+                                foundUser.predictions[i].prediction = req.body["prediction"];
+                                foundUser.predictions[i].predictValue = req.body["predictValue"];
+                                foundUser.predictions[i].predictDate = req.body["predictDate"];
+
+                                console.log("Saving new prediction: " + JSON.stringify(foundUser.predictions[i]));
+
+                                User.findOneAndUpdate({'user_id': user_id, //update the prediction for the user
+                                        'predictions.fixture': req.body.fixture}, //where username is same and predictions.fixture is same
+                                    { $set: {'predictions.$': req.body}}, //add new prediction
+                                    {upsert : false, setDefaultsOnInsert: true, runValidators: true},
+                                    function(err, number) {
+                                        if(err) return console.log(err);
+                                        console.log("\n END CALL \n.");
+                                        return res.jsonp(202);
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
             });
+
+        }
     });
 };
 
 exports.findRoundPredictions = function(req, res) {
     var user_id = req.params.user_id;
     User.findOne({'user_id': user_id}, function(err, uRes) { //find the user
+
+        //console.log("The user found is: " + JSON.stringify(uRes));
+
         Fixture.find({'round':req.params.round}, function(err, fRes) { //find all fixtures for the round
             res.header('Content-type','application/json');
             res.header('Charset','utf8');
+
+            //console.log("The fixtures in this round are: " + JSON.stringify(fRes));
+
             var predictions = uRes.predictions; //all of the predictions for the user
             var roundsToReturn = [];
             for(var i = 0; i < predictions.length; i++) {
@@ -277,10 +362,13 @@ exports.wipe = function(req, res) {
 
 //Private functions.
 
+//todo: rewrite this to encorporate no prediction and updated rules as stated below. Use moment.js
 //when a prediction is made, this decides how many points a user will get if the prediction is correct!
 function _allocatePoints(fixDate, currDate) {
     if (typeof fixDate === 'undefined' || typeof currDate === 'undefined')
         return 0;
+
+    //TODO: Use moment js to work out these time differences
     var diffMins = ((fixDate.getTime() + (1000 * 60 * 60)) - currDate.getTime()) / 1000 / 60;
     var minsFromMid = new Date(currDate.getTime());
     minsFromMid.setHours(0);
@@ -290,18 +378,42 @@ function _allocatePoints(fixDate, currDate) {
         return 5;
     } else if (diffMins <= 1440) {
         return 6;
+        //made on the day
     } else if (diffMins <= ((currDate.getTime() - minsFromMid.getTime()) / 1000 / 60)) {
         return 9;
     } else {
         return 12;
     }
+
     // preSeason needs to be implemented
+
+    //NO PREDICTIONS MADE - USERS LOSE 6 POINTS
+
+    /*
+     PREDICTIONS:
+     1. pre-season:       15 Jun - Season start  - Win: 15          - Lose: 5
+     2. during-season:    >  72 hours            - Win: 12          - Lose: 4
+     3. round-prediction: <= 72 hours            - Win: 9           - Lose: 3
+     4. pre-match:        <= 60 mins             - Win: 6           - Lose: 2            - Trade: 1 (if !first prediction)
+     5. first-half:       > KO < (end ofHT)      - Win: 5           - Lose: 1            - Trade: 2 (if !first prediction)
+
+     NB:
+     - If user signs up during round - don't deduct points for fixtures already played - CAN make predictions on
+     remaining fixtures. DIDN'T HAVE CHANCE TO predict for these fixtures.
+     - Don't show users fixtures after the date they signed up on - didn't have a chance to predict... - show as closed
+     - STAMP AS COMPLETED
+
+     TRADING POINTS:
+     - Use points you've already got/won/earned/scored to make the change
+     - LATER - Use trading point bundles - in app bundles
+     - LATER - Pay an "admin fee"
+     */
 }
 
 //function used to assign scores to users.
 function _scoreUsers(round, callback) {
     //gets all of the fixtures in a given round
-    Fixture.find({'round': round}, function (err, fixs) { //todo: for scheduler only pass a signle fixture at a time
+    Fixture.find({'round': round}, function (err, fixs) { //todo: for scheduler only pass a single fixture at a time
         //for all of the fixtures in a given round, gets all users
         User.find({}, function (err, users) { //todo: for scheduler filter the users here to only return those who predicted on the fixture
             //invokes the score adder function passing in all users who are to be scored, and all fixtures

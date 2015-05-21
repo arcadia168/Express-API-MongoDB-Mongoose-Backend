@@ -10,7 +10,7 @@
   ],
   "author": {
     "name": "***REMOVED*** ***REMOVED***",
-    "email": "***REMOVED***@***REMOVED***.com" ,
+    "email": "***REMOVED***@***REMOVED***.com",
     "url": "http://www.***REMOVED***.com/"
   },
   "homepage": "http://www.yesgetin.com/",
@@ -31,11 +31,14 @@
     "express-jwt": "*",
     "mongoose": "*",
     "underscore": "*",
-    "agenda" : "*",
-    "moment" : "*",
-    "q" : "*"
+    "agenda": "*",
+    "moment": "*",
+    "q": "*"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "should": "^6.0.3",
+    "supertest": "^1.0.1"
+  },
   "bundleDependencies": [],
   "private": true,
   "main": "server.js"

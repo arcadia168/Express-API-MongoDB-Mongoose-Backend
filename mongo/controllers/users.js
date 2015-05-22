@@ -479,7 +479,7 @@ function _scoreUsers(round, callback) {
 }
 
 //FOR ASSIGNING POINTS TO USER PREDICTIONS, GIVEN A LIST OF USERS TO SCORE AND FIXTURES WITH RESULTS
-
+//FOR ALL FIXTURES / MULTIPLE
 //recursively iterate over all of the users, assigning them points.
 //save changes if any are made.
 function _scoreAdder(i, users, fixs, callback) {

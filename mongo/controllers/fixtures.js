@@ -651,7 +651,7 @@ function _CheckEndOfSeasonClearOut() {
         });
 
         Predictions.remove({}, function () {
-           console.log("Removed all old predictions");
+            console.log("Removed all old predictions");
         });
     }
 
@@ -830,9 +830,9 @@ function _getFootballApiFixtures(fromDate) {
 
                 //if some new fixtures were found, return them
                 deferred.resolve(seasonFixtures);
-            //} else if(obj.ERROR == 'no matches found in that day') {
-            //    console.log("No new matches were found, so just checking for updates to existing ones.");
-            //    deferred.resolve();
+                //} else if(obj.ERROR == 'no matches found in that day') {
+                //    console.log("No new matches were found, so just checking for updates to existing ones.");
+                //    deferred.resolve();
             } else {
                 console.log("API - ERROR OR NO NEW FIXTURES: \n\t " + obj.ERROR + " REJECTING PROMISE");
                 //if no new fixtures, or there is an error, reject the promise
@@ -1344,7 +1344,7 @@ function _getFixtureResult(fixtureData, callback) {
                         //once the fixture has been updated, invoke the callback function
                         console.log("The fixture has successfully been given the correct result, invoking callback");
                         //comment this out whilst testing main function, implement afterwards.
-                        _scheduleScoreFilteredUsers(fixture, callback);
+                        _scheduleScorePredictingUsers(fixture, callback);
 
                     });
                 }
@@ -1359,52 +1359,113 @@ function _getFixtureResult(fixtureData, callback) {
 
 //find all users who made a prediction on a given fixture
 //similar to the above function but only takes in a single fixture
-function _scheduleScoreFilteredUsers(fixture, callback) {
+function _scheduleScorePredictingUsers(fixture, callback) {
 
     //This should only return users who have made a prediction for the given fixture
     User.find({'predictions.fixture': fixture._id}, function (error, users) {
+        if (error || users == null) {
+            console.log("Error finding users who made predicitons: " + error);
+            return
+        } else {
+            //for testing
+            console.log("The number of returned users is: " + users.length);
+            console.log("The users returned are: " + JSON.stringify(users));
 
-        //for testing
-        console.log("The number of returned users is: " + users.length);
-        console.log("The users returned are: " + JSON.stringify(users));
+            //invokes the score adder function passing in all users who are to be scored, the fixture
+            _scoreAdder(0, users, fixture, function () {
+                //feeds the callback method into the scoreadder method
+                callback(null, 202); //this is fed in from the highest level
+            });
 
-        //invokes the score adder function passing in all users who are to be scored, and all fixtures
-        _scoreAdder(0, users, fixture, function () {
-            //feeds the callback method into the scoreadder method
-            callback(null, 202); //this is fed in from the highest level
-        });
 
+        }
+    });
+
+    //At same time as above, asynchronously find all users who did not make a prediction for this fixture
+    User.find({'predictions.fixture': {$ne: fixture._id}}, function (error, users) {
+        if (error || users == null) {
+            console.log("Error finding users who made no predicitons: " + error);
+            return
+        } else {
+            //for testing
+            console.log("The number of returned users is: " + users.length);
+            console.log("The users returned are: " + JSON.stringify(users));
+
+            //invokes the score adder function passing in all users who are to be scored, and all fixtures
+            _scoreReducer(0, users, fixture, function () {
+                //feeds the callback method into the scoreadder method
+                console.log("All non-predicting users docked 6 points.");
+            });
+        }
     });
 }
 
+//FOR SINGLE FIXTURE
 //used to recursively give all users who predicted an a given fixture a score when the result is determined
 function _scoreAdder(i, users, fixture, callback) {
     if (i < users.length) {
         //place the current user's predictions into an array
         var preds = users[i].predictions;
 
-        //get the current value of the user's score
-        var score = users[i].score;
+        //get the current value of the user's score for season and round
+        var seasonScore = users[i].OverallSeasonScore;
+        console.log("The overall season score for this user is: %n", seasonScore);
+
+        var roundScores = users[i].roundScores;
+        console.log("The round of the fixture is: " + fixture.round);
+        console.log("The round scores for this user are: " + JSON.stringify(roundScores));
+
+        //If the user already has a score for this round
+
+        var roundAlreadyExists = false;
+        //Find the round score if exists - ALTER EXSITING
+        for (var j = 0; j < roundScores.length; j++) {
+            if (roundScores[j].roundNo == fixture.round) {
+                //then we have found the round number, exit
+                roundAlreadyExists = true; //set to be the position of the round in the roundNo array
+                break;
+            }
+        }
+
+        //Otherwise if the round score did not already exist, add it - ADD NEW
+        if (!roundAlreadyExists) {
+            roundScores.push({roundNo: fixture.round, roundScore: 0});
+        }
 
         //for each user, loop over all of the user's predictions and compare to current fixture
-        for (var j = 0; j < preds.length; j++) {
+        for (var k = 0; k < preds.length; k++) {
 
             //if the user made a prediction for this fixture.
-            //if the prediction was made for the current fixture
-            if (preds[j].fixture == fixture._id) {
+            //if the prediction was correct, update the user's score!
+            if (preds[k].prediction == fixture.fixResult) {
+                seasonScore += preds[k].predictValue.correctPoints;
 
-                //if the prediction was correct, update the user's score! Or if prediction skipped, add -6 point penalty
-                if (preds[j].prediction == fixture.fixResult) {
-                    score += preds[j].predictValue;
+                //Manual search to always ensure the correct roundScore is getting updated
+                for (var l = 0; l < roundScores.length; l++) {
+                    if (roundScores[l].roundNo == fixture.round) {
+                        roundScores[l].roundScore += preds[k].predictValue.correctPoints;
+                        console.log("Now updated the round score with a correct prediction.");
+                    }
+                }
+
+            } else {
+                //Otherwise if the prediction was incorrect deduct the necessary amount of points
+                seasonScore -= preds[k].predictValue.incorrectPoints;
+
+                //Manual search to always ensure the correct roundScore is getting updated
+                for (var l = 0; l < roundScores.length; l++) {
+                    if (roundScores[l].roundNo == fixture.round) {
+                        roundScores[l].roundScore -= preds[k].predictValue.incorrectPoints;
+                        console.log("Now updated the round score with a correct prediction.");
+                    }
                 }
             }
         }
 
-
         //if the score has been updated
-        if (score != users[i].score) {
+        if (seasonScore != users[i].score) {
             //then save the change made to the user's score and recurse, scoring the next user
-            User.findByIdAndUpdate(users[i]._id, {$set: {'score': score}}, function () {
+            User.findByIdAndUpdate(users[i]._id, {$set: {'overallSeasonScore': seasonScore, 'roundScores': roundScores}}, function () {
                 //recurse, scoring the next user
                 _scoreAdder(i + 1, users, fixture, callback);
             });
@@ -1418,6 +1479,29 @@ function _scoreAdder(i, users, fixture, callback) {
         callback();
     }
 }
+
+//Recursive function to take 6 points from all users who don't make predictions
+function _scoreReducer(i, users, fixture, callback) {
+    if (i >= users.length) {
+        //if the recursion should have ended as all user's given scores, run the callback.
+        callback();
+    } else {
+        //get the current value of the user's score
+        var score = users[i].score;
+
+        //Deduct 6 points from the user for not making a prediction
+        score -= 6;
+
+        //if the score has been updated
+
+        //then save the change made to the user's score and recurse, scoring the next user
+        User.findByIdAndUpdate(users[i]._id, {$set: {'score': score}}, function () {
+            //recurse, scoring the next user
+            _scoreReducer(i + 1, users, fixture, callback);
+        });
+    }
+}
+
 
 //todo: allow for an asecending/descneding param, or just make descending if possible.
 //handy array to quickly sort results

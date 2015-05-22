@@ -12,7 +12,8 @@ var userSchema = new Schema({
     predictions: [Prediction],
     notifications: [{notificationId: String, message: String}],
     //invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
-    score: { type: Number, default: 0 } //TODO: Add a url to a user picture! - Get this from Auth0
+    overallSeasonScore: {type: Number, default: 0}, //TODO: Add a url to a user picture! - Get this from Auth0
+    roundScores: [{roundNo: Number, roundScore: Number}]
 });
 
 userSchema.pre('save', function(next) { var user = this;

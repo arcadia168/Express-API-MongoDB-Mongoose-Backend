@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
-var _ = require('underscore');
+var moment = require('moment');
+var momentrange = require('moment-range');
 
 //so that mongoose now queries by object id
 String.prototype.toObjectId = function() {
@@ -83,14 +84,14 @@ exports.addPredictions = function(req, res) {
                     // wont apply right now using test data
                     //if(!result.fixDate || result.fixDate.getTime() <= (date.getTime() + (1000*60*60)))
                     //  return res.jsonp(400);
-                    var predVal;
+                    var predictValue;
 
                     console.log("Now working out how many points prediction should get.")
                     if (!predictions[i].prediction == 0) {
-                        predVal = _allocatePoints(result.fixDate, date);
+                        predictValue = _allocatePoints(result.fixDate, date);
                     }
 
-                    predictions[i]["predictValue"] = predVal;
+                    predictions[i]["predictValue"] = predictValue;
                     break;
                 }
             }
@@ -120,12 +121,12 @@ exports.updatePrediction = function(req, res) {
     var user_id = req.params.user_id; //get username from request
     var functionDone = false;
 
-    Fixture.findOne({'_id':req.body.fixture}, 'fixDate', function(err, result) { //find specific fixure from params
+    Fixture.findOne({'_id':req.body.fixture}, function(err, foundFixture) { //find specific fixure from params
         var date = new Date(); //get today's date
 
         //Error check the fixture, exit if error
-        if(result == null || typeof result == 'undefined' || typeof result.fixDate == 'undefined') {
-            // Not functional for dummy data: || result.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
+        if(foundFixture == null || typeof foundFixture == 'undefined' || typeof foundFixture.fixDate == 'undefined') {
+            // Not functional for dummy data: || foundFixture.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
             return res.jsonp(400); //check to see if we have fixture in db (has it finished yet)?
         } else {
             User.findOne({'user_id' : user_id}, function(error, foundUser) {
@@ -158,21 +159,62 @@ exports.updatePrediction = function(req, res) {
                                 foundUser.save(function(err) {
                                     if (err) {
                                         console.log(err);
-                                        console.log("\n END CALL \n");
+                                        console.log("\n END CALL");
                                         functionDone = true;
                                         return res.jsonp(503);
                                     } else {
                                         console.log("User prediction deleted successfully, exiting function");
-                                        console.log("\n END CALL \n");
+                                        console.log("\n END CALL");
                                         return res.jsonp(202);
                                     }
                                 });
                             } else {
                                 //If not deleting, but updating, update values and save.
 
+                                //todo: test the point trading system
+
+                                //Check to see if the user needs to trade any points to make the update
+                                //Cast dates to moment objects
+                                var pointsTraded = false;
+                                var fixKickOff = moment(foundFixture.kickOff);
+                                var predictionDate = moment(); //prediction made when function called
+
+                                //Work out a date range for kick off to the end of half time for this fixture
+                                var endOfHT = moment(fixKickOff); //clone fixture state moment object
+                                endOfHT.add(1, 'hour');
+                                var kickOffToEOHT = moment().range(fixtureDate, endOfHT); //define range for 1st half
+
+                                //If making the update within an hour before the fixture trade 1
+                                if ((fixKickOff.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {
+                                    //Deduct 1 point from user
+                                    foundUser.score -= 1;
+                                    pointsTraded = true;
+                                } else if (predictionDate.within(kickOffToEOHT)) {
+                                    //If making the update within the first half (up to end of half time) trade 2
+                                    foundUser.score -= 2;
+                                    pointsTraded = true;
+                                }
+
+                                if (pointsTraded) {
+                                    //Save user's score
+                                    //Now save the changes and exit the function
+                                    foundUser.save(function(err) {
+                                        if (err) {
+                                            console.log(err);
+                                            console.log("\n END CALL");
+                                            functionDone = true;
+                                            return
+                                        } else {
+                                            console.log("User traded points successfully, exiting function");
+                                            console.log("\n END CALL");
+                                            return
+                                        }
+                                    });
+                                }
+
                                 //Work out how many points this prediction is worth
                                 console.log("An actual prediction is being made, so work out how many point it will score.");
-                                req.body["predictValue"] = _allocatePoints(result.fixDate, date); //allocate points for the fixture based on date
+                                req.body["predictValue"] = _allocatePoints(foundFixture.kickOff, date); //allocate points for the fixture based on date
 
                                 //Set the date of the prediction to be today
                                 console.log("A prediction value has now been calculated for this update and is: " + req.body["predictValue"]);
@@ -180,6 +222,7 @@ exports.updatePrediction = function(req, res) {
 
                                 foundUser.predictions[i].prediction = req.body["prediction"];
                                 foundUser.predictions[i].predictValue = req.body["predictValue"];
+
                                 foundUser.predictions[i].predictDate = req.body["predictDate"];
 
                                 console.log("Saving new prediction: " + JSON.stringify(foundUser.predictions[i]));
@@ -199,10 +242,9 @@ exports.updatePrediction = function(req, res) {
                     }
                 }
             });
-
         }
     });
-};
+}
 
 exports.findRoundPredictions = function(req, res) {
     var user_id = req.params.user_id;
@@ -364,50 +406,61 @@ exports.wipe = function(req, res) {
 
 //todo: rewrite this to encorporate no prediction and updated rules as stated below. Use moment.js
 //when a prediction is made, this decides how many points a user will get if the prediction is correct!
-function _allocatePoints(fixDate, currDate) {
-    if (typeof fixDate === 'undefined' || typeof currDate === 'undefined')
-        return 0;
+function _allocatePoints(fixtureDate, predictionDate) {
+    if (!(typeof fixtureDate === 'undefined' || typeof predictionDate === 'undefined')) {
+        //Cast the given dates into moment dates
+        fixtureDate = moment(fixtureDate);
+        predictionDate = moment(predictionDate);
 
-    //TODO: Use moment js to work out these time differences
-    var diffMins = ((fixDate.getTime() + (1000 * 60 * 60)) - currDate.getTime()) / 1000 / 60;
-    var minsFromMid = new Date(currDate.getTime());
-    minsFromMid.setHours(0);
-    minsFromMid.setMinutes(0);
-    minsFromMid.setSeconds(0);
-    if (diffMins <= 60) {
-        return 5;
-    } else if (diffMins <= 1440) {
-        return 6;
-        //made on the day
-    } else if (diffMins <= ((currDate.getTime() - minsFromMid.getTime()) / 1000 / 60)) {
-        return 9;
+        //Initialize an empty score object to be returned
+        var score = {
+            correctPoints: "",
+            incorrectPoints: ""
+        };
+
+        //Now allocate points depending on the time difference
+
+        //If the prediction has been made during pre-season date range
+        //todo: make this reusable when considering other seasons
+        var preSeasonStart = moment([predictionDate.year(), 05, 16]); //16th June
+        var preSeasonEnd = moment([predictionDate.year(), 07, 7]); //7th August
+        var preSeason = moment().range(preSeasonStart, preSeasonEnd);
+
+        //Work out a date range for kick off to the end of half time for this fixture
+        //HALF TIME LASTS FOR 15 MINUTES
+        var endOfHT = moment(fixtureDate); //REMEMBER THAT DATES ARE REFERENCES TO MUTABLE OBJECTS
+        endOfHT.add(1, 'hour');
+        console.log(endOfHT);
+        var kickOffToEOHT = moment().range(fixtureDate, endOfHT);
+
+        //If the prediction was made in the pre-season date range, can get 15 points
+        if (fixtureDate.within(preSeason)) {
+            console.log("pre-season: The prediction was made during pre-season, award 15 points.");
+            score.correctPoints = 15;
+            score.incorrectPoints = -5;
+        } else if (fixtureDate.diff(predictionDate, 'days') > 3) { //if the prediction was made "during season" i.e >72 before kick off
+            console.log("during-season: The prediction was made after pre-season but more than 3 days before game.");
+            score.correctPoints = 12;
+            score.incorrectPoints = -4;
+        } else if ((fixtureDate.diff(predictionDate, 'days') <= 3) && (fixtureDate.diff(predictionDate, 'days') > 1)) {
+            console.log("round-prediction: The prediction was made within 3 days of the game.");
+            score.correctPoints = 12;
+            score.incorrectPoints = -3;
+        } else if ((fixtureDate.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {
+            console.log("pre-match: The prediction was made within an hour of the game.");
+            score.correctPoints = 6;
+            score.incorrectPoints = -2;
+        } else if (predictionDate.within(kickOffToEOHT)) {
+            console.log("first-half: The prediction has been made between kick off and the end of half time.");
+            score.correctPoints = 5;
+            score.incorrectPoints = -1;
+        }
+
+        //Now return the score object
+        return score;
     } else {
-        return 12;
+        return -1;
     }
-
-    // preSeason needs to be implemented
-
-    //NO PREDICTIONS MADE - USERS LOSE 6 POINTS
-
-    /*
-     PREDICTIONS:
-     1. pre-season:       15 Jun - Season start  - Win: 15          - Lose: 5
-     2. during-season:    >  72 hours            - Win: 12          - Lose: 4
-     3. round-prediction: <= 72 hours            - Win: 9           - Lose: 3
-     4. pre-match:        <= 60 mins             - Win: 6           - Lose: 2            - Trade: 1 (if !first prediction)
-     5. first-half:       > KO < (end ofHT)      - Win: 5           - Lose: 1            - Trade: 2 (if !first prediction)
-
-     NB:
-     - If user signs up during round - don't deduct points for fixtures already played - CAN make predictions on
-     remaining fixtures. DIDN'T HAVE CHANCE TO predict for these fixtures.
-     - Don't show users fixtures after the date they signed up on - didn't have a chance to predict... - show as closed
-     - STAMP AS COMPLETED
-
-     TRADING POINTS:
-     - Use points you've already got/won/earned/scored to make the change
-     - LATER - Use trading point bundles - in app bundles
-     - LATER - Pay an "admin fee"
-     */
 }
 
 //function used to assign scores to users.
@@ -455,7 +508,10 @@ function _scoreAdder(i, users, fixs, callback) {
                     //is this method of scoring correct? yes, if correct get a varying score, if wrong, get nothing
                     //if the prediction was correct, update the user's score!
                     if (preds[k].prediction == currFix.fixResult) {
-                        score += preds[k].predictValue;
+                        score += preds[k].predictValue.correctPoints;
+                    } else {
+                        //Otherwise if the prediction was incorrect deduct the necessary amount of points
+                        score -= preds[k].predictValue.incorrectPoints;
                     }
                 }
             }

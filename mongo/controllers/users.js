@@ -59,7 +59,8 @@ exports.userSync = function(req, res) {
 };
 
 exports.getScoreboard = function(req, res) {
-    User.find({}, 'username score', function(err, results) {
+    User.find({}, 'username score').sort({'score' : -1}).exec(
+        function(err, results) {
         res.jsonp(results);
     });
 };

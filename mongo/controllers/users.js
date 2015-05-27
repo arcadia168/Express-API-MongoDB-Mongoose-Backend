@@ -28,10 +28,10 @@ exports.updateUser = function(req, res) {
 exports.userSync = function(req, res) {
     var user_id = req.body.user_id;
 
-    User.findOne({'user_id': user_id}, function(err, result) {
+    User.findOne({'user_id': user_id}, function(err, foundUser) {
 
         //if no user with this user_id exists, create one
-        if (result == null){
+        if (foundUser == null){
 
             console.log("The user did not exist, creating the user now");
 
@@ -40,8 +40,10 @@ exports.userSync = function(req, res) {
                 user_id     :   req.body.user_id,
                 username    :   req.body.nickname,
                 name        :   req.body.name,
+                pic         :   req.body.picture,
                 predictions :   [],
-                score       :   0
+                overallSeasonScore       :   0,
+                roundScores : []
             };
 
             //Now insert this new user object into the database
@@ -51,15 +53,50 @@ exports.userSync = function(req, res) {
             });
         } else {
 
-            console.log('User already existed, doing nothing.');
+            console.log('User already existed, updating.');
+            console.log('Old user details: ' + JSON.stringify(foundUser));
 
-            res.jsonp(result);
+            //update that user's information here
+
+            //need to update
+            foundUser.username =  req.body.nickname;
+            foundUser.name =  req.body.name;
+            foundUser.pic = req.body.picture;
+
+            foundUser.save(function(err) {
+                if (err) {
+                    console.log('Error updating user: ' + err);
+                    return res.jsonp(err);
+                } else {
+                 return res.jsonp(202);
+                }
+            })
+
+            //var updatedUser = {
+            //    user_id     :   req.body.user_id,
+            //    username    :   req.body.nickname,
+            //    name        :   req.body.name,
+            //    pic         :   req.body.picture,
+            //    predictions :   []
+            //};
+
+            ////Persist the updated user details to the database
+            //User.update({'user_id' : user_id}, updatedUser, function(error){
+            //    if (error) {
+            //        console.log("Updating the user logging in failed with error: " + error);
+            //        return res.jsonp(error);
+            //    } else {
+            //        //everything worked just fine
+            //        console.log("User logging in has had their details updated.");
+            //        res.jsonp(result); //todo: do we need to return the user?
+            //    }
+            //});
         }
     });
 };
 
 exports.getScoreboard = function(req, res) {
-    User.find({}, 'username score').sort({'score' : -1}).exec(
+    User.find({}, 'username score pic').sort({'score' : -1}).exec(
         function(err, results) {
         res.jsonp(results);
     });

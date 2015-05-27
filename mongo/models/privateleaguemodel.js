@@ -11,8 +11,10 @@ var privateLeagueSchema = new Schema({
     privateLeagueName: { type: String},
     privateLeagueCode: { type: String},
     creator: { type: String, index: true},
-    members: [{ user_id: String, username: String, score: Number, status: String}], //todo: include pic url?
+    members: [{ user_id: String, status: String, username: String, pic: String, overallSeasonScore: Number, roundScores: [{roundNo: Number, roundScore: Number}]}], //- REDUNDANT
     dateCreated: { type: Date, default: Date.now }
 });
+
+//todo: add a 'status' key to each member denoting whether they are a captain, vice captain or just a member.
 
 var PrivateLeague = mongoose.model('PrivateLeague', privateLeagueSchema);

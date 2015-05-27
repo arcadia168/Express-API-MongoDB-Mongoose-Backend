@@ -9,10 +9,11 @@ var userSchema = new Schema({
     username: { type: String, required: true, index: true }, //nickname
     //email: { type: String, required: true },
     name: { type: String, required: true },
+    pic: { type: String, default: 'none'}, //string url to a user picture from Auth0
     predictions: [Prediction],
     notifications: [{notificationId: String, message: String}],
     //invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
-    overallSeasonScore: {type: Number, default: 0}, //TODO: Add a url to a user picture! - Get this from Auth0
+    overallSeasonScore: {type: Number, default: 0},
     roundScores: [{roundNo: Number, roundScore: Number}]
 });
 

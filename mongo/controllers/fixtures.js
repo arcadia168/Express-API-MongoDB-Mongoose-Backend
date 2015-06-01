@@ -1442,6 +1442,7 @@ function _scoreAdder(i, users, fixture, callback) {
                 for (var l = 0; l < roundScores.length; l++) {
                     if (roundScores[l].roundNo == fixture.round) {
                         roundScores[l].roundScore += preds[k].predictValue.correctPoints;
+                        roundscores[l].correctPredictions++;
                         console.log("Now updated the round score with a correct prediction.");
                     }
                 }
@@ -1454,6 +1455,7 @@ function _scoreAdder(i, users, fixture, callback) {
                 for (var l = 0; l < roundScores.length; l++) {
                     if (roundScores[l].roundNo == fixture.round) {
                         roundScores[l].roundScore -= preds[k].predictValue.incorrectPoints;
+                        roundscores[l].incorrectPredictions++;
                         console.log("Now updated the round score with a correct prediction.");
                     }
                 }

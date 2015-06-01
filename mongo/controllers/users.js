@@ -3,6 +3,73 @@ var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
 var moment = require('moment');
 var momentrange = require('moment-range');
+var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/2014"},
+    {"roundNo": 2, "startDate": "23/08/2014"},
+    {"roundNo": 3, "startDate": "30/08/2014"},
+    {"roundNo": 4, "startDate": "13/09/2014"},
+    {"roundNo": 5, "startDate": "20/09/2014"},
+    {"roundNo": 6, "startDate": "27/09/2014"},
+    {"roundNo": 7, "startDate": "04/10/2014"},
+    {"roundNo": 8, "startDate": "18/10/2014"},
+    {"roundNo": 9, "startDate": "25/10/2014"},
+    {"roundNo": 10, "startDate": "01/11/2014"},
+    {"roundNo": 11, "startDate": "08/11/2014"},
+    {"roundNo": 12, "startDate": "22/11/2014"},
+    {"roundNo": 13, "startDate": "29/11/2014"},
+    {"roundNo": 14, "startDate": "02/12/2014"},
+    {"roundNo": 15, "startDate": "06/12/2014"},
+    {"roundNo": 16, "startDate": "13/12/2014"},
+    {"roundNo": 17, "startDate": "20/12/2014"},
+    {"roundNo": 18, "startDate": "26/12/2014"},
+    {"roundNo": 19, "startDate": "28/12/2014"},
+    {"roundNo": 20, "startDate": "01/01/2015"},
+    {"roundNo": 21, "startDate": "10/01/2015"},
+    {"roundNo": 22, "startDate": "17/01/2015"},
+    {"roundNo": 23, "startDate": "31/01/2015"},
+    {"roundNo": 24, "startDate": "07/02/2015"},
+    {"roundNo": 25, "startDate": "10/02/2015"},
+    {"roundNo": 26, "startDate": "21/02/2015"},
+    {"roundNo": 27, "startDate": "28/02/2015"},
+    {"roundNo": 28, "startDate": "03/03/2015"},
+    {"roundNo": 29, "startDate": "14/03/2015"},
+    {"roundNo": 30, "startDate": "21/03/2015"},
+    {"roundNo": 31, "startDate": "04/04/2015"},
+    {"roundNo": 32, "startDate": "11/04/2015"},
+    {"roundNo": 33, "startDate": "18/04/2015"},
+    {"roundNo": 34, "startDate": "25/04/2015"},
+    {"roundNo": 35, "startDate": "02/05/2015"},
+    {"roundNo": 36, "startDate": "09/05/2015"},
+    {"roundNo": 37, "startDate": "16/05/2015"},
+    {"roundNo": 38, "startDate": "24/05/2015"}];
+//todo: see if there is a better way to store this information
+function _getCurrentRoundNo (today) {
+
+    if (today == null) {
+        today = moment();
+    }
+
+    for (var l = 0; l < roundsList.length; l++) {
+        var roundStartDate = moment(roundsList[l].startDate, 'DD/MM/YYYY');
+        var roundEndDate;
+        //console.log('LIST INDEX: ' + l);
+        if ((l + 1) == roundsList.length) {
+            //console.log('\n' + 'LIST LENGTH :' + roundsList.length + '\n INDEX: ' + l);
+            //console.log('\nROUND IN LIST\n');
+            roundEndDate = moment(roundStartDate);
+            roundEndDate.add(1, 'week');
+        } else {
+            roundEndDate = moment(roundsList[l + 1].startDate, 'DD/MM/YYYY');
+        }
+        var roundRange = moment().range(roundStartDate, roundEndDate);
+
+        if (today.within(roundRange)) {
+            //then we have found which round for the season corresponds to today
+
+            //find the score for this round
+            return roundsList[l].roundNo;
+        }
+    }
+}
 
 //so that mongoose now queries by object id
 String.prototype.toObjectId = function() {
@@ -54,11 +121,8 @@ exports.userSync = function(req, res) {
         } else {
 
             console.log('User already existed, updating.');
-            console.log('Old user details: ' + JSON.stringify(foundUser));
 
             //update that user's information here
-
-            //need to update
             foundUser.username =  req.body.nickname;
             foundUser.name =  req.body.name;
             foundUser.pic = req.body.picture;
@@ -68,38 +132,24 @@ exports.userSync = function(req, res) {
                     console.log('Error updating user: ' + err);
                     return res.jsonp(err);
                 } else {
-                 return res.jsonp(202);
+                    console.log('Attempting to save updated the latest user details');
+                    return res.jsonp(202);
                 }
-            })
-
-            //var updatedUser = {
-            //    user_id     :   req.body.user_id,
-            //    username    :   req.body.nickname,
-            //    name        :   req.body.name,
-            //    pic         :   req.body.picture,
-            //    predictions :   []
-            //};
-
-            ////Persist the updated user details to the database
-            //User.update({'user_id' : user_id}, updatedUser, function(error){
-            //    if (error) {
-            //        console.log("Updating the user logging in failed with error: " + error);
-            //        return res.jsonp(error);
-            //    } else {
-            //        //everything worked just fine
-            //        console.log("User logging in has had their details updated.");
-            //        res.jsonp(result); //todo: do we need to return the user?
-            //    }
-            //});
+            });
         }
     });
 };
 
-exports.getScoreboard = function(req, res) {
-    User.find({}, 'username score pic').sort({'score' : -1}).exec(
+exports.getLeaderboard = function(req, res) {
+    User.find({}).sort({'score' : -1}).exec(
         function(err, results) {
-        res.jsonp(results);
-    });
+            var today = moment();
+            var currentRound = _getCurrentRoundNo(today);
+            results.push({currentRound: currentRound});
+            results.push({roundsList: roundsList});
+            res.jsonp(results);
+        }
+    );
 };
 
 exports.getUserData = function(req, res) {

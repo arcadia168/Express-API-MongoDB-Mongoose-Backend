@@ -13,8 +13,10 @@ module.exports = function(app){
     app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //
     app.get('/api/users/private_leagues/join/:user_id/:private_league_code', privateLeagues.joinPrivateLeagueWithCode); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
-    app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/:remove_user_id', privateLeagues.removePrivateLeagueMember); //protect
+    app.put('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMembers); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
+    app.post('/api/users/private_leagues/edit/captain/:user_id/:private_league_id/:new_captain_id', privateLeagues.changeLeagueCaptain); //protect
+    app.post('/api/users/private_leagues/edit/vcaptain/:user_id/:private_league_id/:new_vice_captain_id', privateLeagues.changeLeagueViceCaptain); //protect
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.post('/api/users/predictions/:user_id/:round', users.addPredictions); //protect
@@ -26,7 +28,7 @@ module.exports = function(app){
 
     //below API functionalities are not user dependent (don't need to be JWT protected)
     //DON'T NEED TO BE LOGGED IN TO ACCESS THESE
-    app.get('/api/scoreboard', users.getScoreboard); //don't protect
+    app.get('/api/leaderboard', users.getLeaderboard); //don't protect
     app.get('/api/fixtures', fixtures.getFixtures); //don't protect
     app.get('/api/fixtures/:round', fixtures.getRound); //don't protect
     app.get('/api/standings', fixtures.getStandings); //don't protect

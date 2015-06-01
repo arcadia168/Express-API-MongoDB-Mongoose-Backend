@@ -10,8 +10,78 @@ var uuid = require('./Math.uuid'); //used to generate the unique league codes
 var ObjectId = require('mongoose').Types.ObjectId;
 var _ = require('underscore');
 var async = require('async');
+var moment = require('moment');
+var momentrange = require('moment-range');
 
-//Todo: Remove the ability to invite users privately to a league - less mess, more simplistic.
+//todo: see if there is a better way to store this information
+var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/2014"},
+    {"roundNo": 2, "startDate": "23/08/2014"},
+    {"roundNo": 3, "startDate": "30/08/2014"},
+    {"roundNo": 4, "startDate": "13/09/2014"},
+    {"roundNo": 5, "startDate": "20/09/2014"},
+    {"roundNo": 6, "startDate": "27/09/2014"},
+    {"roundNo": 7, "startDate": "04/10/2014"},
+    {"roundNo": 8, "startDate": "18/10/2014"},
+    {"roundNo": 9, "startDate": "25/10/2014"},
+    {"roundNo": 10, "startDate": "01/11/2014"},
+    {"roundNo": 11, "startDate": "08/11/2014"},
+    {"roundNo": 12, "startDate": "22/11/2014"},
+    {"roundNo": 13, "startDate": "29/11/2014"},
+    {"roundNo": 14, "startDate": "02/12/2014"},
+    {"roundNo": 15, "startDate": "06/12/2014"},
+    {"roundNo": 16, "startDate": "13/12/2014"},
+    {"roundNo": 17, "startDate": "20/12/2014"},
+    {"roundNo": 18, "startDate": "26/12/2014"},
+    {"roundNo": 19, "startDate": "28/12/2014"},
+    {"roundNo": 20, "startDate": "01/01/2015"},
+    {"roundNo": 21, "startDate": "10/01/2015"},
+    {"roundNo": 22, "startDate": "17/01/2015"},
+    {"roundNo": 23, "startDate": "31/01/2015"},
+    {"roundNo": 24, "startDate": "07/02/2015"},
+    {"roundNo": 25, "startDate": "10/02/2015"},
+    {"roundNo": 26, "startDate": "21/02/2015"},
+    {"roundNo": 27, "startDate": "28/02/2015"},
+    {"roundNo": 28, "startDate": "03/03/2015"},
+    {"roundNo": 29, "startDate": "14/03/2015"},
+    {"roundNo": 30, "startDate": "21/03/2015"},
+    {"roundNo": 31, "startDate": "04/04/2015"},
+    {"roundNo": 32, "startDate": "11/04/2015"},
+    {"roundNo": 33, "startDate": "18/04/2015"},
+    {"roundNo": 34, "startDate": "25/04/2015"},
+    {"roundNo": 35, "startDate": "02/05/2015"},
+    {"roundNo": 36, "startDate": "09/05/2015"},
+    {"roundNo": 37, "startDate": "16/05/2015"},
+    {"roundNo": 38, "startDate": "24/05/2015"}];
+
+function _getCurrentRoundNo (today) {
+
+    if (today == null) {
+        today = moment();
+    }
+
+    for (var l = 0; l < roundsList.length; l++) {
+        var roundStartDate = moment(roundsList[l].startDate, 'DD/MM/YYYY');
+        var roundEndDate;
+        //console.log('LIST INDEX: ' + l);
+        if ((l + 1) == roundsList.length) {
+            //console.log('\n' + 'LIST LENGTH :' + roundsList.length + '\n INDEX: ' + l);
+            //console.log('\nROUND IN LIST\n');
+            roundEndDate = moment(roundStartDate);
+            roundEndDate.add(1, 'week');
+        } else {
+            roundEndDate = moment(roundsList[l + 1].startDate, 'DD/MM/YYYY');
+        }
+        var roundRange = moment().range(roundStartDate, roundEndDate);
+
+        if (today.within(roundRange)) {
+            //then we have found which round for the season corresponds to today
+
+            //find the score for this round
+            return roundsList[l].roundNo;
+        }
+    }
+}
+
 //TODO: For ALL API methods, implement error handling that does not shut down the server if something does not work
 //TODO: TEST PROPERLY. mocha, karma and jasmine.
 
@@ -46,11 +116,11 @@ exports.createPrivateLeague = function (req, res) {
             members: [
                 {
                     user_id: user_id, //add the creator of the private league as a member of the private league
-                    username:   foundUser.username,
-                    userpic:    foundUser.pic,
-                    overallSeasonScore:      foundUser.overallSeasonScore,
-                    roundScores:    foundUser.roundScores,
-                    status:     'admin'
+                    username: foundUser.username,
+                    userpic: foundUser.pic,
+                    overallSeasonScore: foundUser.overallSeasonScore,
+                    roundScores: foundUser.roundScores,
+                    status: 'admin'
                 }
             ]
         };
@@ -80,7 +150,7 @@ exports.getPrivateLeagues = function (req, res) {
                 console.log("Now iterating through private leagues to get up to date member info: " + JSON.stringify(privateLeagues));
 
                 //use async recursive loop with a callback
-                _fetchLeagueDetails(0, privateLeagues, function(privateLeaguesWithDetails, user_id){
+                _fetchLeagueDetails(0, privateLeagues, function (privateLeaguesWithDetails, user_id) {
 
                     console.log("The private league with up to date member details are now: \n" + JSON.stringify(privateLeagues))
 
@@ -142,15 +212,27 @@ exports.getPrivateLeague = function (req, res) {
         function (err, privateLeague) {
             if (privateLeague) {
                 console.log(privateLeague);
-                return res.jsonp(privateLeague);
+                //use async recursive loop with a callback
+                _fetchLeagueDetails(0, privateLeague, function (privateLeaguesWithDetails) {
+
+                    console.log("The private league with up to date member details are now: \n" + JSON.stringify(privateLeague))
+
+                    return res.jsonp(privateLeaguesWithDetails);
+                });
             }
         }
     );
 
 };
 
-exports.removePrivateLeagueMember = function (req, res) {
+exports.removePrivateLeagueMembers = function (req, res) {
     //Get user_id of member to remove
+
+    //console.log('body is ' + req.body);
+
+    var usersToRemove = req.body
+    console.log('\nMembers to delete are: ' + JSON.stringify(usersToRemove));
+
     var removeUserId = req.params.remove_user_id;
 
     //Get user_id of the user trying to perform the operation for validation
@@ -173,55 +255,46 @@ exports.removePrivateLeagueMember = function (req, res) {
         //check that a result has been returned, if not, send an error message
         if (privateLeague == null) {
             return res.jsonp("No such private league exists.")
-        }
+        } else {
+            //Find the member with the corresponding user_id
+            for (var j = 0; j < usersToRemove.length; j++) {
+                for (var i = 0; i < privateLeague.members.length; i++) {
+                    //if the user_id is the same as the one we want to remove, remove it
 
-        //user rights validation occurs on the frontend and via authentication of these endpoints with auth0
+                    console.log('Iterating over loop, looking for private league member with id: ' + removeUserId);
 
-        //console.log('The owner of this private league is user: ' + privateLeague.creator);
-        ////ensure that the user attempting to make the change is entitle to do so
-        //if (!privateLeague.creator == user_id) { //todo: make this an array of league 'admins'
-        //    //if the user making the request is not the owner, they can't do this
-        //    return res.jsonp(403); //code which denotes access denied
-        //}
+                    if (privateLeague.members[i].user_id == usersToRemove[j]) {
 
-        //Pull this member from the array
-        console.log('The corresponding private league has been successfully found: ' + privateLeague);
-        console.log('Now attempting to remove the user with user_id: ' + removeUserId + ' from the Private League: ' +
-            privateLeagueId);
+                        member_exists = true;
 
-        //Find the member with the corresponding user_id
-        for (var i = 0; i < privateLeague.members.length; i++) {
-            //if the user_id is the same as the one we want to remove, remove it
+                        console.log('Private league member ' + privateLeague.members[i].user_id + ' found');
 
-            console.log('Iterating over loop, looking for private league member with id: ' + removeUserId);
+                        //get the id of this member
+                        console.log('Getting the object id of the user to remove: ' + privateLeague.members[i]._id);
 
-            if (privateLeague.members[i].user_id == removeUserId) {
+                        //TODO: Replace other removals with this methodology
+                        removeUserWithObjectId = privateLeague.members[i]._id;
 
-                member_exists = true;
+                        //Now remove the object_id
+                        privateLeague.members.id(removeUserWithObjectId).remove();
 
-                console.log('Private league member ' + privateLeague.members[i].user_id + ' found');
-
-                //get the id of this member
-                console.log('Getting the object id of the user to remove: ' + privateLeague.members[i]._id);
-
-                //TODO: Replace other removals with this methodology
-                removeUserWithObjectId = privateLeague.members[i]._id;
-
-                //Now remove the object_id
-                privateLeague.members.id(removeUserWithObjectId).remove();
-
-                //Now save the removal
-                privateLeague.save(function (err) {
-
-                    if (err) return res.jsonp(err);
-
-                    console.log('the sub-doc was removed');
-
-                    //return accepted status code
-                    return res.jsonp(202);
-                });
+                        //Iterate to remove next member
+                        break;
+                    }
+                }
             }
-        } //TODO: If not found, what to return?
+
+            //Now save the removals once all members have been removed
+            privateLeague.save(function (err) {
+
+                if (err) return res.jsonp(err);
+
+                console.log('\n All specified members were successfully deleted from the private league.');
+
+                //return accepted status code
+                return res.jsonp(202);
+            });
+        }
     });
 };
 
@@ -321,7 +394,7 @@ exports.joinPrivateLeagueWithCode = function (req, res) {
     //Now find the league and user and add this user to the private league's members list
 
     //Get user_id, username and score from user
-    User.findOne({"user_id" : userId}, function(error, user){
+    User.findOne({"user_id": userId}, function (error, user) {
 
         if (error) {
             console.log(error);
@@ -332,7 +405,7 @@ exports.joinPrivateLeagueWithCode = function (req, res) {
         }
 
         //Now attempt to find the private league with the given code and add this user to it
-        PrivateLeague.findOne({ "privateLeagueCode" : leagueCode}, function(error, privateLeague){
+        PrivateLeague.findOne({"privateLeagueCode": leagueCode}, function (error, privateLeague) {
 
             //First check to see if there was an error
             if (error) {
@@ -352,7 +425,7 @@ exports.joinPrivateLeagueWithCode = function (req, res) {
                 user_id: userId,
                 username: user.username,
                 username: user.pic,
-                score : user.score,
+                score: user.score,
                 status: "Accepted" //todo: remove this when deleting private invitation mechanism
             }
 
@@ -360,7 +433,7 @@ exports.joinPrivateLeagueWithCode = function (req, res) {
             privateLeague.members.push(newMember);
 
             //Now attempt to save the new member
-            PrivateLeague.update({ "privateLeagueCode" : leagueCode}, {'members': privateLeague.members} ,function(err){
+            PrivateLeague.update({"privateLeagueCode": leagueCode}, {'members': privateLeague.members}, function (err) {
                 //if there is an error, this is due to a mongo issue so simply return this to the user
                 if (err) return res.jsonp(err);
                 console.log('The invited member has now been added to the private league');
@@ -372,8 +445,121 @@ exports.joinPrivateLeagueWithCode = function (req, res) {
     });
 };
 
+exports.changeLeagueCaptain = function(req, res) {
+    //get the user id making the request
+    var requestingUser = req.params.user_id;
+
+    //get the private league id
+    var privateLeagueId = req.params.private_league_id;
+
+    //get the user newly delegated as the team captain
+    var newTeamCaptain = req.params.new_captain_id
+
+    //find the private league
+    PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, function (error, privateLeague){
+        //ensure the requesting user is the captain
+        if (error || privateLeague == null || privateLeague.captain != requestingUser) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log("No private league with the specified private league id was found +" +
+                    "the user requesting to change the captain does not have sufficient privileges.");
+                return res.jsonp(403);
+            }
+        } else {
+            //find the new user specified to be the league captain
+            User.findOne({'user_id' : newTeamCaptain}, function(error, foundUser){
+                if (error || foundUser == null) {
+                    console.log(error);
+                    return res.jsonp(404);
+                } else {
+                    //set this user as the league captain
+                    privateLeague.captain = foundUser.user_id;
+
+                    //Make the current captain on ordinary member again, change status
+                    for (var i = 0; i < privateLeague.members.length; i++) {
+                        if (privateLeague.members[i].user_id == requestingUser) {
+                            console.log("Now making the old team captain an ordinary member.");
+                            privateLeague.members[i].status = 'member';
+                        }
+                    }
+
+                    //save changes to the document
+                    privateLeague.save(function(error) {
+                        if (error) {
+                            console.log(error);
+                            return res.jsonp(503);
+                        } else {
+                            console.log("The league's team captain was updated successfully.");
+                            return res.jsonp(200);
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
+
+exports.changeLeagueViceCaptain = function(req, res) {
+    //get the user id making the request
+    var requestingUser = req.params.user_id;
+
+    //get the private league id
+    var privateLeagueId = req.params.private_league_id;
+
+    //get the user newly delegated as the team captain
+    var newTeamViceCaptain = req.params.new_vice_captain_id
+
+    //find the private league
+    PrivateLeague.findOne({'privateLeagueId' : privateLeagueId}, function (error, privateLeague){
+        //ensure the requesting user is the captain or vice captain
+        if (error || privateLeague == null || !(privateLeague.captain == requestingUser || privateLeague.viceCaptain == requestingUser)) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log("No private league with the specified private league id was found +" +
+                    "the user requesting to change the captain does not have sufficient privileges.");
+                return res.jsonp(403);
+            }
+        } else {
+            //find the new user specified to be the league vice captain
+            User.findOne({'user_id' : newTeamViceCaptain}, function(error, foundUser){
+                if (error || foundUser == null) {
+                    console.log(error);
+                    return res.jsonp(404);
+                } else {
+                    //set this user as the league captain
+                    privateLeague.viceCaptain = foundUser.user_id;
+
+                    //Make the current vice captain on ordinary member again, change status
+                    for (var i = 0; i < privateLeague.members.length; i++) {
+                        if (privateLeague.members[i].user_id == requestingUser) {
+                            console.log("Now making the old team captain an ordinary member.");
+                            privateLeague.members[i].status = 'member';
+                        }
+                    }
+
+                    //save changes to the document
+                    privateLeague.save(function(error) {
+                        if (error) {
+                            console.log(error);
+                            return res.jsonp(503);
+                        } else {
+                            console.log("The league's team vice captain was updated successfully.");
+                            return res.jsonp(200);
+                        }
+                    });
+                }
+            });
+        }
+    });
+};
 
 //todo: implement mechanisms for setting and changing the league owners or "captains", admins ("vice captains") and members
+
+function _deleteMembersFromLeague(i, membersToDelete, callback) {
+
+}
 
 //RECURSIVE ASYNC LOOP to get the member details that are up to date for a given private league
 function _fetchLeagueDetails(i, privateLeagues, callback) {
@@ -382,40 +568,59 @@ function _fetchLeagueDetails(i, privateLeagues, callback) {
         var memberIds = _.pluck(privateLeagues[i].members, 'user_id');
 
         //Retrieve user's with these ids
-        User.find( {'user_id': { $in: memberIds }}, function(error, users){
+        User.find({'user_id': {$in: memberIds}}, function (error, users) {
             if (error || users == null) {
                 console.log("There was a problem finding member details for the private leagues.");
             } else {
                 //update private league's members list
                 //console.log("\n \n List of users is: " + JSON.stringify(users) + '\n');
+                var currentRoundNo;
 
                 for (var j = 0; j < privateLeagues[i].members.length; j++) {
                     var currentMember = privateLeagues[i].members[j];
                     //console.log("\n Now trying to update: " + JSON.stringify(currentMember));
 
-                    for (var k = 0; k < users.length; k++) {
+                    for(var k = 0; k < users.length; k++) {
 
                         if (currentMember.user_id == users[k].user_id) {
+                            privateLeagues[i].members[j].user_id = users[k].user_id;
                             privateLeagues[i].members[j].username = users[k].username;
                             privateLeagues[i].members[j].overallSeasonScore = users[k].overallSeasonScore;//9001;
-                            privateLeagues[i].members[j].roundScores = users[k].roundScore;
+                            privateLeagues[i].members[j].roundScores = users[k].roundScores;
                             privateLeagues[i].members[j].pic = users[k].pic;
 
-                            //console.log("\nmember is now: " + JSON.stringify(privateLeagues[i].members[j]));
+                            //Give this user a score for the current round
+                            var today = moment();
+
+                            currentRoundNo = _getCurrentRoundNo(today);
+                            console.log("\nTHE CURRENT ROUND NO IS: \n" + currentRoundNo);
+
+                            for (var m = 0; m < users[k].roundScores.length; m++) {
+
+                                console.log("The current round score is: " + users[k].roundScores[m].roundScore);
+                                if (users[k].roundScores[m].roundNo == currentRoundNo) {
+
+                                    privateLeagues[i].members[j].currentRoundScore = users[k].roundScores[m].roundScore;
+                                    console.log("Current round score: " + privateLeagues[i].members[j].currentRoundScore);
+                                    break;
+                                }
+                            }
 
                             break; //break out of inner loop, iterate
                         }
                     }
                 }
 
-                //Once all of the members have been updated, sort them descending based on score
-                var sortedMembers = _.sortBy(privateLeagues[i].members, 'score');
-                sortedMembers.reverse();
-                privateLeagues[i].members = sortedMembers;
-
-                //once current private league has had all member league details found, iterate
-                _fetchLeagueDetails(i + 1, privateLeagues, callback)
+                //privateLeagues.push({currentRound : currentRoundNo});
             }
+
+            //Once all of the members have been updated, sort them descending based on score
+            var sortedMembers = _.sortBy(privateLeagues[i].members, 'score');
+            sortedMembers.reverse();
+            privateLeagues[i].members = sortedMembers;
+
+            //once current private league has had all member league details found, iterate
+            _fetchLeagueDetails(i + 1, privateLeagues, callback)
         });
     } else {
         //if the recursion should have ended as all user's given scores, run the callback.

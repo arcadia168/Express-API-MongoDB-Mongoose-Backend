@@ -10,8 +10,15 @@ var privateLeagueSchema = new Schema({
     privateLeagueId: { type: ObjectId},
     privateLeagueName: { type: String},
     privateLeagueCode: { type: String},
-    creator: { type: String, index: true},
-    members: [{ user_id: String, status: String, username: String, pic: String, overallSeasonScore: Number, roundScores: [{roundNo: Number, roundScore: Number}]}], //- REDUNDANT
+    captain: { type: String, index: true}, //user_id
+    viceCaptain: { type: String, index: true},
+    members: [{
+        user_id: String,
+        status: String,
+        username: String,
+        pic: String,
+        overallSeasonScore: Number,
+        roundScores: [{roundNo: Number, roundScore: Number, correctPredictions: Number, incorrectPredictions: Number}]}], //- REDUNDANT
     dateCreated: { type: Date, default: Date.now }
 });
 

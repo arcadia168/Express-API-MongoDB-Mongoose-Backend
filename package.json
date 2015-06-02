@@ -33,6 +33,7 @@
         "underscore": "*",
         "agenda": "*",
         "moment": "*",
+        "moment-range" : "*",
         "q": "*",
         "async" : "*"
     },

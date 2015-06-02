@@ -116,7 +116,7 @@ exports.userSync = function(req, res) {
             //Now insert this new user object into the database
             User.create(newUser, function(err, user){
                 if (err) return console.log(error);
-                res.jsonp(202); //return this if everything went ok - 'accepted'
+                res.jsonp(201); //201 denotes that a new resource has been created
             });
         } else {
 

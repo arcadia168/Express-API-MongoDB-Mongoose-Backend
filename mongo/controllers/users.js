@@ -152,6 +152,39 @@ exports.getLeaderboard = function(req, res) {
     );
 };
 
+exports.updateUserTeam = function(req, res) {
+    var user_id = req.params.user_id;
+    var new_team = req.params.team;
+
+    User.findOne({'user_id' : user_id}, function(error, foundUser){
+       if (error) {
+           console.log("ERROR Retrieving User: " + error);
+           return res.jsonp(error);
+       } else if (foundUser == null) {
+           console.log("Specified user was not found.");
+           return res.jsonp(404);
+       } else {
+           //update the team name if is different
+           if (foundUser.userTeam != new_team) {
+               foundUser.userTeam = new_team;
+
+               foundUser.save(function(error) {
+                   if (error) {
+                       console.log('Error saving the updates tot he user: ' + error);
+                       return res.jsonp(error);
+                   } else {
+                       res.jsonp(202);
+                   }
+               })
+           } else {
+               console.log('The new team is no different to the old team');
+               return res.jsonp('503')
+           }
+       }
+    });
+
+}
+
 exports.getUserData = function(req, res) {
     var user_id = req.params.user_id;
     User.find({'user_id': user_id}, function(err, results) {

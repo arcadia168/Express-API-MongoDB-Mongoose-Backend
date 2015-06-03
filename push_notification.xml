@@ -1,0 +1,33 @@
+<RestClientRequest>
+  <option name="biscuits">
+    <list />
+  </option>
+  <option name="httpMethod" value="POST" />
+  <option name="urlBase" value="https://push.ionic.io" />
+  <option name="urlPath" value="/api/v1/push" />
+  <option name="headers">
+    <list>
+      <KeyValuePair>
+        <option name="key" value="Content-Type" />
+        <option name="value" value="application/json" />
+      </KeyValuePair>
+      <KeyValuePair>
+        <option name="key" value="X-Ionic-Application-Id" />
+        <option name="value" value="17ad87a3" />
+      </KeyValuePair>
+      <KeyValuePair>
+        <option name="key" value="Authorization" />
+        <option name="value" value="Basic NGFjM2EzMzY0NzQzYmQ4MDEwMWQ1YjI1YWMwNzEzM2RlNDBmOTZiMzNmY2Q0Njk5Og==" />
+      </KeyValuePair>
+    </list>
+  </option>
+  <option name="parameters">
+    <list />
+  </option>
+  <option name="parametersEnabled" value="true" />
+  <option name="haveTextToSend" value="true" />
+  <option name="haveFileToSend" value="false" />
+  <option name="isFileUpload" value="false" />
+  <option name="textToSend" value="{   &quot;tokens&quot;:[&quot;5ab46b88028969d59230f14cede4665278770f48a053b9a15b7eb7d0375227db&quot;],   &quot;notification&quot;:{&quot;alert&quot;:&quot;Hello World!&quot;} }" />
+  <option name="filesToSend" value="" />
+</RestClientRequest>

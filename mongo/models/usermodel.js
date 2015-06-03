@@ -15,7 +15,8 @@ var userSchema = new Schema({
     //invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
     overallSeasonScore: {type: Number, default: 0},
     roundScores: [{roundNo: Number, roundScore: {type : Number, default: 0}}],
-    currentRoundScore: { type: Number, default: 0}
+    currentRoundScore: { type: Number, default: 0},
+    userTeam: { type: String }
 });
 
 userSchema.pre('save', function(next) { var user = this;

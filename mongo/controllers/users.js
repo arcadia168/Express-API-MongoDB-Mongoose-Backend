@@ -41,6 +41,8 @@ var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/20
     {"roundNo": 36, "startDate": "09/05/2015"},
     {"roundNo": 37, "startDate": "16/05/2015"},
     {"roundNo": 38, "startDate": "24/05/2015"}];
+var _ = require('underscore');
+
 //todo: see if there is a better way to store this information
 function _getCurrentRoundNo (today) {
 
@@ -83,6 +85,138 @@ exports.addUser = function(req, res) {
         res.jsonp(user);
     });
 };
+
+exports.userDeviceTokenManager = function(req, res) {
+    //Get the POST body
+    console.log('JSON Post body received from the webhook Ionic Push API is: ' + JSON.stringify(req.body));
+
+    var userDeviceDetails = req.body;
+
+    //if the data recieved if registering a new user
+    if (userDeviceDetails.user_id) {
+        //Now find the user which corresponds to the stated devices
+        User.findOne({'user_id' : userDeviceDetails.user_id}, function(error, foundUser){
+            if (error) {
+                console.log('Error updating user device tokens, when attempting to retrieve user: ' + error);
+                return res.jsonp(503);
+            } else if (foundUser == null) {
+                console.log('Error retrieving user, could not find user with specified user_id');
+                return res.jsonp(404);
+            } else {
+
+                var changesMade = false;
+
+                //If user does not have device token, register it (push into array)
+
+                //todo: compile a single list of tokens (concat arrays) and run code once
+
+                //Add any android device tokens
+                var androidTokens = userDeviceDetails._push.android_tokens;
+                console.log('Android tokens are: ' + androidTokens.toString());
+                console.log('Device tokens already stored against user are: ' + JSON.stringify(foundUser.userDeviceTokens));
+
+                if (androidTokens) {
+                    _.each(androidTokens, function(androidToken, index, tokens) {
+                        console.log('Now using underscore _.each to iterate over ' + index);
+                        console.log('Android token is: ' + androidToken);
+
+                        //if this token is not in the list of stored tokens, add it
+                        var tokenExists = _.contains(foundUser.userDeviceTokens, androidToken);
+
+                        if (!tokenExists) {
+                            //add the new token to the array
+                            foundUser.userDeviceTokens.push(androidToken);
+                            //denote that changes need to be saved
+                            changesMade = true;
+                            console.log("A new android device token was added for the user.");
+                        } else {
+                            console.log('Device token already existed for the user');
+                        }
+                    });
+                }
+
+                //Add any ios device tokens
+                var iosTokens = userDeviceDetails._push.ios_tokens;
+                console.log('Android tokens are: ' + iosTokens.toString());
+                console.log('Device tokens already stored against user are: ' + JSON.stringify(foundUser.userDeviceTokens));
+
+                if (iosTokens) {
+                    _.each(iosTokens, function(iosToken, index, tokens) {
+                        console.log('Now using underscore _.each to iterate over ' + index);
+                        console.log('Android token is: ' + iosToken);
+
+                        //if this token is not in the list of stored tokens, add it
+                        var tokenExists = _.contains(foundUser.userDeviceTokens, iosToken);
+
+                        if (!tokenExists) {
+                            //add the new token to the array
+                            foundUser.userDeviceTokens.push(iosToken);
+                            changesMade = true;
+                            console.log("A new ios device token was added for the user.");
+                        } else {
+                            console.log('Device token already existed for the user');
+                        }
+                    });
+                }
+
+                //Now save any changes that have been made to the user
+                if (changesMade) {
+                    console.log("Changes were made to the user and need to be saved.");
+
+                    foundUser.save(function(error) {
+                       if (error) {
+                           console.log("Error when saving changes to the user: " + error);
+                           return res.jsonp(503);
+                       } else {
+                           console.log("Changes made to the user were saved successfully.");
+                           return res.jsonp(200);
+                       }
+                    });
+                } else {
+                    console.log('No changes were made to the user'); //todo: remove once tested
+                }
+            }
+        });
+    } else if (userDeviceDetails.token_invalid == 'true' ) { //If a device token becomes invalid
+
+        var tokenToRemove;
+        if (userDeviceDetails.ios_token) {
+            console.log('Token is for ios device: ' + userDeviceDetails.ios_token);
+            tokenToRemove = userDeviceDetails.ios_token
+        } else {
+            console.log('Token is for android device: ' + userDeviceDetails.android_token);
+            tokenToRemove = userDeviceDetails.android_token;
+        }
+
+        //Query to find any users which have the invalid device tokens
+        Users.find({'userDeviceTokens' : tokenToRemove}, function(error, foundUsers) {
+            if (error) {
+                console.log('Error updating user device tokens, when attempting to retrieve user: ' + error);
+                return res.jsonp(503);
+            } else if (foundUsers == null) {
+                console.log('Error retrieving user, could not find user with specified user_id');
+                return res.jsonp(404);
+            } else {
+                console.log('The users found to have the device token are: ' + JSON.stringify(foundUsers));
+
+                //iterate over all of the users and remove the invalid token then save
+            }
+        });
+
+        //remove invalid tokens from users and save
+
+    } else if (userDeviceDetails.unregister == 'true') { //If a user unregisters a device
+
+        //Compile single list of device tokens
+
+        //Use recursive async loop for each device token
+            //Query to find the user with unregisters device token
+            //Remove device token
+            //Save
+            //Recurse
+    }
+
+}
 
 exports.updateUser = function(req, res) {
     var user_id = req.params.user_id;

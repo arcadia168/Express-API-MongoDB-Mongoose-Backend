@@ -471,10 +471,10 @@ exports.updatePrediction = function(req, res) {
                                 //Work out a date range for kick off to the end of half time for this fixture
                                 var endOfHT = moment(fixKickOff); //clone fixture state moment object
                                 endOfHT.add(1, 'hour');
-                                var kickOffToEOHT = moment().range(fixtureDate, endOfHT); //define range for 1st half
+                                var kickOffToEOHT = moment().range(fixKickOff, endOfHT); //define range for 1st half
 
                                 //If making the update within an hour before the fixture trade 1
-                                if ((fixKickOff.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {
+                                if ((fixKickOff.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixKickOff))) {
                                     //Deduct 1 point from user
                                     foundUser.score -= 1;
                                     pointsTraded = true;

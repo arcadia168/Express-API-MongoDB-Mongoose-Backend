@@ -86,7 +86,7 @@ function _getCurrentRoundNo (today) {
 //TODO: TEST PROPERLY. mocha, karma and jasmine.
 
 exports.createPrivateLeague = function (req, res) {
-    //Need to pass in creator user id as param
+    //Need to pass in captain user id as param
     var user_id = req.params.user_id;
 
     //Also, get the proposed name of the Private league as a parameter
@@ -112,15 +112,16 @@ exports.createPrivateLeague = function (req, res) {
             privateLeagueId: id,
             privateLeagueName: league_name,
             privateLeagueCode: leagueCode,
-            creator: user_id,
+            captain: user_id,
+            viceCaptain: 'none',
             members: [
                 {
-                    user_id: user_id, //add the creator of the private league as a member of the private league
+                    user_id: user_id, //add the captain of the private league as a member of the private league
+                    status: 'admin',
                     username: foundUser.username,
                     userpic: foundUser.pic,
                     overallSeasonScore: foundUser.overallSeasonScore,
                     roundScores: foundUser.roundScores,
-                    status: 'admin'
                 }
             ]
         };
@@ -309,17 +310,17 @@ exports.deletePrivateLeague = function (req, res) {
     console.log('User ' + user_id + ' is attempting to delete the private league ' + privateLeagueId);
 
     //TODO: Check that the user asking to delete the private league is an admin of the private league
-    PrivateLeague.findOne({'privateLeagueId': privateLeagueId}, 'creator', function (error, creator) {
+    PrivateLeague.findOne({'privateLeagueId': privateLeagueId}, 'captain', function (error, captain) {
 
-        if (creator == null) {
+        if (captain == null) {
             return;
         }
 
-        console.log(creator);
-        console.log('The creator of the private league that user is attempting to delete is: ' + creator.creator);
+        console.log(captain);
+        //console.log('The captain of the private league that user is attempting to delete is: ' + captain.captain);
 
         //if user trying to delete is not the creator of the private league, they lack the priviledge to delete, so error
-        if (creator.creator != user_id) {
+        if (captain.captain != user_id) {
             console.log('The user attempting to delete the private league with id: '
                 + privateLeagueId + ' does not have sufficient priviledges');
             return res.jsonp('403'); //403 means insufficient priviledges/access denied.
@@ -359,12 +360,12 @@ exports.renamePrivateLeague = function (req, res) {
             res.jsonp(404);
         }
 
-        console.log('the creator of the private league has user_id: ' + foundPrivateLeague.creator);
+        console.log('the creator of the private league has user_id: ' + foundPrivateLeague.captain);
         console.log('user_id of the user attempting to change the league name is: ' + user_id);
         //check that the user issuing the command owns/created the private league and hence has permission
-        if (foundPrivateLeague.creator != user_id) {
+        if (foundPrivateLeague.captain != user_id) {
             //then the user making the command does not have persmission to change this private league
-            console.log("the user attempting to change the name of the private league does not have sufficient priviledges as they are not the creator of the league.");
+            console.log("the user attempting to change the name of the private league does not have sufficient priviledges as they are not the captain of the league.");
             return res.jsonp(403); //403 for permission denied
         }
         console.log('Now changing the private league with id: ' + privateLeagueId + ' to have the name: ' + new_name);

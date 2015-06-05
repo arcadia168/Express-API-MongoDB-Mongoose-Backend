@@ -295,7 +295,7 @@ exports.userSync = function(req, res) {
             foundUser.pic = req.body.picture;
 
             //Trying to save here may be the issue
-            foundUser.save(function(err) {
+            User.update({'user_id' : user_id}, foundUser, function(err){
                 if (err) {
                     console.log('Error updating user: ' + err);
                     return res.jsonp(err);
@@ -304,6 +304,15 @@ exports.userSync = function(req, res) {
                     return res.jsonp(202);
                 }
             });
+            //foundUser.save(function(err) {
+            //    if (err) {
+            //        console.log('Error updating user: ' + err);
+            //        return res.jsonp(err);
+            //    } else {
+            //        console.log('Attempting to save updated the latest user details');
+            //        return res.jsonp(202);
+            //    }
+            //});
         }
     });
 };
@@ -420,9 +429,12 @@ exports.updatePrediction = function(req, res) {
         } else {
             User.findOne({'user_id' : user_id}, function(error, foundUser) {
 
-                if (error || foundUser == null) {
+                if (error) {
                     console.log(error);
                     functionDone = true;
+                    return res.jsonp(503);
+                } else if (foundUser == null) {
+                    console.log('Didn\'t find user.');
                     return res.jsonp(404);
                 } else {
                     //find the fixture which is having it's prediction altered
@@ -431,13 +443,18 @@ exports.updatePrediction = function(req, res) {
                         var predictionToUpdate = foundUser.predictions[i];
 
                         if (foundUser.predictions[i].fixture == req.body.fixture) {
+                            console.log("Found user is: " + JSON.stringify(foundUser));
                             console.log("The prediction being updated is: " + JSON.stringify(foundUser.predictions[i]));
 
                             //Determine whether or not the user is deleting an existing prediction
                             if ((foundUser.predictions[i].fixture.prediction != 0) && (req.body["prediction"] == 0)) {
                                 //Remove 2 points from the user
                                 console.log("The user is deleting a prediction, reducing user's score by 2");
-                                foundUser.score = foundUser.score - 2;
+                                foundUser.overallSeasonScore = foundUser.overallSeasonScore - 2;
+
+                                //todo: need to implement changing the round score here
+                                //check what the current round is
+                                //update the score on that round
 
                                 console.log("Deleting prediction");
 
@@ -445,7 +462,32 @@ exports.updatePrediction = function(req, res) {
                                 foundUser.predictions.pull({ _id: foundUser.predictions[i]._id});
 
                                 //Now save the changes and exit the function
-                                foundUser.save(function(err) {
+                                //User.update({'user_id' : user_id}, JSON.stringify(foundUser), function(err){
+                                //    if (err) {
+                                //        console.log(err);
+                                //        console.log("\n END CALL");
+                                //        functionDone = true;
+                                //        return res.jsonp(503);
+                                //    } else {
+                                //        console.log("User prediction deleted successfully, exiting function");
+                                //        console.log("\n END CALL");
+                                //        return res.jsonp(202);
+                                //    }
+                                //});
+                                //foundUser.save(function(err) {
+                                //    if (err) {
+                                //        console.log(err);
+                                //        console.log("\n END CALL");
+                                //        functionDone = true;
+                                //        return res.jsonp(503);
+                                //    } else {
+                                //        console.log("User prediction deleted successfully, exiting function");
+                                //        console.log("\n END CALL");
+                                //        return res.jsonp(202);
+                                //    }
+                                //});
+
+                                User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function (err) {
                                     if (err) {
                                         console.log(err);
                                         console.log("\n END CALL");
@@ -522,7 +564,7 @@ exports.updatePrediction = function(req, res) {
                                     {upsert : false, setDefaultsOnInsert: true, runValidators: true},
                                     function(err, number) {
                                         if(err) return console.log(err);
-                                        console.log("\n END CALL \n.");
+                                        console.log("\n END CALL");
                                         return res.jsonp(202);
                                     }
                                 );

@@ -11,7 +11,7 @@ var privateLeagueSchema = new Schema({
     privateLeagueName: { type: String},
     privateLeagueCode: { type: String},
     captain: { type: String, index: true}, //user_id
-    viceCaptain: { type: String, index: true},
+    viceCaptain: { type: String, index: true, default: 'none'},
     members: [{
         user_id: String,
         status: String,

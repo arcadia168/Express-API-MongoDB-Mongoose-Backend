@@ -273,7 +273,10 @@ exports.userSync = function(req, res) {
                 pic         :   req.body.picture,
                 predictions :   [],
                 overallSeasonScore       :   0,
-                roundScores : []
+                roundScores : [],
+                currentRoundScore : 0,
+                userTeam: 'Arsenal',
+                userDeviceTokens: []
             };
 
             //Now insert this new user object into the database
@@ -281,6 +284,7 @@ exports.userSync = function(req, res) {
                 if (err) return console.log(error);
                 res.jsonp(201); //201 denotes that a new resource has been created
             });
+
         } else {
 
             console.log('User already existed, updating.');
@@ -290,6 +294,7 @@ exports.userSync = function(req, res) {
             foundUser.name =  req.body.name;
             foundUser.pic = req.body.picture;
 
+            //Trying to save here may be the issue
             foundUser.save(function(err) {
                 if (err) {
                     console.log('Error updating user: ' + err);

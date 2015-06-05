@@ -38,19 +38,19 @@ module.exports = function(app){
 
     //TODO: Review how necessary/remove these routes.
     //routes used for server/db admin, not used by app
-    app.post('/api/fixtures/createfixtures', fixtures.addFixtures); //protect
-    app.delete('/api/fixtures/clearfixtures', fixtures.clearFixtures); //protect
-    app.delete('/api/fixtures/:round', fixtures.clearRound); //protect
+    //app.post('/api/fixtures/createfixtures', fixtures.addFixtures); //protect
+    //app.delete('/api/fixtures/clearfixtures', fixtures.clearFixtures); //protect
+    //app.delete('/api/fixtures/:round', fixtures.clearRound); //protect
 
     //TODO: Remove these from the release version of the API
     //routes which quickly manipulate dummy data into the database
     //always disable these when pushing to the server.
-    app.get('/api/dummy/users', users.dummyData);
-    app.get('/api/dummy/fixtures', fixtures.dummyData);
-    app.get('/api/dummy/results/:round', users.dummyResults);
-    app.delete('/api/clear/all', users.wipe);
-    app.delete('/api/clear/fixtures', fixtures.clearFixtures);
-    app.delete('/api/clear/users', users.clearUsers);
-    app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
+    //app.get('/api/dummy/users', users.dummyData);
+    //app.get('/api/dummy/fixtures', fixtures.dummyData);
+    //app.get('/api/dummy/results/:round', users.dummyResults);
+    //app.delete('/api/clear/all', users.wipe);
+    //app.delete('/api/clear/fixtures', fixtures.clearFixtures);
+    //app.delete('/api/clear/users', users.clearUsers);
+    //app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
 
 };

@@ -686,6 +686,12 @@ exports.wipe = function(req, res) {
     });
 };
 
+exports.clearUsers = function(req, res) {
+    User.remove({}, function(result) {
+        return res.jsonp(result);
+    });
+};
+
 //Private functions.
 
 //todo: rewrite this to encorporate no prediction and updated rules as stated below. Use moment.js

@@ -50,6 +50,7 @@ module.exports = function(app){
     app.get('/api/dummy/results/:round', users.dummyResults);
     app.delete('/api/clear/all', users.wipe);
     app.delete('/api/clear/fixtures', fixtures.clearFixtures);
+    app.delete('/api/clear/users', users.clearUsers);
     app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
 
 };

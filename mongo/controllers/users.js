@@ -164,13 +164,13 @@ exports.userDeviceTokenManager = function(req, res) {
                     console.log("Changes were made to the user and need to be saved.");
 
                     foundUser.save(function(error) {
-                       if (error) {
-                           console.log("Error when saving changes to the user: " + error);
-                           return res.jsonp(503);
-                       } else {
-                           console.log("Changes made to the user were saved successfully.");
-                           return res.jsonp(200);
-                       }
+                        if (error) {
+                            console.log("Error when saving changes to the user: " + error);
+                            return res.jsonp(503);
+                        } else {
+                            console.log("Changes made to the user were saved successfully.");
+                            return res.jsonp(200);
+                        }
                     });
                 } else {
                     console.log('No changes were made to the user'); //todo: remove once tested
@@ -179,7 +179,6 @@ exports.userDeviceTokenManager = function(req, res) {
         });
     } else if (userDeviceDetails.token_invalid == 'true' ) { //If a device token becomes invalid
 
-        var tokenToRemove;
         if (userDeviceDetails.ios_token) {
             console.log('Token is for ios device: ' + userDeviceDetails.ios_token);
             tokenToRemove = userDeviceDetails.ios_token
@@ -197,9 +196,15 @@ exports.userDeviceTokenManager = function(req, res) {
                 console.log('Error retrieving user, could not find user with specified user_id');
                 return res.jsonp(404);
             } else {
+                var changesMade = false; //variable to track whether or not changes will require saving
                 console.log('The users found to have the device token are: ' + JSON.stringify(foundUsers));
 
                 //iterate over all of the users and remove the invalid token then save
+                //async recursion loop
+                _removeInvalidDeviceToken(1, foundUsers, tokenToRemove, function() {
+                    console.log("All invalid device ids have successfully been removed from users.");
+                    return res.jsonp(200);
+                });
             }
         });
 
@@ -208,15 +213,39 @@ exports.userDeviceTokenManager = function(req, res) {
     } else if (userDeviceDetails.unregister == 'true') { //If a user unregisters a device
 
         //Compile single list of device tokens
+        var tokensToUnregister = [];
+        var androidTokens = userDeviceDetails._push.android_tokens;
+        var iosTokens = userDeviceDetails._push.ios_tokens;
 
-        //Use recursive async loop for each device token
-            //Query to find the user with unregisters device token
-            //Remove device token
-            //Save
-            //Recurse
+        if (androidTokens) {
+            tokensToUnregister.concat(androidTokens);
+        }
+
+        if (iosTokens) {
+            tokensToUnregister.concat(iosTokens);
+        }
+
+        console.log('the list of tokens to dergister is: ' + JSON.stringify(tokensToUnregister));
+
+        //Now loop over all users and remove any tokens
+        //do recursively
+        Users.find({}, function(error, foundUsers) {
+            if (error) {
+                console.log('Error updating user device tokens, when attempting to retrieve user: ' + error);
+                return res.jsonp(503);
+            } else if (foundUsers == null) {
+                console.log('Error retrieving user, could not find user with specified user_id');
+                return res.jsonp(404);
+            } else {
+                //call recursive async method passing in all users and all tokens
+                _removeUnregisteredDeviceToken(i + 1, foundUsers, tokensToUnregister, function() {
+                    console.log("Device tokens successfully unregistered");
+                    return res.jsonp(200);
+                });
+            }
+        });
     }
-
-}
+};
 
 exports.updateUser = function(req, res) {
     var user_id = req.params.user_id;
@@ -291,30 +320,30 @@ exports.updateUserTeam = function(req, res) {
     var new_team = req.params.team;
 
     User.findOne({'user_id' : user_id}, function(error, foundUser){
-       if (error) {
-           console.log("ERROR Retrieving User: " + error);
-           return res.jsonp(error);
-       } else if (foundUser == null) {
-           console.log("Specified user was not found.");
-           return res.jsonp(404);
-       } else {
-           //update the team name if is different
-           if (foundUser.userTeam != new_team) {
-               foundUser.userTeam = new_team;
+        if (error) {
+            console.log("ERROR Retrieving User: " + error);
+            return res.jsonp(error);
+        } else if (foundUser == null) {
+            console.log("Specified user was not found.");
+            return res.jsonp(404);
+        } else {
+            //update the team name if is different
+            if (foundUser.userTeam != new_team) {
+                foundUser.userTeam = new_team;
 
-               foundUser.save(function(error) {
-                   if (error) {
-                       console.log('Error saving the updates tot he user: ' + error);
-                       return res.jsonp(error);
-                   } else {
-                       res.jsonp(202);
-                   }
-               })
-           } else {
-               console.log('The new team is no different to the old team');
-               return res.jsonp('503')
-           }
-       }
+                foundUser.save(function(error) {
+                    if (error) {
+                        console.log('Error saving the updates tot he user: ' + error);
+                        return res.jsonp(error);
+                    } else {
+                        res.jsonp(202);
+                    }
+                })
+            } else {
+                console.log('The new team is no different to the old team');
+                return res.jsonp('503')
+            }
+        }
     });
 
 }
@@ -801,6 +830,60 @@ function resultAssigner(i, results, callback) {
             resultAssigner(i + 1, results, callback);
         });
     } else {
+        callback();
+    }
+}
+
+function _removeInvalidDeviceToken(i, foundUsers, tokenToRemove, callback) {
+    if (i < foundUsers.length) {
+        //place the current user's predictions into an array
+        var foundUser = foundUsers[i];
+        var newDeviceTokens = foundUser.userDeviceTokens;
+
+        //Remove all invalid device tokens from this users devices
+        newDeviceTokens = _.without(foundUser.userDeviceTokens, tokenToRemove);
+
+
+        //if the list of device tokens has been updated
+        if (newDeviceTokens != foundUser.userDeviceTokens) {
+            //then save the change made to the user's score and recurse, scoring the next user
+            User.findByIdAndUpdate(foundUser._id, {$set: {'userDeviceTokens': newDeviceTokens}}, function () {
+                //recurse, scoring the next user
+                _removeInvalidDeviceToken(i + 1, foundUsers, tokenToRemove, callback);
+            });
+        } else {
+            //recurse without saving, scoring the next user
+            _removeInvalidDeviceToken(i + 1, foundUsers, tokenToRemove, callback);
+        }
+
+    } else {
+        //if at the end of the recursion, invoke the callback
+        callback();
+    }
+}function _removeUnregisteredDeviceToken(i, foundUsers, tokensToRemove, callback) {
+    if (i < foundUsers.length) {
+        //place the current token into an array
+        var foundUser = foundUsers[i];
+        var newDeviceTokens = foundUser.userDeviceTokens;
+
+        console.log("Existing device tokens: " + newDeviceTokens);
+        newDeviceTokens = _.without(foundUser.userDeviceTokens, tokensToRemove);
+
+        //if the list of device tokens has been updated
+        if (newDeviceTokens != foundUser.userDeviceTokens) {
+            console.log("DEVICE TOKENS CHAGNED: New device tokens: " + newDeviceTokens);
+            //then save the change made to the user's score and recurse, scoring the next user
+            User.findByIdAndUpdate(foundUser._id, {$set: {'userDeviceTokens': newDeviceTokens}}, function () {
+                //recurse, scoring the next user
+                _removeUnregisteredDeviceToken(i + 1, foundsUsers, tokenToRemove, callback);
+            });
+        } else {
+            //recurse without saving, scoring the next user
+            _removeUnregisteredDeviceToken(i + 1, foundUsers, tokensToRemove, callback);
+        }
+
+    } else {
+        //if at the end of the recursion, invoke the callback
         callback();
     }
 }

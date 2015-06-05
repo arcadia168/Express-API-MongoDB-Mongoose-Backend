@@ -20,6 +20,7 @@ module.exports = function(app){
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.get('/api/users/team/:user_id/:team', users.updateUserTeam);
+    app.post('/api/users/devices', users.userDeviceTokenManager);
     app.post('/api/users/predictions/:user_id/:round', users.addPredictions); //protect
     app.put('/api/users/predictions/update/:user_id', users.updatePrediction);//protect  //for the sake of ease these get done one by one
     //todo: attempt to implement a single call which takes a list of predictions and updates them, use promises, now easy!

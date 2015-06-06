@@ -21,12 +21,11 @@ module.exports = function(app){
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.get('/api/users/team/:user_id/:team', users.updateUserTeam);
     app.post('/api/users/devices', users.userDeviceTokenManager);
-    app.post('/api/users/predictions/:user_id/:round', users.addPredictions); //protect
-    app.put('/api/users/predictions/update/:user_id', users.updatePrediction);//protect  //for the sake of ease these get done one by one
-    //todo: attempt to implement a single call which takes a list of predictions and updates them, use promises, now easy!
-    app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
+    app.post('/api/users/predictions/update/:user_id', users.updatePredictions);//protect  //for the sake of ease these get done one by one
+    app.post('/api/users/predictions/create/:user_id/:round', users.addPredictions); //protect
+    //app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
-    app.delete('/api/users/notifications/clear/:user_id/:notification_id', users.clearNotification); //protect
+    //app.delete('/api/users/notifications/clear/:user_id/:notification_id', users.clearNotification); //protect
 
     //below API functionalities are not user dependent (don't need to be JWT protected)
     //DON'T NEED TO BE LOGGED IN TO ACCESS THESE
@@ -51,6 +50,7 @@ module.exports = function(app){
     //app.delete('/api/clear/all', users.wipe);
     //app.delete('/api/clear/fixtures', fixtures.clearFixtures);
     //app.delete('/api/clear/users', users.clearUsers);
-    //app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
+    //app.delete('/api/clear/predictions', users.clearPredictions);
+    app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
 
 };

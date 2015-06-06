@@ -3,6 +3,7 @@ var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
 var moment = require('moment');
 var momentrange = require('moment-range');
+var _ = require('underscore');
 var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/2014"},
     {"roundNo": 2, "startDate": "23/08/2014"},
     {"roundNo": 3, "startDate": "30/08/2014"},
@@ -41,9 +42,7 @@ var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/20
     {"roundNo": 36, "startDate": "09/05/2015"},
     {"roundNo": 37, "startDate": "16/05/2015"},
     {"roundNo": 38, "startDate": "24/05/2015"}];
-var _ = require('underscore');
 
-//so that mongoose now queries by object id
 String.prototype.toObjectId = function() {
     var ObjectId = (require('mongoose').Types.ObjectId);
     return new ObjectId(this.toString());
@@ -915,39 +914,48 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
 
                 console.log('now trying to save any updates to predictions');
                 ////after the loop above, if the predictions have been updated
-                if (predictionsUpdated) {
-                    console.log("Predictions UPDATED, updating user predictions");
-                    //then save the change made to the user's score and recurse, scoring the next user
-                    //User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function () {
-                    //    //recurse, scoring the next user
-                    //    _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                    //});
-                    console.log('User id being updated is: ' + JSON.stringify(foundUser._id) + ' prediction id is ' + JSON.stringify(foundUser.predictions[i]._id));
-                    User.findOneAndUpdate({ "_id": foundUser._id, "predictions._id": foundUser.predictions[i]._id },
-                        {
-                            "$set": {
-                                "predictions.$": currentPrediction
-                            }
-                        }, function(error, updatedPrediction){
-                            if (error) {
-                                console.log("There was an error updating the prediction: " + error);
-                                return;
-                            } else {
-                                console.log("UPDATE SUCCESSFUL. The updated prediction is now: " + JSON.stringify(updatedPrediction));
-
-                                //recurse
-                                _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                            }
-                        });
-                } else {
-                    console.log("Predictions NOT UPDATED, recursing");
+                //if (predictionsUpdated) {
+                //    console.log("Predictions UPDATED, updating user predictions");
+                //    //then save the change made to the user's score and recurse, scoring the next user
+                //    //User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function () {
+                //    //    //recurse, scoring the next user
+                //    //    _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
+                //    //});
+                //    console.log('User id being updated is: ' + JSON.stringify(foundUser._id) + ' prediction id is ' + JSON.stringify(foundUser.predictions[i]._id));
+                //    User.findOneAndUpdate({ "_id": foundUser._id, "predictions._id": foundUser.predictions[i]._id },
+                //        {
+                //            "$set": {
+                //                "predictions.$": currentPrediction
+                //            }
+                //        }, function(error, updatedPrediction){
+                //            if (error) {
+                //                console.log("There was an error updating the prediction: " + error);
+                //                return;
+                //            } else {
+                //                console.log("UPDATE SUCCESSFUL. The updated prediction is now: " + JSON.stringify(updatedPrediction));
+                //
+                //                //recurse
+                //                _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
+                //            }
+                //        });
+                //} else {
+                //    console.log("Predictions NOT UPDATED, recursing");
                     //recurse without saving, scoring the next user
                     _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                }
+                //}
             }
         });
     } else {
         console.log('BASE CASE, ENDING RECURSION');
+
+        foundUser.save(function(error) {
+            if (error) {
+             console.log("There was an error when updating the user predictions: " + error);
+            } else {
+                console.log("User predictions updated successfully.");
+            }
+        });
+
         callback();
     }
 }

@@ -43,6 +43,12 @@ var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/20
     {"roundNo": 38, "startDate": "24/05/2015"}];
 var _ = require('underscore');
 
+//so that mongoose now queries by object id
+String.prototype.toObjectId = function() {
+    var ObjectId = (require('mongoose').Types.ObjectId);
+    return new ObjectId(this.toString());
+};
+
 //todo: see if there is a better way to store this information
 function _getCurrentRoundNo (today) {
 
@@ -72,12 +78,6 @@ function _getCurrentRoundNo (today) {
         }
     }
 }
-
-//so that mongoose now queries by object id
-String.prototype.toObjectId = function() {
-    var ObjectId = (require('mongoose').Types.ObjectId);
-    return new ObjectId(this.toString());
-};
 
 exports.addUser = function(req, res) {
     User.create(req.body, function(err, user) {
@@ -855,45 +855,7 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
 
                             //Delete the prediction
                             foundUser.predictions.pull({ _id: foundUser.predictions[i]._id});
-                            predictionsUpdated = false;
-
-                            //Now save the changes and exit the function
-                            //User.update({'user_id' : user_id}, JSON.stringify(foundUser), function(err){
-                            //    if (err) {
-                            //        console.log(err);
-                            //        console.log("\n END CALL");
-                            //        functionDone = true;
-                            //        return res.jsonp(503);
-                            //    } else {
-                            //        console.log("User prediction deleted successfully, exiting function");
-                            //        console.log("\n END CALL");
-                            //        return res.jsonp(202);
-                            //    }
-                            //});
-
-                            //foundUser.save(function(err) {
-                            //    if (err) {
-                            //        console.log('Error deleting the users predictions: ' + err);
-                            //        functionDone = true;
-                            //        return res.jsonp(503);
-                            //    } else {
-                            //        console.log("User prediction deleted successfully, exiting function");
-                            //        return res.jsonp(202);
-                            //    }
-                            //});
-
-                            //User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function (err) {
-                            //    if (err) {
-                            //        console.log(err);
-                            //        console.log("\n END CALL");
-                            //        functionDone = true;
-                            //        return res.jsonp(503);
-                            //    } else {
-                            //        console.log("User prediction deleted successfully, exiting function");
-                            //        console.log("\n END CALL");
-                            //        return res.jsonp(202);
-                            //    }
-                            //});
+                            predictionsUpdated = true;
                         }
                         else {
                             //If not deleting, but updating, update values and save.
@@ -940,8 +902,9 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                             foundUser.predictions[i].predictValue = currentPrediction["predictValue"];
 
                             foundUser.predictions[i].predictDate = currentPrediction["predictDate"];
+                            predictionsUpdated = true;
 
-                            console.log("Saving updated prediction: " + JSON.stringify(foundUser.predictions[i]));
+                            console.log("Saving updated predictions: " + JSON.stringify(foundUser.predictions));
                         }
 
                         //Don't iterate if found fixture!
@@ -952,13 +915,30 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
 
                 console.log('now trying to save any updates to predictions');
                 ////after the loop above, if the predictions have been updated
-                if (originalPredictions != foundUser.predictions) {
+                if (predictionsUpdated) {
                     console.log("Predictions UPDATED, updating user predictions");
                     //then save the change made to the user's score and recurse, scoring the next user
-                    User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function () {
-                        //recurse, scoring the next user
-                        _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                    });
+                    //User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function () {
+                    //    //recurse, scoring the next user
+                    //    _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
+                    //});
+                    console.log('User id being updated is: ' + JSON.stringify(foundUser._id) + ' prediction id is ' + JSON.stringify(foundUser.predictions[i]._id));
+                    User.findOneAndUpdate({ "_id": foundUser._id, "predictions._id": foundUser.predictions[i]._id },
+                        {
+                            "$set": {
+                                "predictions.$": currentPrediction
+                            }
+                        }, function(error, updatedPrediction){
+                            if (error) {
+                                console.log("There was an error updating the prediction: " + error);
+                                return;
+                            } else {
+                                console.log("UPDATE SUCCESSFUL. The updated prediction is now: " + JSON.stringify(updatedPrediction));
+
+                                //recurse
+                                _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
+                            }
+                        });
                 } else {
                     console.log("Predictions NOT UPDATED, recursing");
                     //recurse without saving, scoring the next user

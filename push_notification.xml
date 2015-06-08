@@ -28,6 +28,6 @@
   <option name="haveTextToSend" value="true" />
   <option name="haveFileToSend" value="false" />
   <option name="isFileUpload" value="false" />
-  <option name="textToSend" value="{   &quot;tokens&quot;:[&quot;5ab46b88028969d59230f14cede4665278770f48a053b9a15b7eb7d0375227db&quot;],   &quot;notification&quot;:{&quot;alert&quot;:&quot;Hello World!&quot;} }" />
+  <option name="textToSend" value="{   &quot;tokens&quot;:[&quot;5ab46b88028969d59230f14cede4665278770f48a053b9a15b7eb7d0375227db&quot;],   &quot;notification&quot;:{     &quot;alert&quot;:&quot;Hello World!&quot;     &quot;ios&quot;:{       &quot;priority&quot;: 10,       &quot;badge&quot;:2,       &quot;payload&quot;:{ &quot;$state&quot;: &quot;tab.round-detail&quot;, &quot;$stateParams&quot;: &quot;{\&quot;id\&quot;: 1}&quot; }     }   }  }" />
   <option name="filesToSend" value="" />
 </RestClientRequest>

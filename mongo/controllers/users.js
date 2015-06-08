@@ -3,7 +3,7 @@ var User = mongoose.model('User');
 var Fixture = mongoose.model('Fixture');
 var moment = require('moment');
 var momentrange = require('moment-range');
-var _ = require('underscore');
+var underscore = require('underscore');
 var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/2014"},
     {"roundNo": 2, "startDate": "23/08/2014"},
     {"roundNo": 3, "startDate": "30/08/2014"},
@@ -42,6 +42,7 @@ var roundsList = [{"roundNo": 1, "startDate": "18/08/2014", "endDate": "18/08/20
     {"roundNo": 36, "startDate": "09/05/2015"},
     {"roundNo": 37, "startDate": "16/05/2015"},
     {"roundNo": 38, "startDate": "24/05/2015"}];
+var MiniSet = require('./miniset');
 
 String.prototype.toObjectId = function() {
     var ObjectId = (require('mongoose').Types.ObjectId);
@@ -78,12 +79,12 @@ function _getCurrentRoundNo (today) {
     }
 }
 
-exports.addUser = function(req, res) {
-    User.create(req.body, function(err, user) {
-        if(err) return console.log(err);
-        res.jsonp(user);
-    });
-};
+//exports.addUser = function(req, res) {
+//    User.create(req.body, function(err, user) {
+//        if(err) return console.log(err);
+//        res.jsonp(user);
+//    });
+//};
 
 exports.userDeviceTokenManager = function(req, res) {
     //Get the POST body
@@ -115,12 +116,12 @@ exports.userDeviceTokenManager = function(req, res) {
                 console.log('Device tokens already stored against user are: ' + JSON.stringify(foundUser.userDeviceTokens));
 
                 if (androidTokens) {
-                    _.each(androidTokens, function(androidToken, index, tokens) {
-                        console.log('Now using underscore _.each to iterate over ' + index);
+                    underscore.each(androidTokens, function(androidToken, index, tokens) {
+                        console.log('Now using underscore underscore.each to iterate over ' + index);
                         console.log('Android token is: ' + androidToken);
 
                         //if this token is not in the list of stored tokens, add it
-                        var tokenExists = _.contains(foundUser.userDeviceTokens, androidToken);
+                        var tokenExists = underscore.contains(foundUser.userDeviceTokens, androidToken);
 
                         if (!tokenExists) {
                             //add the new token to the array
@@ -140,12 +141,12 @@ exports.userDeviceTokenManager = function(req, res) {
                 console.log('Device tokens already stored against user are: ' + JSON.stringify(foundUser.userDeviceTokens));
 
                 if (iosTokens) {
-                    _.each(iosTokens, function(iosToken, index, tokens) {
-                        console.log('Now using underscore _.each to iterate over ' + index);
+                    underscore.each(iosTokens, function(iosToken, index, tokens) {
+                        console.log('Now using underscore underscore.each to iterate over ' + index);
                         console.log('Android token is: ' + iosToken);
 
                         //if this token is not in the list of stored tokens, add it
-                        var tokenExists = _.contains(foundUser.userDeviceTokens, iosToken);
+                        var tokenExists = underscore.contains(foundUser.userDeviceTokens, iosToken);
 
                         if (!tokenExists) {
                             //add the new token to the array
@@ -278,10 +279,83 @@ exports.userSync = function(req, res) {
                 userDeviceTokens: []
             };
 
-            //Now insert this new user object into the database
-            User.create(newUser, function(err, user){
-                if (err) return console.log(error);
-                res.jsonp(201); //201 denotes that a new resource has been created
+            //Assign default values for round scores
+            Fixture.find({}).sort({ 'round' : -1 }).exec(function(err, results) {
+
+                var data = JSON.parse(JSON.stringify(results));
+                //console.log(data);
+
+                //console.log('Parsing sorted fixture data ' + results + ' into rounds');
+
+                var newData = {
+                    rounds: []
+                };
+
+                //console.log('The new data variable is: ' + JSON.stringify(newData));
+
+                var newSet = new MiniSet();
+                //console.log(newSet);
+
+                //console.log('The data should now have been sorted, and the resulting sorted fixtures are:' + JSON.stringify(fixture));
+                // if this round already exists in the list add it else make a new JSON object
+
+                //loop over each fixture, assign to a round
+                for(var i = 0; i < data.length; i++) {
+
+                    //console.log("ITERATION " + (i + 1) + " OF " + (data.length - 1));
+                    //console.log("FOR THIS ITERATION THE NEW SET BEGINS AS: \t" + JSON.stringify(newSet));
+
+                    var fixture = data[i];
+                    //console.log("The value of the data[i] variable is: " + JSON.stringify(fixture));
+
+                    var roundNum = Number(fixture.round.toString());
+
+                    //console.log('Now working on round number: ' + roundNum);
+                    //console.log("Does the newSet variable already contain the round number?:\t " + newSet.has(roundNum));
+
+                    if (!newSet.has(roundNum)) {
+
+                        //console.log('Round ' + roundNum + ' did not exist, creating it now and adding in object ' + JSON.stringify(fixture));
+
+                        var nextData = {
+                            round: roundNum,
+                        };
+
+                        //console.log("Adding a round object to array of rounds: " + JSON.stringify(nextData));
+                        newData.rounds.push(nextData);
+
+                        //console.log("Now added this round to the newdata rounds object array");
+
+                        //adding this round to the set used to keep track of rounds
+                        newSet.add(roundNum);
+                    }
+                }
+
+                //console.log('Now returning to the user: ' + JSON.stringify(newData));
+                var rounds = newData;
+                //console.log(rounds);
+
+                //Create new objects for all rounds that exist
+                underscore.each(rounds.rounds, function(round) {
+                    //Create the new round score object to add
+                    var newRoundScore = {
+                        roundNo: round.round,
+                        roundScore: 0
+                    };
+
+                    //Push this object on to the list of the user's round scores
+                    newUser.roundScores.push(newRoundScore);
+                });
+
+                newUser.roundScores.reverse();
+
+                //console.log("The default values for the users round scores are: " + JSON.stringify(newUser.roundScores));
+
+                //Now insert this new user object into the database
+                User.create(newUser, function(err, user){
+                    if (err) return console.log(error);
+                    res.jsonp(201); //201 denotes that a new resource has been created
+                });
             });
 
         } else {
@@ -500,68 +574,6 @@ exports.clearRoundPredictions = function(req, res) {
     });
 };
 
-//exports.clearNotification = function (req, res) {
-//    //take the user_id from which we will be clearing the notification
-//    var user_id = req.params.user_id;
-//
-//    //get the notification id of the notification to clear
-//    var notification_id = req.params.notification_id;
-//
-//    //find the user, delete the notification and save any changes that have been made
-//    User.findOne({"user_id": user_id}, function (error, foundUser) {
-//
-//        //confirm that a user has been found
-//        if (foundUser == null) {
-//            console.log("No user with the user_id: " + user_id + " was found.");
-//            return res.jsonp("A user with that id was not found")
-//        } else {
-//            //TODO: go elsewhere and put run code in if statements like this
-//            console.log("The user that was returned is: " + JSON.stringify(foundUser));
-//        }
-//
-//        //now find the notification and remove it
-//        //Find the member with the corresponding user_id
-//        for (var i = 0; i < foundUser.notifications.length; i++) {
-//            //if the user_id is the same as the one we want to remove, remove it
-//
-//            console.log('Iterating over notifications, looking for notification with id: ' + notification_id);
-//
-//            if (foundUser.notifications[i].notificationId == notification_id) {
-//
-//                console.log('Notification ' + foundUser.notifications[i].notificationId + ' found');
-//
-//                //get the id of this member
-//                console.log('Getting the object id of the notification to remove: ' + foundUser.notifications[i]._id);
-//
-//                //TODO: Replace other removals with this methodology
-//                removeNotificationWithObjectId = privateLeague.members[i]._id;
-//
-//                //Now remove the object_id
-//                foundUser.notifications.id(removeNotificationWithObjectId).remove();
-//
-//                //Now save the removal
-//                foundUser.save(function (err) {
-//
-//                    if (err) return res.jsonp(err);
-//
-//                    console.log('The notification was removed.');
-//
-//                    //return accepted status code
-//                    return res.jsonp(202);
-//                });
-//            }
-//        } //TODO: If not found, what to do?
-//
-//    });
-//};
-
-//exports.clearPredictions = function(req, res) {
-//    User.update({}, {$pull: {'predictions': {}}}, {multi:true}, function(err, number) {
-//        if(err) return console.log(err);
-//        return res.jsonp(202);
-//    });
-//};
-
 exports.dummyData = function(req, res) {
     User.create(examples,
         function(err) {
@@ -571,22 +583,6 @@ exports.dummyData = function(req, res) {
         }
     );
 };
-
-//exports.dummyResults = function(req, res) {
-//    var round = req.params.round;
-//    //this will assign a result to every game in a round, then give users a score based on how well they predicted
-//    Fixture.find({'round': round}, function(err, results) {
-//        //assign results to all fixtures in the given round.
-//        resultAssigner(0, results, function() {
-//
-//            //todo: only need this bit, to be called after the singular fixture has been given a result.
-//            //this function is run after all fixtures get given a random result.
-//            _scoreUsers(round, function (err, status) {
-//                return res.jsonp(status);
-//            });
-//        });
-//    });
-//};
 
 exports.wipe = function(req, res) {
     Fixture.remove({}, function(result) {
@@ -604,7 +600,6 @@ exports.clearUsers = function(req, res) {
 
 //Private functions.
 
-//todo: rewrite this to encorporate no prediction and updated rules as stated below. Use moment.js
 //when a prediction is made, this decides how many points a user will get if the prediction is correct!
 function _allocatePoints(fixtureDate, predictionDate) {
     if (!(typeof fixtureDate === 'undefined' || typeof predictionDate === 'undefined')) {
@@ -618,7 +613,8 @@ function _allocatePoints(fixtureDate, predictionDate) {
         //Initialize an empty score object to be returned
         var score = {
             correctPoints: "",
-            incorrectPoints: ""
+            incorrectPoints: "",
+            predictWindow: ""
         };
 
         //Now allocate points depending on the time difference
@@ -640,26 +636,32 @@ function _allocatePoints(fixtureDate, predictionDate) {
             console.log("pre-season: The prediction was made during pre-season, award 15 points.");
             score.correctPoints = 15;
             score.incorrectPoints = -5;
+            score.predictWindow = "Pre-season"
         } else if (fixtureDate.diff(predictionDate, 'days') > 3) { //if the prediction was made "during season" i.e >72 before kick off
             console.log("during-season: The prediction was made after pre-season but more than 3 days before game.");
             score.correctPoints = 12;
             score.incorrectPoints = -4;
+            score.predictWindow = "During-season"
         } else if ((fixtureDate.diff(predictionDate, 'days') <= 3) && (fixtureDate.diff(predictionDate, 'days') > 1)) {
             console.log("round-prediction: The prediction was made within 3 days of the game.");
             score.correctPoints = 12;
             score.incorrectPoints = -3;
+            score.predictWindow = "Round-prediction"
         } else if ((fixtureDate.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {
             console.log("pre-match: The prediction was made within an hour of the game.");
             score.correctPoints = 6;
             score.incorrectPoints = -2;
+            score.predictWindow = "Pre-match"
         } else if (predictionDate.within(kickOffToEOHT)) {
             console.log("first-half: The prediction has been made between kick off and the end of half time.");
             score.correctPoints = 5;
             score.incorrectPoints = -1;
+            score.predictWindow = "First-half"
         } else {
             console.log("Fixture was in the past: scoring 0");
             score.correctPoints = 0;
             score.incorrectPoints = 0;
+            score.predictWindow = "Fixture finished"
         }
 
         //Now return the score object
@@ -669,93 +671,6 @@ function _allocatePoints(fixtureDate, predictionDate) {
     }
 }
 
-//function used to assign scores to users.
-//function _scoreUsers(round, callback) {
-//    //gets all of the fixtures in a given round
-//    Fixture.find({'round': round}, function (err, fixs) { //todo: for scheduler only pass a single fixture at a time
-//        //for all of the fixtures in a given round, gets all users
-//        User.find({}, function (err, users) { //todo: for scheduler filter the users here to only return those who predicted on the fixture
-//            //invokes the score adder function passing in all users who are to be scored, and all fixtures
-//            _scoreAdder(0, users, fixs, function () {
-//                //feeds the callback method into the scoreadder method
-//                callback(null, 202); //this is fed in from the highest level
-//            });
-//        });
-//    });
-//}
-
-//FOR ASSIGNING POINTS TO USER PREDICTIONS, GIVEN A LIST OF USERS TO SCORE AND FIXTURES WITH RESULTS
-//FOR ALL FIXTURES / MULTIPLE
-//recursively iterate over all of the users, assigning them points.
-//save changes if any are made.
-//function _scoreAdder(i, users, fixs, callback) {
-//    if (i < users.length) {
-//        //place the current user's predictions into an array
-//        var preds = users[i].predictions;
-//
-//        //get the current value of the user's score
-//        var score = users[i].score;
-//
-//        //nested loops make for n^2 complexity - slow to run
-//
-//        //todo: to use in scheduler, only pass in a single fixture, could just reuse this code...
-//        //for each user, loop over all of the given fixtures
-//        for (var j = 0; j < fixs.length; j++) {
-//
-//            var currFix = fixs[j];
-//
-//            //inner loop to loop over all of the user's predictions and compare to current fixture
-//            for (var k = 0; k < preds.length; k++) {
-//
-//                //if the user made a prediction for this fixture.
-//                //if the prediction was made for the current fixture
-//                if (preds[k].fixture == currFix._id) {
-//
-//                    //is this method of scoring correct? yes, if correct get a varying score, if wrong, get nothing
-//                    //if the prediction was correct, update the user's score!
-//                    if (preds[k].prediction == currFix.fixResult) {
-//                        score += preds[k].predictValue.correctPoints;
-//                    } else {
-//                        //Otherwise if the prediction was incorrect deduct the necessary amount of points
-//                        score -= preds[k].predictValue.incorrectPoints;
-//                    }
-//                }
-//            }
-//        }
-//
-//        //if the score has been updated
-//        if (score != users[i].score) {
-//            //then save the change made to the user's score and recurse, scoring the next user
-//            User.findByIdAndUpdate(users[i]._id, {$set: {'score': score}}, function () {
-//                //recurse, scoring the next user
-//                _scoreAdder(i + 1, users, fixs, callback);
-//            });
-//        } else {
-//            //recurse without saving, scoring the next user
-//            _scoreAdder(i + 1, users, fixs, callback);
-//        }
-//
-//    } else {
-//        //if the recursion should have ended as all user's given scores, run the callback.
-//        callback();
-//    }
-//}
-
-//FOR ASSIGNING DUMMY RESULTS TO MATCHES
-
-//this function assigns a random result to ALL FIXTURES, recursively, then runs a callback.
-//above this callback is one which assigns users scores based upon these results.
-//function resultAssigner(i, results, callback) {
-//    if (i < results.length) {
-//        var fixRes = Math.floor((Math.random() * 3) + 1); //this is generating a random result atm
-//        Fixture.findByIdAndUpdate(results[i]._id, {$set: {'fixResult': fixRes}}, function (err, res) {
-//            resultAssigner(i + 1, results, callback);
-//        });
-//    } else {
-//        callback();
-//    }
-//}
-
 function _removeInvalidDeviceToken(i, foundUsers, tokenToRemove, callback) {
     if (i < foundUsers.length) {
         //place the current user's predictions into an array
@@ -763,7 +678,7 @@ function _removeInvalidDeviceToken(i, foundUsers, tokenToRemove, callback) {
         var newDeviceTokens = foundUser.userDeviceTokens;
 
         //Remove all invalid device tokens from this users devices
-        newDeviceTokens = _.without(foundUser.userDeviceTokens, tokenToRemove);
+        newDeviceTokens = underscore.without(foundUser.userDeviceTokens, tokenToRemove);
 
 
         //if the list of device tokens has been updated
@@ -791,7 +706,7 @@ function _removeUnregisteredDeviceToken(i, foundUsers, tokensToRemove, callback)
         var newDeviceTokens = foundUser.userDeviceTokens;
 
         console.log("Existing device tokens: " + newDeviceTokens);
-        newDeviceTokens = _.without(foundUser.userDeviceTokens, tokensToRemove);
+        newDeviceTokens = underscore.without(foundUser.userDeviceTokens, tokensToRemove);
 
         //if the list of device tokens has been updated
         if (newDeviceTokens != foundUser.userDeviceTokens) {
@@ -813,7 +728,7 @@ function _removeUnregisteredDeviceToken(i, foundUsers, tokensToRemove, callback)
 }
 
 function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback) {
-    console.log('RECURSIVE ITERATION: ' + (index + 1));
+    //console.log('RECURSIVE ITERATION: ' + (index + 1));
     if (index < predictionsToUpdate.length) {
 
         //Get the prediction we are currently trying to update
@@ -831,6 +746,10 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                 // Not functional for dummy data: || foundFixture.fixDate.getTime() <= (date.getTime() + (1000*60*45)))
                 return res.jsonp(400); //check to see if we have fixture in db (has it finished yet)?
             } else {
+
+                var currentFixtureRound = foundFixture.round;
+                console.log("The fixture of the current round is: " + currentFixtureRound);
+
                 //find the fixture which is having it's prediction altered
                 for (var i = 0; i < foundUser.predictions.length; i++) {
                     //console.log("ITERATING TO LOOK FOR FIXTURE PREDICTION ON USER.");
@@ -840,15 +759,18 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                         //console.log("Found user is: " + JSON.stringify(foundUser));
                         console.log("The prediction being updated is: " + JSON.stringify(foundUser.predictions[i]));
 
+                        //take 2 of the score for the fixture round
+                        var userCurrentRoundScore = underscore.findWhere(foundUser.roundScores, {roundNo : currentFixtureRound});
+                        console.log('The current score for this round is: ' + JSON.toString(userCurrentRoundScore));
+
                         //Determine whether or not the user is deleting an existing prediction
                         if ((foundUser.predictions[i].fixture.prediction != 0) && (currentPrediction["prediction"] == 0)) {
                             //Remove 2 points from the user
                             console.log("The user is deleting a prediction, reducing user's score by 2");
                             foundUser.overallSeasonScore = foundUser.overallSeasonScore - 2;
 
-                            //todo: need to implement changing the round score here
-                            //check what the current round is
-                            //update the score on that round
+                            //update the user's score - underscore returns a reference so alters original object
+                            userCurrentRoundScore.roundScore -= 2;
 
                             console.log("Deleting prediction");
 
@@ -879,14 +801,19 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                                 //Deduct 1 point from user
                                 foundUser.overallSeasonScore -= 1;
 
-                                //todo: work out the score for the current round
+                                console.log('The current score for this round is: ' + JSON.toString(userCurrentRoundScore));
+
+                                //update the user's score - underscore returns a reference so alters original object
+                                userCurrentRoundScore.roundScore -= 1;
+
                             } else if (predictionDate.within(kickOffToEOHT)) {
                                 console.log('POINTS TRADING IS OCCURING.');
 
                                 //If making the update within the first half (up to end of half time) trade 2
                                 foundUser.overallSeasonScore -= 2;
 
-                                //todo: work out the score for the current round
+                                //take 2 of the score for the fixture round
+                                userCurrentRoundScore.roundScore -= 2;
                             }
 
                             //Work out how many points this prediction is worth
@@ -894,12 +821,11 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                             currentPrediction["predictValue"] = _allocatePoints(foundFixture.kickOff, date); //allocate points for the fixture based on date
 
                             //Set the date of the prediction to be today
-                            console.log("A prediction value has now been calculated for this update and is: " + JSON.stringify(currentPrediction["predictValue"]));
+                            //console.log("A prediction value has now been calculated for this update and is: " + JSON.stringify(currentPrediction["predictValue"]));
                             currentPrediction["predictDate"] = date; //set the date of the prediction to be today
 
                             foundUser.predictions[i].prediction = currentPrediction["prediction"];
                             foundUser.predictions[i].predictValue = currentPrediction["predictValue"];
-
                             foundUser.predictions[i].predictDate = currentPrediction["predictDate"];
                             predictionsUpdated = true;
 
@@ -907,50 +833,18 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                         }
 
                         //Don't iterate if found fixture!
-                        console.log("STOPPING ITERATION AS FOUND USER PREDICTIONS FOR FIXTURE.");
+                        //console.log("STOPPING ITERATION AS FOUND USER PREDICTIONS FOR FIXTURE.");
                         break;
                     }
                 }
 
-                console.log('now trying to save any updates to predictions');
-                ////after the loop above, if the predictions have been updated
-                //if (predictionsUpdated) {
-                //    console.log("Predictions UPDATED, updating user predictions");
-                //    //then save the change made to the user's score and recurse, scoring the next user
-                //    //User.findByIdAndUpdate(foundUser._id, {$set: {'predictions': foundUser.predictions}}, function () {
-                //    //    //recurse, scoring the next user
-                //    //    _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                //    //});
-                //    console.log('User id being updated is: ' + JSON.stringify(foundUser._id) + ' prediction id is ' + JSON.stringify(foundUser.predictions[i]._id));
-                //    User.findOneAndUpdate({ "_id": foundUser._id, "predictions._id": foundUser.predictions[i]._id },
-                //        {
-                //            "$set": {
-                //                "predictions.$": currentPrediction
-                //            }
-                //        }, function(error, updatedPrediction){
-                //            if (error) {
-                //                console.log("There was an error updating the prediction: " + error);
-                //                return;
-                //            } else {
-                //                console.log("UPDATE SUCCESSFUL. The updated prediction is now: " + JSON.stringify(updatedPrediction));
-                //
-                //                //recurse
-                //                _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                //            }
-                //        });
-                //} else {
-                //    console.log("Predictions NOT UPDATED, recursing");
-                    //recurse without saving, scoring the next user
-                    _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
-                //}
+                _updateUserPredictions(index + 1, foundUser, predictionsToUpdate, callback);
             }
         });
     } else {
-        console.log('BASE CASE, ENDING RECURSION');
-
         foundUser.save(function(error) {
             if (error) {
-             console.log("There was an error when updating the user predictions: " + error);
+                console.log("There was an error when updating the user predictions: " + error);
             } else {
                 console.log("User predictions updated successfully.");
             }

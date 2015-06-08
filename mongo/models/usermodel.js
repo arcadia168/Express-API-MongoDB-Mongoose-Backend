@@ -14,7 +14,12 @@ var userSchema = new Schema({
     notifications: [{notificationId: String, message: String}],
     //invitations: [{ invitedBy: String, privateLeagueId: String, privateLeagueName: String}],
     overallSeasonScore: {type: Number, default: 0},
-    roundScores: [{roundNo: Number, roundScore: {type : Number, default: 0}}],
+    roundScores: [{
+        roundNo: Number,
+        roundScore: {type : Number, default: 0},
+        correctPredictions: Number,
+        incorrectPredictions: Number
+    }],
     currentRoundScore: { type: Number, default: 0},
     userTeam: { type: String, default: 'Arsenal' },
     userDeviceTokens: [{deviceToken: String}]

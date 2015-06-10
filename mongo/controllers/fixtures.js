@@ -311,6 +311,46 @@ exports.testGetResultThenScore = function (req, res) {
     });
 };
 
+exports.testScoringUsers = function(req, res) {
+
+    var id = mongoose.Types.ObjectId("55785f4e38bd12511018145d");
+
+    var kickOff = moment();
+    kickOff.add(1, 'minute');
+    var halfTime = moment(kickOff);
+    halfTime.add(45, 'minutes');
+    var fullTime = moment(kickOff);
+    fullTime.add(90, 'minutes');
+    var fixDate = moment('02.05.2015', 'DD.MM.YYYY');
+
+    //make fake fixture and set results
+    var fixture = {
+        _id: id,
+        homeTeam: "Aston Villa",
+        awayTeam: "Everton",
+        round: 35,
+        kickOff: kickOff.toDate(),
+        halfTime: halfTime.toDate(),
+        fullTime: fullTime.toDate(),
+        fixDate: fixDate.toDate(),
+        fixResult: {
+            fixResult: 1,
+            fixScore: "[3-0]"
+        },
+        awayTeamForm: [
+
+        ],
+        homeTeamForm: [
+
+        ],
+        __v: 0
+    };
+
+    _scheduleScorePredictingUsers(fixture, function(){
+        return res.jsonp(200);
+    });
+};
+
 //this must come after examples, I think
 exports.dummyData = function (req, res) {
     Fixture.create(examples,
@@ -1232,71 +1272,64 @@ function _scheduleScorePredictingUsers(fixture, callback) {
 //used to recursively give all users who predicted an a given fixture a score when the result is determined
 function _scoreAdder(i, users, fixture, callback) {
     if (i < users.length) {
-        //place the current user's predictions into an array
-        var preds = users[i].predictions;
-
         //get the current value of the user's score for season and round
-        var seasonScore = users[i].overallSeasonScore;
         var scoreChanged = false;
-        console.log("The overall season score for this user is: %n", seasonScore);
-
-        var roundScores = users[i].roundScores;
+        console.log("The overall season score for this user is: " + users[i].overallSeasonScore);
         console.log("The round of the fixture is: " + fixture.round);
-        console.log("The round scores for this user are: " + JSON.stringify(roundScores));
+        console.log("The round scores for this user are: " + JSON.stringify(users[i].roundScores));
 
-        //for each user, loop over all of the user's predictions and compare to current fixture
-        for (var k = 0; k < preds.length; k++) {
+        //Get a reference to the user's prediction for this fixture
+        console.log("The users predictions are: " + users[i].predictions);
+        console.log("The id of the fixture is: " + fixture._id);
+        console.log("Fixture id on prediction is: " + users[i].predictions[0].fixture);
+        console.log("Does ")
+        var currentFixturePrediction = underscore.findWhere(users[i].predictions, {fixture: fixture._id});
 
-            //if the user made a prediction for this fixture.
-            //if the prediction was correct, update the user's score!
-            if (preds[k].fixture == fixture._id) {
-                if (preds[k].prediction == fixture.fixResult.fixResult) {
-                    seasonScore += preds[k].predictValue.correctPoints;
-                    //Manual search to always ensure the correct roundScore is getting updated
-                    var fixtureRoundScore = underscore.findWhere();
-                    for (var l = 0; l < roundScores.length; l++) {
-                        if (roundScores[l].roundNo == fixture.round) {
-                            roundScores[l].roundScore += preds[k].predictValue.correctPoints;
-                            roundscores[l].correctPredictions++;
-                            //console.log("Now updated the round score with a correct prediction.");
-                            preds[k].predictionResult = 'Correct';
-                            break;
-                        }
-                    }
-                } else {
-                    //Otherwise if the prediction was incorrect deduct the necessary amount of points
-                    seasonScore -= preds[k].predictValue.incorrectPoints;
-                    //Manual search to always ensure the correct roundScore is getting updated
-                    for (var l = 0; l < roundScores.length; l++) {
-                        if (roundScores[l].roundNo == fixture.round) {
-                            roundScores[l].roundScore -= preds[k].predictValue.incorrectPoints;
-                            roundscores[l].incorrectPredictions++;
-                            //console.log("Now updated the round score with a correct prediction.");
-                            preds[k].predictionResult = 'Incorrect';
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        //Get a reference for the user's score for this round
+        var fixtureRoundScore = underscore.findWhere(users[i].roundScores, {roundNo: fixture.round});
 
-        //if the score has been updated
-        if (seasonScore != users[i].overallSeasonScore) {
-            //then save the change made to the user's score and recurse, scoring the next user
-            User.findByIdAndUpdate(users[i]._id, {
-                $set: {
-                    'overallSeasonScore': seasonScore,
-                    'roundScores': roundScores,
-                    'predictions': preds
-                }
-            }, function () {
-                //recurse, scoring the next user
-                _scoreAdder(i + 1, users, fixture, callback);
-            });
+        if (currentFixturePrediction.prediction == fixture.fixResult.fixResult) {
+            //If the user made a correct prediction
+
+            //Increase the overall season score
+            users[i].overallSeasonScore += currentFixturePrediction.predictValue.correctPoints;
+
+            //Increase the score for fixture's round
+            fixtureRoundScore.roundScore += currentFixturePrediction.predictValue.correctPoints;
+
+            //Increase the number of correct predictions the user has
+            fixtureRoundScore.correctPredictions++;
+
+            //Set the result of the prediction to be correct
+            currentFixturePrediction.predictionResult = 'Correct';
         } else {
-            //recurse without saving, scoring the next user
-            _scoreAdder(i + 1, users, fixture, callback);
+            //Otherwise if the prediction was incorrect deduct the necessary amount of points
+
+            //Reduce score for the season
+            users[i].overallSeasonScore -= currentFixturePrediction.predictValue.incorrectPoints;
+
+            //Reduce score for the round
+            fixtureRoundScore.roundScore -= currentFixturePrediction.predictValue.incorrectPoints;
+
+            //Increment the number of incorrect predictions that have been made
+            fixtureRoundScore.incorrectPredictions++;
+
+            //Set the result of the prediction
+            currentFixturePrediction.predictionResult = 'Incorrect';
         }
+
+        //save the change made to the user's score and recurse, scoring the next user
+        User.findByIdAndUpdate(users[i]._id, {
+            $set: {
+                'overallSeasonScore': users[i].overallSeasonScore,
+                'roundScores': users[i].roundScores,
+                'predictions': users[i].predictions
+            }
+        }, function () {
+            //recurse, scoring the next user
+            _scoreAdder(i + 1, users, fixture, callback);
+        });
+
     } else {
         //if the recursion should have ended as all user's given scores, run the callback.
         callback();
@@ -1324,7 +1357,7 @@ function _scoreReducer(i, users, fixture, callback) {
         currentUserRoundScore -= 6;
 
         //if the score has been update save the change made to the user's score and recurse
-        User.findByIdAndUpdate(users[i]._id, {$set: {'overallSeasonScore': score}}, function () {
+        User.findByIdAndUpdate(users[i]._id, {$set: {'overallSeasonScore': score, 'roundScores' : roundScores}}, function () {
             //recurse, scoring the next user
             _scoreReducer(i + 1, users, fixture, callback);
         });
@@ -1352,21 +1385,7 @@ function _sortByMomentDate(array, key) {
     });
 }
 
-//small function for conveniently reformatting a date
-function _formattedDate(date) {
-    var d = new Date(date || Date.now()),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [day, month, year].join('.');
-}
-
 function _getMatchResult(homeTeamResult, awayTeamResult) {
-
     var localFixResult = 0;
 
     //Now process this result into a usable format for our server (1, 2 or 3)

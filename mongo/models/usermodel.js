@@ -22,7 +22,7 @@ var userSchema = new Schema({
     }],
     currentRoundScore: { type: Number, default: 0},
     userTeam: { type: String, default: 'Arsenal' },
-    userDeviceTokens: [{deviceToken: String}]
+    userDeviceTokens: [{type: String}]
 });
 
 userSchema.pre('save', function(next) { var user = this;

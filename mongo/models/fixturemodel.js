@@ -9,7 +9,8 @@ var fixtureSchema = new Schema({
     fixStadium: {type: String},
     round: {type: Number, required: true},
     fixDate: {type: Date, default: Date.now},
-    fixResult: {type: Number, default: 0},
+    fixResult: {fixResult: Number, fixScore: String},
+    fixHalfTimeResult: {fixResult: Number, fixScore: String},
     kickOff: {type: Date}, //times to be stored as 24 hr e.g 0830, 2359
     halfTime: {type: Date},
     fullTime: {type: Date}

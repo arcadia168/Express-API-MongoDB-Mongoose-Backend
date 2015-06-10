@@ -35,11 +35,11 @@
         "moment": "*",
         "moment-range" : "*",
         "q": "*",
-        "async" : "*"
+        "sprintf-js" : "*"
     },
     "devDependencies": {
-        "should": "^6.0.3",
-        "supertest": "^1.0.1"
+        "node-jasmine": "*",
+        "require": "*"
     },
     "bundleDependencies": [],
     "private": true,

@@ -51,6 +51,6 @@ module.exports = function(app){
     app.delete('/api/clear/fixtures', fixtures.clearFixtures);
     app.delete('/api/clear/users', users.clearUsers);
     //app.delete('/api/clear/predictions', users.clearPredictions);
-    //app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
+    app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
 
 };

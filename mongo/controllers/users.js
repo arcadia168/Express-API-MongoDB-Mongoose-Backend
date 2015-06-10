@@ -79,13 +79,6 @@ function _getCurrentRoundNo (today) {
     }
 }
 
-//exports.addUser = function(req, res) {
-//    User.create(req.body, function(err, user) {
-//        if(err) return console.log(err);
-//        res.jsonp(user);
-//    });
-//};
-
 exports.userDeviceTokenManager = function(req, res) {
     //Get the POST body
     console.log('JSON Post body received from the webhook Ionic Push API is: ' + JSON.stringify(req.body));

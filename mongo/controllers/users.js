@@ -661,6 +661,7 @@ function _allocatePoints(fixtureDate, predictionDate) {
 
         //Now return the score object
         return score;
+
     } else {
         return -1;
     }

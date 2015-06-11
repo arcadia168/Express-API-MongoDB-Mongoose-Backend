@@ -45,7 +45,7 @@ module.exports = function(app){
     //routes which quickly manipulate dummy data into the database
     //always disable these when pushing to the server.
     app.get('/api/dummy/users', users.dummyData);
-    app.get('/api/dummy/fixtures', fixtures.dummyData);
+    //app.get('/api/dummy/fixtures', fixtures.dummyData);
     //app.get('/api/dummy/results/:round', users.dummyResults);
     app.delete('/api/clear/all', users.wipe);
     app.delete('/api/clear/fixtures', fixtures.clearFixtures);
@@ -53,5 +53,5 @@ module.exports = function(app){
     //app.delete('/api/clear/predictions', users.clearPredictions);
     app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);
     app.get('/api/dummy/fixtures/testcores', fixtures.testScoringUsers);
-
+    app.get('/api/dummy/fixtures/load', fixtures.uploadFixturesFromFile);
 };

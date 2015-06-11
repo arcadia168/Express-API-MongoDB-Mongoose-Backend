@@ -598,10 +598,12 @@ function _allocatePoints(fixtureDate, predictionDate) {
     if (!(typeof fixtureDate === 'undefined' || typeof predictionDate === 'undefined')) {
         //Cast the given dates into moment dates
 
-        console.log('Running the allocate points function.');
+        //console.log('Running the allocate points function.');
 
         fixtureDate = moment(fixtureDate);
+        //console.log('fix date is: ' + fixtureDate.toString());
         predictionDate = moment(predictionDate);
+        //console.log('prediction date is: ' + fixtureDate.toString());
 
         //Initialize an empty score object to be returned
         var score = {
@@ -625,36 +627,36 @@ function _allocatePoints(fixtureDate, predictionDate) {
         var kickOffToEOHT = moment().range(fixtureDate, endOfHT);
 
         //If the prediction was made in the pre-season date range, can get 15 points
-        if (fixtureDate.within(preSeason)) {
+        if (predictionDate.within(preSeason)) {
             console.log("pre-season: The prediction was made during pre-season, award 15 points.");
             score.correctPoints = 15;
             score.incorrectPoints = -5;
-            score.predictWindow = "Pre-season"
+            score.predictWindow = "Preseason"
         } else if (fixtureDate.diff(predictionDate, 'days') > 3) { //if the prediction was made "during season" i.e >72 before kick off
             console.log("during-season: The prediction was made after pre-season but more than 3 days before game.");
             score.correctPoints = 12;
             score.incorrectPoints = -4;
-            score.predictWindow = "During-season"
-        } else if ((fixtureDate.diff(predictionDate, 'days') <= 3) && (fixtureDate.diff(predictionDate, 'days') > 1)) {
+            score.predictWindow = "During Season"
+        } else if ((fixtureDate.diff(predictionDate, 'days') <= 3) && (fixtureDate.diff(predictionDate, 'minutes') > 60)) {
             console.log("round-prediction: The prediction was made within 3 days of the game.");
             score.correctPoints = 12;
             score.incorrectPoints = -3;
-            score.predictWindow = "Round-prediction"
+            score.predictWindow = "Round Prediction"
         } else if ((fixtureDate.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {
-            console.log("pre-match: The prediction was made within an hour of the game.");
+            console.log("pre-match: The prediction was made within an hour before kick off.");
             score.correctPoints = 6;
             score.incorrectPoints = -2;
-            score.predictWindow = "Pre-match"
+            score.predictWindow = "Pre Match"
         } else if (predictionDate.within(kickOffToEOHT)) {
             console.log("first-half: The prediction has been made between kick off and the end of half time.");
             score.correctPoints = 5;
             score.incorrectPoints = -1;
-            score.predictWindow = "First-half"
+            score.predictWindow = "First Half"
         } else {
             console.log("Fixture was in the past: scoring 0");
             score.correctPoints = 0;
             score.incorrectPoints = 0;
-            score.predictWindow = "Fixture finished"
+            score.predictWindow = "Second half - Too late!"
         }
 
         //Now return the score object

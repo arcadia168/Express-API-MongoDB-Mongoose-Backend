@@ -39,8 +39,8 @@ app.use(function(req, res, next) {
     next();
 });
 
-//define this for each app route that is user specific - apply middleware express-jwt to route, supply app secret.
-//app.use('/api/users/', jwtCheck); //does indeed protect all sub-routes, this is the only statement needed.
+//baton down the hatches
+app.use('/api/', jwtCheck); //does indeed protect all sub-routes, this is the only statement needed.
 
 //Load in all of the mongoose data models
 require('./mongo/models/usermodel');

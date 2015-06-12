@@ -275,31 +275,28 @@ exports.uploadFixturesFromFile = function(req, res) {
                 console.log('Scheduling jobs');
 
                 //var q = async.queue(function (fixture, callback) {
-                //    var hourBeforeKickOff = moment(fixture.kickOff);
-                //    hourBeforeKickOff.subtract(1, 'hour');
-                //
-                //    //reschedule the job(s) to score the fixture at it's new finishing time
-                //    agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-                //    agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-                //    agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-                //    agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
-                //
-                //
-                //    callback();
-                //}, 1000);
-                //
-                //q.push(fixtures, function (err) {
-                //    console.log('added tasks for new fixture, iterating');
-                //});
-                //
-                //// assign a callback
-                //q.drain = function() {
-                //    console.log('all items have been processed');
-                //    return res.jsonp(200);
-                //}
+                console.log("no of fixtures " + fixtures.length);
+
+                for (var i = 0; i < fixtures.length; i++) {
+                    var fixture = fixtures[i];
+
+                    _scheduleFixtureActions(fixture);
+                    //var hourBeforeKickOff = moment(fixture.kickOff);
+                    //hourBeforeKickOff.subtract(1, 'hour');
+
+                    //reschedule the job(s) to score the fixture at it's new finishing time
+                    //agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+                    //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+                    //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+                    //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+
+                    if (i == (fixtures.length -1)) {
+                        return res.jsonp(200);
+                    }
+                }
+
             }
-        }
-    );
+        });
 }
 
 exports.clearFixtures = function (req, res) {
@@ -930,7 +927,7 @@ function _compareAndUpdateFixtures() {
                             hourBeforeKickOff.subtract(1, 'hour');
 
                             //find and cancel the scheduled job(s) for the old date and time
-                            agenda.cancel({"name" : "pre-match notification", "nextRunAt": hourBeforeKickOff.toDate()}, function (error, numRemoved) {
+                            {fixture: fixture}({"name" : "pre-match notification", "nextRunAt": hourBeforeKickOff.toDate()}, function (error, numRemoved) {
                                 if (numRemoved != 1) {
                                     console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
                                 }
@@ -1591,25 +1588,20 @@ function _scheduleFixtureActions(i, fixtures, callback) {
     }
 }
 
-//var condition = false, // potential means "maybe never"
-//    max = 1000000;
-//
-//function potAsyncLoop( i, resume ) {
-//    if( i < max ) {
-//        if( condition ) {
-//            someAsyncFunc( function( err, result ) {
-//                potAsyncLoop( i+1, callback );
-//            });
-//        } else {
-//            if( i % 1000 === 0 ) {
-//                setTimeout( function() {
-//                    potAsyncLoop( i+1, resume );
-//                }, 0 );
-//            } else {
-//                potAsyncLoop( i+1, resume );
-//            }
-//        }
-//    } else {
-//        resume();
-//    }
-//}
+function _scheduleFixtureActions(fixture) {
+
+        var deferred = Q.defer();
+
+        //console.log("Scheduling actions for fixture: " + fixture._id);
+
+        var hourBeforeKickOff = moment(fixture.kickOff);
+        hourBeforeKickOff.subtract(1, 'hour');
+
+        //reschedule the job(s) to score the fixture at it's new finishing time
+        agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+        agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+        agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+        agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+
+        return deferred.promise;
+}

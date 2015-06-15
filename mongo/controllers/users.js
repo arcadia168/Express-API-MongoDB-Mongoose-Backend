@@ -763,10 +763,10 @@ function _updateUserPredictions(index, foundUser, predictionsToUpdate, callback)
                         if ((foundUser.predictions[i].fixture.prediction != 0) && (currentPrediction["prediction"] == 0)) {
                             //Remove 2 points from the user
                             console.log("The user is deleting a prediction, reducing user's score by 2");
-                            foundUser.overallSeasonScore = foundUser.overallSeasonScore - 2;
+                            //foundUser.overallSeasonScore = foundUser.overallSeasonScore - 2;
 
                             //update the user's score - underscore returns a reference so alters original object
-                            userCurrentRoundScore.roundScore -= 2;
+                            //userCurrentRoundScore.roundScore -= 2;
 
                             console.log("Deleting prediction");
 

@@ -14,7 +14,6 @@ Q = require('q'),
     vsprintf = require("sprintf-js").vsprintf,
     IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
     mongoConnection = 'mongodb://' + IPADDRESS + '/nodejs',
-    agenda = new Agenda({db: {address: mongoConnection}}), //instantiate agenda;
     predictionMap = {
         0: 'no prediction',
         1: 'home win',
@@ -34,6 +33,8 @@ if (!process.env.OPENSHIFT_MONGODB_DB_PASSWORD) {
 
     console.log("RUNNING SERVER ON OPENSHIFT, MONGO CONNECTION STRING IS: " + mongoConnection);
 }
+
+agenda = new Agenda({db: {address: mongoConnection}}), //instantiate agenda;
 
 //fire up the scheduler
 agenda.start();

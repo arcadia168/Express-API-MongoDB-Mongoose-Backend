@@ -273,29 +273,29 @@ exports.uploadFixturesFromFile = function(req, res) {
                 console.log('No fixtures were found');
                 return res.jsonp(404);
             } else {
-                console.log('Scheduling jobs');
+                //console.log('Scheduling jobs');
 
                 //var q = async.queue(function (fixture, callback) {
-                console.log("no of fixtures " + fixtures.length);
+                //console.log("no of fixtures " + fixtures.length);
 
-                for (var i = 0; i < fixtures.length; i++) {
-                    var fixture = fixtures[i];
-
-                    _scheduleFixtureActions(fixture);
-                    //var hourBeforeKickOff = moment(fixture.kickOff);
-                    //hourBeforeKickOff.subtract(1, 'hour');
-
-                    //reschedule the job(s) to score the fixture at it's new finishing time
-                    //agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-                    //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-                    //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-                    //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
-
-                    if (i == (fixtures.length -1)) {
-                        return res.jsonp(200);
-                    }
-                }
-
+                //for (var i = 0; i < fixtures.length; i++) {
+                //    var fixture = fixtures[i];
+                //
+                //    _scheduleFixtureActions(fixture);
+                //    //var hourBeforeKickOff = moment(fixture.kickOff);
+                //    //hourBeforeKickOff.subtract(1, 'hour');
+                //
+                //    //reschedule the job(s) to score the fixture at it's new finishing time
+                //    //agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+                //    //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+                //    //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+                //    //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+                //
+                //    //if (i == (fixtures.length -1)) {
+                //    //    return res.jsonp(200);
+                //    //}
+                //}
+                return res.jsonp(200);
             }
         });
 }

@@ -21,7 +21,7 @@ var userSchema = new Schema({
         incorrectPredictions: Number
     }],
     currentRoundScore: { type: Number, default: 0},
-    userTeam: { type: String, default: 'Arsenal' },
+    userTeam: { type: String, default: 'Please Select' },
     userDeviceTokens: [{type: String}]
 });
 

@@ -439,7 +439,7 @@ exports.getUserData = function(req, res) {
 exports.addPredictions = function(req, res) {
     var user_id = req.params.user_id;
     // first get the fixture object, assign a score to the prediction
-    Fixture.find({'round':req.params.round}, 'fixDate', function(err, results) {
+    Fixture.find({'round': req.params.round}, 'fixDate', function(err, results) {
         var date = new Date();
         var predictions = req.body[0].predictions;
         for(var i = 0; i < predictions.length; i++) {

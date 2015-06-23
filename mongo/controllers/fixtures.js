@@ -130,7 +130,9 @@ exports.getFixtures = function (req, res) {
 
 exports.getRound = function (req, res) {
     var round = req.params.round;
-    Fixture.find({'round': round}, function (err, result) {
+
+    //Return rounds in date order
+    Fixture.find({'round': round}).sort({'fixDate': -1}).exec(function (err, result){
         return res.jsonp(result);
     });
 };

@@ -47,7 +47,7 @@ module.exports = function(app){
     //app.get('/api/dummy/fixtures', fixtures.dummyData);
     //app.get('/api/dummy/results/:round', users.dummyResults);
     //app.delete('/api/clear/all', users.wipe);
-    //app.delete('/admin/clear/fixtures', fixtures.clearFixtures);
+    app.delete('/admin/clear/fixtures', fixtures.clearFixtures);
     //app.delete('/api/clear/users', users.clearUsers);
     //app.delete('/api/clear/predictions', users.clearPredictions);
     //app.get('/api/dummy/fixtures/testresult', fixtures.testGetResultThenScore);

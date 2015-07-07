@@ -231,13 +231,13 @@ exports.removePrivateLeagueMembers = function (req, res) {
 
     //console.log('body is ' + req.body);
 
-    var usersToRemove = req.body
-    console.log('\nMembers to delete are: ' + JSON.stringify(usersToRemove));
+    //var usersToRemove = req.body
+    //console.log('\nMembers to delete are: ' + JSON.stringify(usersToRemove));
 
-    var removeUserId = req.params.remove_user_id;
+    var removeUserId = req.params.user_id;
 
-    //Get user_id of the user trying to perform the operation for validation
-    var user_id = req.params.user_id;
+    ////Get user_id of the user trying to perform the operation for validation
+    //var user_id = req.params.user_id;
 
     var removeUserWithObjectId = null;
 
@@ -258,32 +258,31 @@ exports.removePrivateLeagueMembers = function (req, res) {
             return res.jsonp("No such private league exists.")
         } else {
             //Find the member with the corresponding user_id
-            for (var j = 0; j < usersToRemove.length; j++) {
-                for (var i = 0; i < privateLeague.members.length; i++) {
-                    //if the user_id is the same as the one we want to remove, remove it
+            for (var i = 0; i < privateLeague.members.length; i++) {
+                //if the user_id is the same as the one we want to remove, remove it
 
-                    console.log('Iterating over loop, looking for private league member with id: ' + removeUserId);
+                console.log('Iterating over loop, looking for private league member with id: ' + removeUserId);
 
-                    if (privateLeague.members[i].user_id == usersToRemove[j]) {
+                if (privateLeague.members[i].user_id == removeUserId) {
 
-                        member_exists = true;
+                    member_exists = true;
 
-                        console.log('Private league member ' + privateLeague.members[i].user_id + ' found');
+                    console.log('Private league member ' + privateLeague.members[i].user_id + ' found');
 
-                        //get the id of this member
-                        console.log('Getting the object id of the user to remove: ' + privateLeague.members[i]._id);
+                    //get the id of this member
+                    console.log('Getting the object id of the user to remove: ' + privateLeague.members[i]._id);
 
-                        //TODO: Replace other removals with this methodology
-                        removeUserWithObjectId = privateLeague.members[i]._id;
+                    //TODO: Replace other removals with this methodology
+                    removeUserWithObjectId = privateLeague.members[i]._id;
 
-                        //Now remove the object_id
-                        privateLeague.members.id(removeUserWithObjectId).remove();
+                    //Now remove the object_id
+                    privateLeague.members.id(removeUserWithObjectId).remove();
 
-                        //Iterate to remove next member
-                        break;
-                    }
+                    //Iterate to remove next member
+                    break;
                 }
             }
+
 
             //Now save the removals once all members have been removed
             privateLeague.save(function (err) {

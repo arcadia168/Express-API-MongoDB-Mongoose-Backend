@@ -13,7 +13,8 @@ module.exports = function(app){
     app.get('/api/users/private_leagues/list/:user_id', privateLeagues.getPrivateLeagues); //
     app.get('/api/users/private_leagues/join/:user_id/:private_league_code', privateLeagues.joinPrivateLeagueWithCode); //protect
     app.get('/api/users/private_leagues/get/:user_id/:private_league_id', privateLeagues.getPrivateLeague);
-    app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMembers); //protect
+    app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMember); //protect
+    app.put('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMembers); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
     app.post('/api/users/private_leagues/edit/captain/:user_id/:private_league_id/:new_captain_id', privateLeagues.changeLeagueCaptain); //protect
     app.post('/api/users/private_leagues/edit/vcaptain/:user_id/:private_league_id/:new_vice_captain_id', privateLeagues.changeLeagueViceCaptain); //protect

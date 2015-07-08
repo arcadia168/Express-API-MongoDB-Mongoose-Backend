@@ -16,8 +16,8 @@ module.exports = function(app){
     app.get('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMember); //protect
     app.put('/api/users/private_leagues/remove/:user_id/:private_league_id/', privateLeagues.removePrivateLeagueMembers); //protect
     app.get('/api/users/private_leagues/rename/:user_id/:private_league_id/:new_league_name', privateLeagues.renamePrivateLeague); //protect
-    app.post('/api/users/private_leagues/edit/captain/:user_id/:private_league_id/:new_captain_id', privateLeagues.changeLeagueCaptain); //protect
-    app.post('/api/users/private_leagues/edit/vcaptain/:user_id/:private_league_id/:new_vice_captain_id', privateLeagues.changeLeagueViceCaptain); //protect
+    app.get('/api/users/private_leagues/edit/captain/:user_id/:private_league_id/:new_captain_id', privateLeagues.changeLeagueCaptain); //protect
+    app.get('/api/users/private_leagues/edit/vcaptain/:user_id/:private_league_id/:new_vice_captain_id', privateLeagues.changeLeagueViceCaptain); //protect
     app.delete('/api/users/private_leagues/delete/:user_id/:private_league_id', privateLeagues.deletePrivateLeague); //protect
     app.post('/api/users/sync', users.userSync); //protect //TODO: How do users delete accounts? Implement user delete
     app.get('/api/users/team/:user_id/:team', users.updateUserTeam);

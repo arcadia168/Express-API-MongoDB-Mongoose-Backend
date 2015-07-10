@@ -1,12 +1,13 @@
 var mongoose = require('mongoose'),
+    mongoskin = require('mongoskin'),
     http = require('http'),
     https = require('https'),
     users = require('./users'),
     Agenda = require('agenda'),
     moment = require('moment'),
     async = require('async'),
-    fs = require('fs');
-Q = require('q'),
+    fs = require('fs'),
+    Q = require('q'),
     underscore = require('underscore'),
     MiniSet = require('./miniset'),
     Fixture = mongoose.model('Fixture'),
@@ -37,90 +38,92 @@ if (!process.env.OPENSHIFT_MONGODB_DB_PASSWORD) {
 agenda = new Agenda({db: {address: mongoConnection}}), //instantiate agenda;
 
 //fire up the scheduler
-agenda.start();
+//    agenda.start();
 
 //define any agenda jobs that are to be scheduled here
 
 //define the job to be run for each fixture to go and get the result and send out push notifications
-agenda.define('score fixture predictors', function (job, done) {
-    //retrieve data from parameters
-    var data = job.attrs.data;
-
-    var fixture = data.fixture;
-
-    //invoke the private function to retrieve users who made predictions on this fixture, and give them scores
-    //fixture should be being passed in as JSON, no need to parse.
-    _getFixtureResult(fixture, function (fixture, done){
-
-        //invoke private function to send out notification to user
-        //get all of the users who made a prediction for this fixture
-        var message = vsprintf("They think it's all over, it is now! The match between %s and %s is finished! Open Yes! Get In! to see how well you did!",
-            [data.fixture.homeTeam, data.fixture.awayTeam]);
-
-        _sendPushNotification(data.fixture, message, done);
-    });
-});
-
-agenda.define('kick-off notification', function (job, done) {
-    //retrieve data from parameters
-    var data = job.attrs.data;
-
-    //invoke private function to send out notification to user
-    //get all of the users who made a prediction for this fixture
-    var message = vsprintf("The match between %s and %s is about to kick off! Get your predictions in now!",
-        [data.fixture.homeTeam, data.fixture.awayTeam]);
-
-    _sendPushNotification(data.fixture, message, done);
-});
-
-agenda.define('pre-match notification', function (job, done) {
-    //retrieve data from parameters
-    var data = job.attrs.data;
-
-    //invoke private function to send out notification to user
-    //get all of the users who made a prediction for this fixture
-    var message = vsprintf("The match between %s and %s kicks off in an hour! Get your predictions in early for more points!",
-        [data.fixture.homeTeam, data.fixture.awayTeam]);
-
-    _sendPushNotification(data.fixture, message, done);
-});
-
-agenda.define('half-time notification', function (job, done) {
-    //retrieve data from parameters
-    var data = job.attrs.data;
-    var fixture = data.fixture;
-
-    //Get the current result of the match to be passed to the app, update the fixture
-    _getHalfTimeFixtureResult(fixture, function (fixture, done){
-
-        //invoke private function to send out notification to user
-        //get all of the users who made a prediction for this fixture
-        var message = vsprintf("%s vs $s half time cuppa! Feeling confident, or need to update your predictions?" +
-            "Current results are %n so it's looking like it's gonna be a %s!",
-            [fixture.homeTeam,
-                fixture.awayTeam,
-                fixture.fixHalfTimeResult.fixScore,
-                predictionMap[fixture.fixHalfTimeResult.fixResult]
-            ]
-        );
-
-        _sendPushNotification(data.fixture, message, done);
-    });
-});
-
-//the scheduled job to check for new and updated fixtures every day
-agenda.define('check for updates to existing fixtures', function (job, done) {
-    //retrieve data from parameters
-    var data = job.attrs.data;
-
-    //call function to check for any new fixtures and update the existing ones
-    _compareAndUpdateFixtures();
-
-    done();
-});
-
-//every day check the api for new fixtures and update any existing ones to check for updates.
-agenda.every('day', 'check for updates to existing fixtures');
+//agenda.define('score fixture predictors', function (job, done) {
+//    //retrieve data from parameters
+//    var data = job.attrs.data;
+//
+//    var fixture = data.fixture;
+//
+//    //invoke the private function to retrieve users who made predictions on this fixture, and give them scores
+//    //fixture should be being passed in as JSON, no need to parse.
+//        _getFixtureResult(fixture, function (fixture, done){
+//
+//        //invoke private function to send out notification to user
+//        //get all of the users who made a prediction for this fixture
+//        var message = vsprintf("They think it's all over, it is now! The match between %s and %s is finished! Open Yes! Get In! to see how well you did!",
+//            [data.fixture.homeTeam, data.fixture.awayTeam]);
+//
+//        _sendPushNotification(data.fixture, message, done);
+//    });
+//});
+//
+//agenda.define('kick-off notification', function (job, done) {
+//    //retrieve data from parameters
+//    var data = job.attrs.data;
+//
+//    //invoke private function to send out notification to user
+//    //get all of the users who made a prediction for this fixture
+//    var message = vsprintf("The match between %s and %s is about to kick off! Get your predictions in now!",
+//        [data.fixture.homeTeam, data.fixture.awayTeam]);
+//
+//    _sendPushNotification(data.fixture, message, done);
+//});
+//
+//agenda.define('pre-match notification', function (job, done) {
+//    //retrieve data from parameters
+//    var data = job.attrs.data;
+//
+//    //invoke private function to send out notification to user
+//    //get all of the users who made a prediction for this fixture
+//    var message = vsprintf("The match between %s and %s kicks off in an hour! Get your predictions in early for more points!",
+//        [data.fixture.homeTeam, data.fixture.awayTeam]);
+//
+//    _sendPushNotification(data.fixture, message, done);
+//});
+//
+//agenda.define('half-time notification', function (job, done) {
+//    //retrieve data from parameters
+//    var data = job.attrs.data;
+//    var fixture = data.fixture;
+//
+//    //Get the current result of the match to be passed to the app, update the fixture
+//    _getHalfTimeFixtureResult(fixture, function (fixture, done){
+//
+//        //invoke private function to send out notification to user
+//        //get all of the users who made a prediction for this fixture
+//        var message = vsprintf("%s vs $s half time cuppa! Feeling confident, or need to update your predictions?" +
+//            "Current results are %n so it's looking like it's gonna be a %s!",
+//            [fixture.homeTeam,
+//                fixture.awayTeam,
+//                fixture.fixHalfTimeResult.fixScore,
+//                predictionMap[fixture.fixHalfTimeResult.fixResult]
+//            ]
+//        );
+//
+//        _sendPushNotification(data.fixture, message, done);
+//    });
+//});
+//
+////the scheduled job to check for new and updated fixtures every day
+//agenda.define('check for updates to existing fixtures', function (job, done) {
+//    //retrieve data from parameters
+//    var data = job.attrs.data;
+//
+//    //call function to check for any new fixtures and update the existing ones
+//    //_compareAndUpdateFixtures();
+//    _schduleTasksForUpdatedFixtures();
+//    _clearUnneededJobs();
+//
+//    done();
+//});
+//
+////every day check the api for new fixtures and update any existing ones to check for updates.
+//agenda.every('day', 'check for updates to existing fixtures');
 
 exports.getFixtures = function (req, res) {
     Fixture.find({}, function (err, results) {
@@ -315,7 +318,240 @@ exports.clearRound = function () {
     });
 };
 
-//API TESTING FUNCTIONS - todo: DELETE ON RELEASE
+exports.scorePredictingUsersForFixture = function(req,res){
+    //get password, if wrong exit
+    var password = req.params.admin_password;
+
+    //get fixture id
+    var fixture_id = mongoose.Types.ObjectId(req.params.fixture_id);
+
+    //get game result
+    var result = req.params.fixture_result;
+
+    if (password != 'roC5arv1Av3oK3eAng0Aj9Teaw6J'){
+        console.log("Incorrect password supplied, please use proper admin password.");
+        res.jsonp(402);
+    } else if ((result < 1) || (result > 3)){
+        console.log("Not a valid result for games.");
+        res.jsonp(503);
+    } else {
+
+        //find the fixture
+        Fixture.findOne({"_id" : fixture_id}, function(error, foundFixture){
+            if(error){
+                console.log("Error when admin update tried to find fixture");
+                res.jsonp(503);
+            } else if (foundFixture == null) {
+                console.log("Error when admin update: Could not find fixture with specified id");
+                res.jsonp(404);
+            } else {
+                console.log("Now assigning the result to the fixture.");
+
+                foundFixture.fixResult.fixResult = result;
+
+                //Now save the changes that have been made to the user
+                foundFixture.save(function(error){
+                    console.log("Result successfully assigned to the fixture");
+                    console.log("Now scoring any users who made predictions");
+
+                    //Now invoke the user scoring
+                    _scheduleScorePredictingUsers(foundFixture);
+
+                    //IN PARALLEL send out push notification to tell users HOW MUCH they will be scoring!
+                    _sendFixtureFinishedPushNotification(foundFixture);
+                });
+
+                res.jsonp(200);
+            }
+        });
+    }
+};
+
+function _sendFixtureFinishedPushNotification(fixture) {
+    User.find({'predictions.fixture': fixture._id}, function (error, users) {
+        //for each of these user's and each of their devices, send out a push notification
+        if (error) {
+            console.log("Error trying to send push notifications, when retrieving users: " + error);
+        } else if (users == null) {
+            console.log("No users were found to have made predictions for the given fixture.");
+        } else {
+            //console.log("Now attempting to send a push notification.");
+            //console.log("Iterating over each user.");
+
+            underscore.each(users, function (user) {
+                //make the http post request setting all of the appropriate settings
+
+                //find the prediction that was made for this fixture DOESN'T WORK
+                //var thisFixturePrediction = underscore.findWhere(user.predictions, {fixture: fixture._id});
+
+                var thisFixturePrediction = null;
+                console.log("Now finding the corresponding prediction in current user with fixture id of fixture just finished");
+                for (var i = 0; i < user.predictions.length; i++){
+
+                    console.log("Inspecting prediction: " + JSON.stringify(user.predictions[i]));
+
+                    if (user.predictions[i].fixture = fixture._id){
+                        console.log("User prediction for just finished fixture found!");
+
+                        thisFixturePrediction = user.predictions[i];
+
+                        var userPrediction = predictionMap[thisFixturePrediction.prediction];
+
+                        //Variable to check if the user is correct or incorrect
+                        var userOutcome;
+
+                        //figure out if the user was correct or not!
+                        if (userPrediction == fixture.fixResult.fixResult){
+                            userOutcome = 'correct';
+                        } else {
+                            userOutcome = 'incorrect';
+                        }
+
+                        var outcomeMessage = '';
+
+                        if (userOutcome == 'correct'){
+                            outcomeMessage = 'Yes! Get In! You were correct! Enjoy your ' + thisFixturePrediction.predictValue.correctPoints + ' points!';
+                        } else if (userOutcome == 'incorrect'){
+                            outcomeMessage = 'Gutted! You were wrong! You\'ve lost ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Win them back!';
+                        }
+
+                        //Append user prediction to the message.
+                        var predictionMessage = vsprintf('They think it\'s all over, it is now! The whistle\'s blown on the %s vs. %s match! \n You predicted a %s',
+                            [fixture.homeTeam, fixture.awayTeam, userPrediction]);
+
+                        predictionMessage.concat(outcomeMessage);
+
+                        // Build the post string from an object
+                        var post_data = JSON.stringify({
+                            tokens: user.userDeviceTokens,
+                            notification: {
+                                alert: predictionMessage,
+                                ios: {
+                                    badge: 1,
+                                    sound: "ping.aiff",
+                                    payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                                },
+                                android: {
+                                    payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                                }
+                            }
+                        });
+                        console.log('Seding post body: ' + post_data);
+
+                        // An object of options to indicate where to post to
+                        var post_options = {
+                            host: 'push.ionic.io',
+                            //port: '80',
+                            path: '/api/v1/push',
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Ionic-Application-Id': '17ad87a3',
+                                'Authorization': 'Basic ' + new Buffer('d0a862e5f4f2633898602f8be332e55557a1d62f83b8d591' + ':' + '').toString('base64')
+                            }
+                        };
+
+                        console.log("Attempting to send the post request");
+                        // Set up the request
+                        var post_req = https.request(post_options, function (res) {
+                            res.setEncoding('utf8');
+                            res.on('data', function (chunk) {
+                                console.log('Response: ' + chunk);
+                            });
+                        });
+
+                        // post the data
+                        post_req.write(post_data);
+                        post_req.end();
+
+                        //exit this loop and look at next user as users can only have one prediction per fixture!
+                        break;
+                    }
+                }
+            });
+
+            //done(); //fire event to tell agenda job that this job has finished running
+        }
+    });
+}
+
+
+function _sendPushNotification(fixture, message) {
+    User.find({'predictions.fixture': fixture._id}, function (error, users) {
+        //for each of these user's and each of their devices, send out a push notification
+        if (error) {
+            console.log("Error trying to send push notifications, when retrieving users: " + error);
+        } else if (users == null) {
+            console.log("No users were found to have made predictions for the given fixture.");
+        } else {
+            //console.log("Now attempting to send a push notification.");
+            //console.log("Iterating over each user.");
+
+            underscore.each(users, function (user) {
+                //make the http post request setting all of the appropriate settings
+
+                //find the prediction that was made for this fixture
+                var thisFixturePrediction = underscore.findWhere(user.predictions, {fixture: fixture._id});
+                var userPrediction = predictionMap[thisFixturePrediction.prediction];
+
+                //Append user prediction to the message.
+                var predictionMessage = vsprintf(' You predicted a %s during %s and stand to win %n points if you\'re right, or lose %n points if you\'re wrong!',
+                    [userPrediction, thisFixturePrediction.predictValue.correctPoints, thisFixturePrediction.predictValue.incorrectPoints]);
+
+                message.concat(predictionMessage);
+
+
+                // Build the post string from an object
+                var post_data = JSON.stringify({
+                    tokens: user.userDeviceTokens,
+                    notification: {
+                        alert: message,
+                        ios: {
+                            badge: 1,
+                            sound: "ping.aiff",
+                            payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                        },
+                        android: {
+                            payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                        }
+                    }
+                });
+                console.log('Seding post body: ' + post_data);
+
+                // An object of options to indicate where to post to
+                var post_options = {
+                    host: 'push.ionic.io',
+                    //port: '80',
+                    path: '/api/v1/push',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Ionic-Application-Id': '17ad87a3',
+                        'Authorization': 'Basic ' + new Buffer('d0a862e5f4f2633898602f8be332e55557a1d62f83b8d591' + ':' + '').toString('base64')
+                    }
+                };
+
+                console.log("Attempting to send the post request");
+                // Set up the request
+                var post_req = https.request(post_options, function (res) {
+                    res.setEncoding('utf8');
+                    res.on('data', function (chunk) {
+                        console.log('Response: ' + chunk);
+                    });
+                });
+
+                // post the data
+                post_req.write(post_data);
+                post_req.end();
+            });
+
+            done(); //fire event to tell agenda job that this job has finished running
+        }
+    });
+}
+
+
+//API TESTING FUNCTIONS
 exports.testGetResultThenScore = function (req, res) {
 
     //now set the the mongo id of this fixture
@@ -401,15 +637,21 @@ exports.testScoringUsers = function(req, res) {
 };
 
 //this must come after examples, I think
-exports.dummyData = function (req, res) {
-    Fixture.create(examples,
-        function (err) {
-            if (err)
-                return console.log(err);
-            return res.jsonp(202);
-        }
-    );
-};
+//exports.dummyData = function (req, res) {
+//    Fixture.create(examples,
+//        function (err) {
+//            if (err)
+//                return console.log(err);
+//            return res.jsonp(202);
+//        }
+//    );
+//};
+
+//exports.callScheduler = function(req, res) {
+//    _schduleTasksForUpdatedFixtures();
+//    //_clearUnneededJobs()
+//    return res.jsonp(200);
+//};
 
 //PRIVATE FUNCTIONS
 
@@ -1314,8 +1556,8 @@ function _scheduleScorePredictingUsers(fixture, callback) {
             console.log("Error finding users who made predicitons: " + error);
         } else {
             //for testing
-            console.log("The number of returned users is: " + users.length);
-            console.log("The users returned are: " + JSON.stringify(users));
+            console.log("The number of predicting returned users is: " + users.length);
+            //console.log("The users returned are: " + JSON.stringify(users));
 
             //invokes the score adder function passing in all users who are to be scored, the fixture
             _scoreAdder(0, users, fixture, function () {
@@ -1333,8 +1575,8 @@ function _scheduleScorePredictingUsers(fixture, callback) {
             return
         } else {
             //for testing
-            console.log("The number of returned users is: " + users.length);
-            console.log("The users returned are: " + JSON.stringify(users));
+            console.log("The number of non-predicting returned users is: " + users.length);
+            //console.log("The users returned are: " + JSON.stringify(users));
 
             //invokes the score adder function passing in all users who are to be scored, and all fixtures
             _scoreReducer(0, users, fixture, function () {
@@ -1355,7 +1597,7 @@ function _scoreAdder(i, users, fixture, callback) {
         //get the current value of the user's score for season and round
         var seasonScore = users[i].overallSeasonScore;
         var scoreChanged = false;
-        console.log("The overall season score for this user is: %n", seasonScore);
+        console.log("The overall season score for this user is: ", seasonScore);
 
         var roundScores = users[i].roundScores;
         console.log("The round of the fixture is: " + fixture.round);
@@ -1488,123 +1730,190 @@ function _getMatchResult(homeTeamResult, awayTeamResult) {
     return localFixResult;
 }
 
-function _sendPushNotification(fixture, message) {
-    User.find({'predictions.fixture': fixture._id}, function (error, users) {
-        //for each of these user's and each of their devices, send out a push notification
-        if (error) {
-            console.log("Error trying to send push notifications, when retrieving users: " + error);
-        } else if (users == null) {
-            console.log("No users were found to have made predictions for the given fixture.");
-        } else {
-            //console.log("Now attempting to send a push notification.");
-            //console.log("Iterating over each user.");
-
-            underscore.each(users, function (user) {
-                //make the http post request setting all of the appropriate settings
-
-                //find the prediction that was made for this fixture
-                var thisFixturePrediction = underscore.findWhere(user.predictions, {fixture: fixture._id});
-                var userPrediction = predictionMap[thisFixturePrediction.prediction];
-
-                //Append user prediction to the message.
-                var predictionMessage = vsprintf(' You predicted a %s during %s and stand to win %n points if you\'re right, or lose %n points if you\'re wrong!',
-                    [userPrediction, thisFixturePrediction.predictValue.correctPoints, thisFixturePrediction.predictValue.incorrectPoints]);
-
-                message.concat(predictionMessage);
-
-
-                // Build the post string from an object
-                var post_data = JSON.stringify({
-                    tokens: user.userDeviceTokens,
-                    notification: {
-                        alert: message,
-                        ios: {
-                            badge: 1,
-                            sound: "ping.aiff",
-                            payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
-                        },
-                        android: {
-                            payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
-                        }
-                    }
-                });
-                console.log('Seding post body: ' + post_data);
-
-                // An object of options to indicate where to post to
-                var post_options = {
-                    host: 'push.ionic.io',
-                    //port: '80',
-                    path: '/api/v1/push',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Ionic-Application-Id': '17ad87a3',
-                        'Authorization': 'Basic ' + new Buffer('d0a862e5f4f2633898602f8be332e55557a1d62f83b8d591' + ':' + '').toString('base64')
-                    }
-                };
-
-                console.log("Attemping to send the post request");
-                // Set up the request
-                var post_req = https.request(post_options, function (res) {
-                    res.setEncoding('utf8');
-                    res.on('data', function (chunk) {
-                        console.log('Response: ' + chunk);
-                    });
-                });
-
-                // post the data
-                post_req.write(post_data);
-                post_req.end();
-            });
-
-            done(); //fire event to tell agenda job that this job has finished running
-        }
-    });
-}
-
 function _scheduleFixtureActions(i, fixtures, callback) {
     if (i < fixtures.length) {
         var fixture = fixtures[i];
-        //console.log("Scheduling actions for fixture: " + fixture._id);
+        console.log("Scheduling actions for fixture: " + fixture._id);
         console.log("i = " + i);
 
         var hourBeforeKickOff = moment(fixture.kickOff);
         hourBeforeKickOff.subtract(1, 'hour');
 
-        //reschedule the job(s) to score the fixture at it's new finishing time
-        agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-        agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-        agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-        agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+        //try and find a corresponding agenda job based on kick off time of fixture.
+        console.log("Now checking to see if there are jobs scheduled for this fixture.");
+        agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
+
+            console.log("Agenda jobs are: " + JSON.stringify(jobs));
+
+            if (jobs.length == 0){
+                //then need to schedule jobs for this fixture
+
+                console.log("there were no jobs scheduled for this fixture, scheduling now");
+
+                var hourBeforeKickOff = moment(fixture.kickOff);
+                hourBeforeKickOff.subtract(1, 'hour');
+
+                //reschedule the job(s) to score the fixture at it's new finishing time
+                agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+                agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+                agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+
+                console.log("All jobs scheduled for fixture");
+
+                var stack = new Error().stack;
+                console.log("STACK: " + stack);
+            }
+        });
 
         //process.nextTick(_scheduleFixtureActions(i + 1, fixtures));
-        //if( i % 500 === 0 ) {
-        setTimeout( function() {
-            _scheduleFixtureActions(i + 1, fixtures, callback);
-        }, 1);
+        //if( i % 1000 === 0 ) {
+            setTimeout(
+            function() {
+
+                var stack = new Error().stack;
+                console.log("\n \nTIMEOUT STACK: " + stack);
+
+                _scheduleFixtureActions(i + 1, fixtures, callback);
+            }, 1000
+            );
         //} else {
         //    _scheduleFixtureActions(i + 1, fixtures, callback);
         //}
+
     } else {
         console.log('Finished adding fixtures');
         callback();
     }
 }
 
-function _scheduleFixtureActions(fixture) {
+//function _scheduleFixtureActions(fixture) {
+//
+//    var deferred = Q.defer();
+//
+//    //console.log("Scheduling actions for fixture: " + fixture._id);
+//
+//    var hourBeforeKickOff = moment(fixture.kickOff);
+//    hourBeforeKickOff.subtract(1, 'hour');
+//
+//    //reschedule the job(s) to score the fixture at it's new finishing time
+//    agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+//    agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+//    agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+//    agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+//
+//    return deferred.promise;
+//}
 
-        var deferred = Q.defer();
+function _scheduleActionsIfNotAlready(fixture) {
+    console.log('\n \n SINGULAR SCHEDULER');
 
-        //console.log("Scheduling actions for fixture: " + fixture._id);
+    var fixtureKickOff = moment(fixture.kickOff);
+    console.log("The moment.js fixture kick off of current fixture is: " + fixtureKickOff);
 
-        var hourBeforeKickOff = moment(fixture.kickOff);
-        hourBeforeKickOff.subtract(1, 'hour');
+    //try and find a corresponding agenda job based on kick off time of fixture.
+    console.log("Now checking to see if there are jobs scheduled for this fixture.");
+    agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
 
-        //reschedule the job(s) to score the fixture at it's new finishing time
-        agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-        agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-        agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-        agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+        console.log("Agenda jobs are: " + JSON.stringify(jobs));
 
-        return deferred.promise;
+        if (jobs.length == 0){
+            //then need to schedule jobs for this fixture
+
+            console.log("there were no jobs scheduled for this fixture, scheduling now");
+
+            var hourBeforeKickOff = moment(fixture.kickOff);
+            hourBeforeKickOff.subtract(1, 'hour');
+
+            //reschedule the job(s) to score the fixture at it's new finishing time
+            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+
+            //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+            //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+            //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+
+            //console.log("All jobs scheduled for fixture");
+        }
+    });
+
+    return;
 }
+
+function _schduleTasksForUpdatedFixtures() {
+    //retrieve all fixtures from datavase
+    Fixture.find({}, function(error, existingFixtures){
+        if (error){
+            console.log("ERROR WHEN RETRIEVING FIXTURES");
+            return
+        } else if (existingFixtures == null) {
+            console.log("NO FIXTURES FOUND");
+            return
+        } else {
+
+            //console.log("The existing fixtures retrieved are: " + JSON.stringify(existingFixtures));
+
+            //for each fixture, check that there exist for them agenda jobs
+
+            //recursively loop over fixtures
+            console.log("\n\nNOW BEGINNING RECURSION \n");
+
+            var stack = new Error().stack;
+            console.log("STACK: " + stack);
+
+            _scheduleActionsIfNotAlready(existingFixtures[0]);
+
+            //_scheduleFixtureActions(0, existingFixtures, function(){
+            //    console.log("All fixtures updated and new agenda jobs created.");
+            //
+            //    return
+            //});
+        }
+    });
+};
+
+function _clearUnneededJobs() {
+    agenda.jobs({}, function(err, jobs) {
+        // Work with jobs (see below)
+        console.log(JSON.stringify(jobs));
+
+        for (var i = 0; i < jobs.length; i++) {
+
+            console.log("\n\nNow deciding wheter or not to cancel job:");
+
+            console.log("\n" + JSON.stringify(jobs[i]));
+
+            console.log("\n\nJOB NAME IS: " + jobs[i][1]);
+
+            if (jobs[i].name == 'score fixture predictors' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'pre-match notification' || jobs[i].name == 'half-time notification' ){
+
+                //try and find the corresponding fixture, if none exists, delete the job
+                //todo: query the fixture id
+
+                console.log("Attempting to cast job fixture data id to id object: " + jobs[i].data.fixture._id);
+                var fixtureId = mongoose.Types.ObjectId(jobs[i].data.fixture._id);
+                Fixture.findOne({'_id' : fixtureId}, function(error, foundFixture){
+                    if (error) {
+                        console.log("error finding fixture associated with job");
+                    }
+                    else if (foundFixture == null) {
+                        console.log("No fixture found associated with this job, cancelling job");
+
+                        //todo: cancel the job here
+                        console.log("Attempting to cancel the job with id : " + jobs[i]._id);
+
+                        agenda.cancel({"_id" : mongoskin.helper.toObjectId(jobs[i]._id)}, function (error, numRemoved) {if (numRemoved != 1) {
+                            console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+                        }
+                            console.log("Cancelled the job ");
+                        });
+                    }
+                });
+
+            } else {
+                console.log("Not interested in this job");
+            }
+        }
+    });
+};
+
+//todo: function to take password and fixture id and manually score it and give scores to users.

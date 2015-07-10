@@ -26,6 +26,8 @@ module.exports = function(app){
     app.post('/api/users/predictions/create/:user_id/:round', users.addPredictions); //protect
     //app.delete('/api/users/predictions/clear', users.clearPredictions); //protect
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
+    app.get('/api/users/devices/register/:user_id/:new_device_token', users.registerDeviceToken); //protect
+    app.get('/admin/manualresultset/:admin_password/:fixture_id/:fixture_result', fixtures.scorePredictingUsersForFixture); //protect via password;
 
     //below API functionalities are not user dependent (don't need to be JWT protected)
     //DON'T NEED TO BE LOGGED IN TO ACCESS THESE

@@ -79,6 +79,54 @@ function _getCurrentRoundNo (today) {
     }
 }
 
+exports.registerDeviceToken = function(req,res){
+
+    //extract user id
+    var user_id = req.params.user_id;
+
+    //extract token
+    var new_device_token = req.params.new_device_token;
+
+
+    //add token to user
+    User.findOne({'user_id' : user_id},
+        function(error, foundUser) {
+            if (error) {
+                console.log('Error updating user device tokens, when attempting to retrieve user: ' + error);
+                return res.jsonp(503);
+            } else if (foundUser == null) {
+                console.log('Error retrieving user, could not find user with specified user_id');
+                return res.jsonp(404);
+            } else {
+
+                //If user does not have device token, register it (push into array)
+
+                //check user does not already have token
+                if (!underscore.contains(foundUser.userDeviceTokens, new_device_token)) {
+                    //if token does not exist, add it and return
+                    foundUser.userDeviceTokens.push(new_device_token);
+
+                    foundUser.save(
+                        function (error) {
+                            if (error) {
+                                console.log("Error when saving changes to the user: " + error);
+                                return res.jsonp(503);
+                            } else {
+                                console.log("Changes made to the user's device tokens were saved successfully.");
+                                return res.jsonp(200);
+                            }
+                        }
+                    );
+                } else {
+                    console.log("User already has this device token");
+                    return res.jsonp(502);
+                }
+                ;
+            }
+        }
+    );
+};
+
 exports.userDeviceTokenManager = function(req, res) {
     //Get the POST body
     console.log('JSON Post body received from the webhook Ionic Push API is: ' + JSON.stringify(req.body));
@@ -88,6 +136,7 @@ exports.userDeviceTokenManager = function(req, res) {
     //if the data recieved if registering a new user
     if (userDeviceDetails.user_id) {
         //Now find the user which corresponds to the stated devices
+        console.log("Now trying to find user: " + userDeviceDetails.user_id);
         User.findOne({'user_id' : userDeviceDetails.user_id}, function(error, foundUser){
             if (error) {
                 console.log('Error updating user device tokens, when attempting to retrieve user: ' + error);
@@ -639,7 +688,7 @@ function _allocatePoints(fixtureDate, predictionDate) {
             score.predictWindow = "During Season"
         } else if ((fixtureDate.diff(predictionDate, 'days') <= 3) && (fixtureDate.diff(predictionDate, 'minutes') > 60)) {
             console.log("round-prediction: The prediction was made within 3 days of the game.");
-            score.correctPoints = 12;
+            score.correctPoints = 9;
             score.incorrectPoints = -3;
             score.predictWindow = "Round Prediction"
         } else if ((fixtureDate.diff(predictionDate, 'hours') <= 1) && (predictionDate.isBefore(fixtureDate))) {

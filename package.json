@@ -1,47 +1,50 @@
 {
-    "name": "YesGetIn",
-    "version": "1.0.0",
-    "description": "A new way to play fantasy football.",
-    "keywords": [
-        "OpenShift",
-        "Node.js",
-        "application",
-        "openshift"
-    ],
-    "author": {
-        "name": "***REMOVED*** ***REMOVED***",
-        "email": "***REMOVED***@***REMOVED***.com",
-        "url": "http://www.***REMOVED***.com/"
-    },
-    "homepage": "http://www.yesgetin.com/",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/openshift/origin-server"
-    },
-    "engines": {
-        "node": ">= 0.6.0",
-        "npm": ">= 1.0.0"
-    },
-    "dependencies": {
-        "bcryptjs": "*",
-        "body-parser": "*",
-        "connect": "*",
-        "cors": "*",
-        "express": "*",
-        "express-jwt": "*",
-        "mongoose": "*",
-        "underscore": "*",
-        "agenda": "*",
-        "moment": "*",
-        "moment-range" : "*",
-        "q": "*",
-        "sprintf-js" : "*"
-    },
-    "devDependencies": {
-        "node-jasmine": "*",
-        "require": "*"
-    },
-    "bundleDependencies": [],
-    "private": true,
-    "main": "server.js"
+  "name": "YesGetIn",
+  "version": "1.0.0",
+  "description": "A new way to play fantasy football.",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "author": {
+    "name": "***REMOVED*** ***REMOVED***",
+    "email": "***REMOVED***@***REMOVED***.com",
+    "url": "http://www.***REMOVED***.com/"
+  },
+  "homepage": "http://www.yesgetin.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openshift/origin-server"
+  },
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": {
+    "agenda": "*",
+    "agenda-ui": "0.0.7",
+    "bcryptjs": "*",
+    "body-parser": "*",
+    "connect": "*",
+    "cors": "*",
+    "express": "*",
+    "express-jwt": "*",
+    "moment": "*",
+    "moment-range": "*",
+    "mongodb": "^1.4.38",
+    "mongoose": "*",
+    "mongoskin": "^1.4.13",
+    "q": "*",
+    "sprintf-js": "*",
+    "underscore": "*"
+  },
+  "devDependencies": {
+    "node-jasmine": "*",
+    "require": "*"
+  },
+  "bundleDependencies": [],
+  "private": true,
+  "main": "server.js"
 }

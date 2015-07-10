@@ -628,12 +628,6 @@ exports.changeLeagueViceCaptain = function(req, res) {
     });
 };
 
-//todo: implement mechanisms for setting and changing the league owners or "captains", admins ("vice captains") and members
-
-function _deleteMembersFromLeague(i, membersToDelete, callback) {
-
-}
-
 //RECURSIVE ASYNC LOOP to get the member details that are up to date for a given private league
 function _fetchLeagueDetails(i, privateLeagues, callback) {
     if (i < privateLeagues.length) {

@@ -1,9 +1,8 @@
 var mongoose = require('mongoose'),
-    mongoskin = require('mongoskin'),
     http = require('http'),
     https = require('https'),
     users = require('./users'),
-    Agenda = require('agenda'),
+    //Agenda = require('agenda'),
     moment = require('moment'),
     async = require('async'),
     fs = require('fs'),
@@ -35,7 +34,7 @@ if (!process.env.OPENSHIFT_MONGODB_DB_PASSWORD) {
     console.log("RUNNING SERVER ON OPENSHIFT, MONGO CONNECTION STRING IS: " + mongoConnection);
 }
 
-agenda = new Agenda({db: {address: mongoConnection}}), //instantiate agenda;
+//agenda = new Agenda({db: {address: mongoConnection}}), //instantiate agenda;
 
 //fire up the scheduler
 //    agenda.start();
@@ -367,6 +366,7 @@ exports.scorePredictingUsersForFixture = function(req,res){
     }
 };
 
+//after game scored sends pushed to predicting users
 function _sendFixtureFinishedPushNotification(fixture) {
     User.find({'predictions.fixture': fixture._id}, function (error, users) {
         //for each of these user's and each of their devices, send out a push notification
@@ -552,89 +552,89 @@ function _sendPushNotification(fixture, message) {
 
 
 //API TESTING FUNCTIONS
-exports.testGetResultThenScore = function (req, res) {
+//exports.testGetResultThenScore = function (req, res) {
+//
+//    //now set the the mongo id of this fixture
+//    //to test whole thing make this a fixture which users have predicted - so they'll get a score
+//    var id = mongoose.Types.ObjectId("55785f4e38bd12511018145d");
+//    console.log("Fake document id is: " + id);
+//
+//    var kickOff = moment();
+//    kickOff.add(1, 'minute');
+//    var halfTime = moment(kickOff);
+//    halfTime.add(45, 'minutes');
+//    var fullTime = moment(kickOff);
+//    fullTime.add(90, 'minutes');
+//    var fixDate = moment('02.05.2015', 'DD.MM.YYYY');
+//
+//    var fixture = {
+//        _id: id,
+//        homeTeam: "Aston Villa",
+//        awayTeam: "Everton",
+//        round: 35,
+//        kickOff: kickOff.toDate(),
+//        halfTime: halfTime.toDate(),
+//        fullTime: fullTime.toDate(),
+//        fixDate: fixDate.toDate(),
+//        awayTeamForm: [
+//
+//        ],
+//        homeTeamForm: [
+//
+//        ],
+//        __v: 0
+//    };
+//
+//    //console.log("The string value of the fixDate is: " + _formattedDate(fixture.fixDate));
+//
+//    //now invoke the function and pass in this fixture object
+//    //pass object in as json
+//    //TODO: evaulate if the callback is necessary?
+//    //TODO: SCHEDULE THIS TO GET RUN FOR EACH FIXTURE, AT THE END OF THE MATCH...
+//    _getFixtureResult(fixture, function () {
+//        res.jsonp('THE USERS WHO PREDICTED FOR THIS FIXTURE WERE GIVEN SCORES BASED OFF OF LIVE RESULTS!!!')
+//    });
+//};
 
-    //now set the the mongo id of this fixture
-    //to test whole thing make this a fixture which users have predicted - so they'll get a score
-    var id = mongoose.Types.ObjectId("55785f4e38bd12511018145d");
-    console.log("Fake document id is: " + id);
-
-    var kickOff = moment();
-    kickOff.add(1, 'minute');
-    var halfTime = moment(kickOff);
-    halfTime.add(45, 'minutes');
-    var fullTime = moment(kickOff);
-    fullTime.add(90, 'minutes');
-    var fixDate = moment('02.05.2015', 'DD.MM.YYYY');
-
-    var fixture = {
-        _id: id,
-        homeTeam: "Aston Villa",
-        awayTeam: "Everton",
-        round: 35,
-        kickOff: kickOff.toDate(),
-        halfTime: halfTime.toDate(),
-        fullTime: fullTime.toDate(),
-        fixDate: fixDate.toDate(),
-        awayTeamForm: [
-
-        ],
-        homeTeamForm: [
-
-        ],
-        __v: 0
-    };
-
-    //console.log("The string value of the fixDate is: " + _formattedDate(fixture.fixDate));
-
-    //now invoke the function and pass in this fixture object
-    //pass object in as json
-    //TODO: evaulate if the callback is necessary?
-    //TODO: SCHEDULE THIS TO GET RUN FOR EACH FIXTURE, AT THE END OF THE MATCH...
-    _getFixtureResult(fixture, function () {
-        res.jsonp('THE USERS WHO PREDICTED FOR THIS FIXTURE WERE GIVEN SCORES BASED OFF OF LIVE RESULTS!!!')
-    });
-};
-
-exports.testScoringUsers = function(req, res) {
-
-    var id = mongoose.Types.ObjectId("55785f4e38bd12511018145d");
-
-    var kickOff = moment();
-    kickOff.add(1, 'minute');
-    var halfTime = moment(kickOff);
-    halfTime.add(45, 'minutes');
-    var fullTime = moment(kickOff);
-    fullTime.add(90, 'minutes');
-    var fixDate = moment('02.05.2015', 'DD.MM.YYYY');
-
-    //make fake fixture and set results
-    var fixture = {
-        _id: id,
-        homeTeam: "Aston Villa",
-        awayTeam: "Everton",
-        round: 35,
-        kickOff: kickOff.toDate(),
-        halfTime: halfTime.toDate(),
-        fullTime: fullTime.toDate(),
-        fixDate: fixDate.toDate(),
-        fixResult: {
-            fixResult: 1,
-            fixScore: "[3-0]"
-        },
-        awayTeamForm: [
-
-        ],
-        homeTeamForm: [
-
-        ],
-        __v: 0
-    };
-
-    _scheduleScorePredictingUsers(fixture, function(){
-        return res.jsonp(200);
-    });
-};
+//exports.testScoringUsers = function(req, res) {
+//
+//    var id = mongoose.Types.ObjectId("55785f4e38bd12511018145d");
+//
+//    var kickOff = moment();
+//    kickOff.add(1, 'minute');
+//    var halfTime = moment(kickOff);
+//    halfTime.add(45, 'minutes');
+//    var fullTime = moment(kickOff);
+//    fullTime.add(90, 'minutes');
+//    var fixDate = moment('02.05.2015', 'DD.MM.YYYY');
+//
+//    //make fake fixture and set results
+//    var fixture = {
+//        _id: id,
+//        homeTeam: "Aston Villa",
+//        awayTeam: "Everton",
+//        round: 35,
+//        kickOff: kickOff.toDate(),
+//        halfTime: halfTime.toDate(),
+//        fullTime: fullTime.toDate(),
+//        fixDate: fixDate.toDate(),
+//        fixResult: {
+//            fixResult: 1,
+//            fixScore: "[3-0]"
+//        },
+//        awayTeamForm: [
+//
+//        ],
+//        homeTeamForm: [
+//
+//        ],
+//        __v: 0
+//    };
+//
+//    _scheduleScorePredictingUsers(fixture, function(){
+//        return res.jsonp(200);
+//    });
+//};
 
 //this must come after examples, I think
 //exports.dummyData = function (req, res) {
@@ -866,410 +866,410 @@ function _getFootballApiFixtures(fromDate, toDate, specificDate) {
 }
 
 //takes a list of fixtures from the api, parses them and adds them to the local database
-function _checkForProcessNewFixtures(fromDate) {
-
-    console.log("\nFUNCTION: CHECKING FOR NEW FIXTURES\n");
-
-    var deferred = Q.defer();
-    var fixturesToStore = [];
-    var seasonEnd = moment('24.05.2015', 'DD.MM.YYYY'); //todo: maybe pass this is as a parameter
-
-    //go and get any new fixtures from api
-    var getAnyNewFixs = _getFootballApiFixtures(fromDate);
-
-    //process any new fixtures into the database
-    getAnyNewFixs.then(function (seasonFixtures) {
-        //sort the results
-        seasonFixtures = _sortByMomentDate(seasonFixtures, 'match_formatted_date');
-        seasonFixtures.reverse(); //todo: replace this with sorting the properly (stop being lazy
-
-        console.log("Fixtures from server have now been sorted by date");
-
-        //loop over returned fixtures and parse into our format and store in db
-        var currentFixture = null; //todo: check if better to initialize to null?
-        var previousFixtureDate = seasonEnd;
-        var previousFixtureRound = 38;
-        var fixtureRound = 38;
-
-        //get fixtures from today until end of season...
-        for (var i = 0; i < seasonFixtures.length; i++) {
-
-            //console.log("Iteration of fixtures: " + i);
-            //for each fixture from the 3rd party api, extract relevant details, construct doc and save to db
-            currentFixture = seasonFixtures[i];
-
-            //make the returned fix date into a usable moment.js date
-            var thisFixtureDate = moment(currentFixture.match_formatted_date, "DD.MM.YYYY");
-            console.log("\nCurrent fixture date: " + thisFixtureDate.toString());
-
-            //using moment.js, find the difference in weeks between the last game and this one
-            //if there is a previous fixture (not the first fixture of season which goes in round 1)
-            //then work out which round this fixture belongs in
-            //assumes chain and order of fixtures. BE SURE TO SORT.
-            if (previousFixtureDate) {
-                //then work out this fixture's round based on the previous one
-
-                //find the monday which follows the previous fixture
-
-                //if the previous date is already a monday, this is the end of the previous fixtures' end
-                var previousTuesdayFound = false;
-                var previousTuesday;
-                var tempNextDay = moment(previousFixtureDate); //clone date properly, new object, not new pointer
-
-                //this loop should run until the monday after the previous fixture is found
-                //console.log("Now looping to find the Tuesday which follows the previous fixture, which was: " +
-                //previousFixtureDate.toString());
-
-                while (!previousTuesdayFound) {
-                    if (tempNextDay.day() == 2) { //if the date is a monday
-                        //console.log("The previous Tuesday to the previous fixture has been found to be: " +
-                        //tempNextDay.toString() + "\n Exiting while loop.");
-
-                        //assign this date as following monday (end of previous round) - CLONE OBJECT
-                        previousTuesday = moment(tempNextDay);
-
-                        //close the loop
-                        previousTuesdayFound = true;
-                    } else {
-                        //console.log("Day " + tempNextDay.day() + " was not a previous Tuesday, iterating")
-                        tempNextDay.subtract(1, 'day');
-                    }
-                }
-
-                //if current fixture is after this monday then place it in the next round else in same round
-                if (thisFixtureDate < previousTuesday) {
-                    //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
-                    fixtureRound = previousFixtureRound - 1; //todo: check if ++ would mute original
-                    //console.log("This fixture belongs in the previous round: " + fixtureRound);
-                } else {
-                    fixtureRound = previousFixtureRound;
-                    //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
-                    //console.log("This fixture belongs in the same round as the previous fixture: " + fixtureRound);
-                }
-            }
-
-            //console.log("This fixture belongs to gameweek/round: " + fixtureRound);
-
-            //todo: these are not being parsed properly
-            //parse match times for storage
-            var kickOffTime = moment(thisFixtureDate)
-
-            //parse this differently
-            console.log("Fixture match time: " + currentFixture.match_time);
-            console.log("Fixture match hour: " + currentFixture.match_time.substr(0, 2));
-            console.log("Fixture match minutes: " + currentFixture.match_time.substr(3, 4))
-            kickOffTime.hours(currentFixture.match_time.substr(0, 2)); //todo: think misusing substr, fix
-            kickOffTime.minutes(currentFixture.match_time.substr(3, 4));
-            console.log("The proposed kick off time is: " + kickOffTime.toString());
-
-            var halfTime = moment(kickOffTime);
-            halfTime.add(45, 'minutes');
-            console.log("This fixture have half time at: " + halfTime.toString());
-
-            var fullTime = moment(kickOffTime);
-            fullTime.add(90, 'minutes');
-            console.log("The fixture should end at: " + fullTime.toString());
-
-            //cast dates and times here first
-            var convertedDate = thisFixtureDate.toDate();
-            var kickOffSave = kickOffTime.toDate(); //check if mutable as others, if so delete variables
-            var halfTimeSave = halfTime.toDate();
-            var fullTimeSave = fullTime.toDate();
-
-            //extract the result and put into usable form
-            var tempAPIResult = currentFixture.match_ft_score;
-            //console.log("The result of the relelvant fixture from the football-api.com API is: " + tempAPIResult);
-
-            //todo: extract this out into a function as used in multiple places - Stay DRY!
-            var homeTeamResult = tempAPIResult.charAt(1);
-            var awayTeamResult = tempAPIResult.charAt(3);
-
-            var localFixResult = {fixResult: 0, fixScore: 0};
-
-            //Now process this result into a usable format for our server (1, 2 or 3)
-            //1 = home win, 2 = away win, 3 = draw
-            if (homeTeamResult > awayTeamResult) {
-                //then this was a home win
-                localFixResult.fixResult = 1;
-                //console.log("The match was a home win.");
-            } else if (homeTeamResult < awayTeamResult) {
-                //then this was an away win
-                localFixResult.fixResult = 2;
-                //console.log("The match was an away win.");
-            } else if (homeTeamResult == awayTeamResult) {
-                //then this was a draw
-                localFixResult.fixResult = 3;
-                //console.log("The match was a draw.");
-            }
-
-            //now construct new object to add
-            //todo: decalre new fixture above and then redeclare on each iteration for efficiency?
-            var newFixture = {
-                homeTeam: currentFixture.match_localteam_name,
-                homeTeamForm: [],
-                awayTeam: currentFixture.match_visitorteam_name,
-                awayTeamForm: [],
-                round: fixtureRound,
-                fixStadium: currentFixture.match_venue_beta,
-                fixDate: convertedDate,
-                fixResult: localFixResult, //for no current result
-                fixHalfTimeResult: {},
-                kickOff: kickOffSave,
-                halfTime: halfTimeSave,
-                fullTime: fullTimeSave
-            };
-
-            //console.log("The fixture being added to the database is: \n" + JSON.stringify(newFixture));
-
-            fixturesToStore.push(JSON.stringify(newFixture));
-
-            //Now move on to the next fixture
-
-            //Assign the previous fixture for the next iteration
-            previousFixtureDate = thisFixtureDate;
-            previousFixtureRound = fixtureRound;
-        }
-
-        //the new fixtures to get added to our database
-        fixturesToStore = "[" + fixturesToStore + "]";
-        //console.log("Fixtures about to be saved are: " + fixturesToStore);
-
-        fixturesToStore = JSON.parse(fixturesToStore);
-
-        //once the loop has run it's course and created the whole list of fixtures, save to db
-        //need to access the MongoDB driver directly as large dataset crashes .create mongoose method
-        Fixture.collection.insert(fixturesToStore, function (err, fixtures) {
-            if (err) {
-                console.log(err);
-                //reject the promise, no data to return
-                deferred.reject();
-            }
-
-            console.log("All of the new fixtures were saved to the database successfully!");
-
-            console.log("Now scheduling these fixtures to have their scores calculated upon completion");
-            //now iterate over each inserted fixture and for when finishing, to get results and tell users
-            for (var i = 0; i < fixturesToStore.length; i++) {
-                var fixture = fixturesToStore[i];
-
-                console.log("Scheduling to check results and score users for fixture:" + fixture.fullTime);
-
-                //todo: also schedule for before kick off and half time notifictions here
-                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
-            }
-
-            //fulfill the promise, no data to return
-            deferred.resolve();
-        });
-
-        return deferred.promise;
-    }, function (error) {
-
-        console.log("\n\t FN: CHECKING FOR NEW FIXS: \n\tPROMISE WAS REJECTED ");
-
-        //then reject the promise and return the error
-        deferred.reject(error);
-    });
-
-    //always return a promise, regardless
-    return deferred.promise;
-}
+//function _checkForProcessNewFixtures(fromDate) {
+//
+//    console.log("\nFUNCTION: CHECKING FOR NEW FIXTURES\n");
+//
+//    var deferred = Q.defer();
+//    var fixturesToStore = [];
+//    var seasonEnd = moment('24.05.2015', 'DD.MM.YYYY'); //todo: maybe pass this is as a parameter
+//
+//    //go and get any new fixtures from api
+//    var getAnyNewFixs = _getFootballApiFixtures(fromDate);
+//
+//    //process any new fixtures into the database
+//    getAnyNewFixs.then(function (seasonFixtures) {
+//        //sort the results
+//        seasonFixtures = _sortByMomentDate(seasonFixtures, 'match_formatted_date');
+//        seasonFixtures.reverse(); //todo: replace this with sorting the properly (stop being lazy
+//
+//        console.log("Fixtures from server have now been sorted by date");
+//
+//        //loop over returned fixtures and parse into our format and store in db
+//        var currentFixture = null; //todo: check if better to initialize to null?
+//        var previousFixtureDate = seasonEnd;
+//        var previousFixtureRound = 38;
+//        var fixtureRound = 38;
+//
+//        //get fixtures from today until end of season...
+//        for (var i = 0; i < seasonFixtures.length; i++) {
+//
+//            //console.log("Iteration of fixtures: " + i);
+//            //for each fixture from the 3rd party api, extract relevant details, construct doc and save to db
+//            currentFixture = seasonFixtures[i];
+//
+//            //make the returned fix date into a usable moment.js date
+//            var thisFixtureDate = moment(currentFixture.match_formatted_date, "DD.MM.YYYY");
+//            console.log("\nCurrent fixture date: " + thisFixtureDate.toString());
+//
+//            //using moment.js, find the difference in weeks between the last game and this one
+//            //if there is a previous fixture (not the first fixture of season which goes in round 1)
+//            //then work out which round this fixture belongs in
+//            //assumes chain and order of fixtures. BE SURE TO SORT.
+//            if (previousFixtureDate) {
+//                //then work out this fixture's round based on the previous one
+//
+//                //find the monday which follows the previous fixture
+//
+//                //if the previous date is already a monday, this is the end of the previous fixtures' end
+//                var previousTuesdayFound = false;
+//                var previousTuesday;
+//                var tempNextDay = moment(previousFixtureDate); //clone date properly, new object, not new pointer
+//
+//                //this loop should run until the monday after the previous fixture is found
+//                //console.log("Now looping to find the Tuesday which follows the previous fixture, which was: " +
+//                //previousFixtureDate.toString());
+//
+//                while (!previousTuesdayFound) {
+//                    if (tempNextDay.day() == 2) { //if the date is a monday
+//                        //console.log("The previous Tuesday to the previous fixture has been found to be: " +
+//                        //tempNextDay.toString() + "\n Exiting while loop.");
+//
+//                        //assign this date as following monday (end of previous round) - CLONE OBJECT
+//                        previousTuesday = moment(tempNextDay);
+//
+//                        //close the loop
+//                        previousTuesdayFound = true;
+//                    } else {
+//                        //console.log("Day " + tempNextDay.day() + " was not a previous Tuesday, iterating")
+//                        tempNextDay.subtract(1, 'day');
+//                    }
+//                }
+//
+//                //if current fixture is after this monday then place it in the next round else in same round
+//                if (thisFixtureDate < previousTuesday) {
+//                    //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+//                    fixtureRound = previousFixtureRound - 1; //todo: check if ++ would mute original
+//                    //console.log("This fixture belongs in the previous round: " + fixtureRound);
+//                } else {
+//                    fixtureRound = previousFixtureRound;
+//                    //console.log("The previous (descending so in time, next) fixture round is: " + previousFixtureRound);
+//                    //console.log("This fixture belongs in the same round as the previous fixture: " + fixtureRound);
+//                }
+//            }
+//
+//            //console.log("This fixture belongs to gameweek/round: " + fixtureRound);
+//
+//            //todo: these are not being parsed properly
+//            //parse match times for storage
+//            var kickOffTime = moment(thisFixtureDate)
+//
+//            //parse this differently
+//            console.log("Fixture match time: " + currentFixture.match_time);
+//            console.log("Fixture match hour: " + currentFixture.match_time.substr(0, 2));
+//            console.log("Fixture match minutes: " + currentFixture.match_time.substr(3, 4))
+//            kickOffTime.hours(currentFixture.match_time.substr(0, 2)); //todo: think misusing substr, fix
+//            kickOffTime.minutes(currentFixture.match_time.substr(3, 4));
+//            console.log("The proposed kick off time is: " + kickOffTime.toString());
+//
+//            var halfTime = moment(kickOffTime);
+//            halfTime.add(45, 'minutes');
+//            console.log("This fixture have half time at: " + halfTime.toString());
+//
+//            var fullTime = moment(kickOffTime);
+//            fullTime.add(90, 'minutes');
+//            console.log("The fixture should end at: " + fullTime.toString());
+//
+//            //cast dates and times here first
+//            var convertedDate = thisFixtureDate.toDate();
+//            var kickOffSave = kickOffTime.toDate(); //check if mutable as others, if so delete variables
+//            var halfTimeSave = halfTime.toDate();
+//            var fullTimeSave = fullTime.toDate();
+//
+//            //extract the result and put into usable form
+//            var tempAPIResult = currentFixture.match_ft_score;
+//            //console.log("The result of the relelvant fixture from the football-api.com API is: " + tempAPIResult);
+//
+//            //todo: extract this out into a function as used in multiple places - Stay DRY!
+//            var homeTeamResult = tempAPIResult.charAt(1);
+//            var awayTeamResult = tempAPIResult.charAt(3);
+//
+//            var localFixResult = {fixResult: 0, fixScore: 0};
+//
+//            //Now process this result into a usable format for our server (1, 2 or 3)
+//            //1 = home win, 2 = away win, 3 = draw
+//            if (homeTeamResult > awayTeamResult) {
+//                //then this was a home win
+//                localFixResult.fixResult = 1;
+//                //console.log("The match was a home win.");
+//            } else if (homeTeamResult < awayTeamResult) {
+//                //then this was an away win
+//                localFixResult.fixResult = 2;
+//                //console.log("The match was an away win.");
+//            } else if (homeTeamResult == awayTeamResult) {
+//                //then this was a draw
+//                localFixResult.fixResult = 3;
+//                //console.log("The match was a draw.");
+//            }
+//
+//            //now construct new object to add
+//            //todo: decalre new fixture above and then redeclare on each iteration for efficiency?
+//            var newFixture = {
+//                homeTeam: currentFixture.match_localteam_name,
+//                homeTeamForm: [],
+//                awayTeam: currentFixture.match_visitorteam_name,
+//                awayTeamForm: [],
+//                round: fixtureRound,
+//                fixStadium: currentFixture.match_venue_beta,
+//                fixDate: convertedDate,
+//                fixResult: localFixResult, //for no current result
+//                fixHalfTimeResult: {},
+//                kickOff: kickOffSave,
+//                halfTime: halfTimeSave,
+//                fullTime: fullTimeSave
+//            };
+//
+//            //console.log("The fixture being added to the database is: \n" + JSON.stringify(newFixture));
+//
+//            fixturesToStore.push(JSON.stringify(newFixture));
+//
+//            //Now move on to the next fixture
+//
+//            //Assign the previous fixture for the next iteration
+//            previousFixtureDate = thisFixtureDate;
+//            previousFixtureRound = fixtureRound;
+//        }
+//
+//        //the new fixtures to get added to our database
+//        fixturesToStore = "[" + fixturesToStore + "]";
+//        //console.log("Fixtures about to be saved are: " + fixturesToStore);
+//
+//        fixturesToStore = JSON.parse(fixturesToStore);
+//
+//        //once the loop has run it's course and created the whole list of fixtures, save to db
+//        //need to access the MongoDB driver directly as large dataset crashes .create mongoose method
+//        Fixture.collection.insert(fixturesToStore, function (err, fixtures) {
+//            if (err) {
+//                console.log(err);
+//                //reject the promise, no data to return
+//                deferred.reject();
+//            }
+//
+//            console.log("All of the new fixtures were saved to the database successfully!");
+//
+//            console.log("Now scheduling these fixtures to have their scores calculated upon completion");
+//            //now iterate over each inserted fixture and for when finishing, to get results and tell users
+//            for (var i = 0; i < fixturesToStore.length; i++) {
+//                var fixture = fixturesToStore[i];
+//
+//                console.log("Scheduling to check results and score users for fixture:" + fixture.fullTime);
+//
+//                //todo: also schedule for before kick off and half time notifictions here
+//                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+//            }
+//
+//            //fulfill the promise, no data to return
+//            deferred.resolve();
+//        });
+//
+//        return deferred.promise;
+//    }, function (error) {
+//
+//        console.log("\n\t FN: CHECKING FOR NEW FIXS: \n\tPROMISE WAS REJECTED ");
+//
+//        //then reject the promise and return the error
+//        deferred.reject(error);
+//    });
+//
+//    //always return a promise, regardless
+//    return deferred.promise;
+//}
 
 //function to check existing fixtures and live schedule, to update any changes to fixtures
 //todo: test this once new fixtures have been released!
-function _compareAndUpdateFixtures() {
-
-    console.log("\n FUNCTION: COMPARING AND UPDATING FIXTURES \n");
-
-    //get all fixtures from our db FROM NOW, - 45 MINUTES AGO
-    var fromDate = moment();
-    fromDate.subtract(45, 'minutes'); //get games which may be altered whilst in play
-
-    //get fixtures from the api
-    var fetchFixtures = _getFootballApiFixtures(fromDate);
-
-    fetchFixtures.then(
-        function (APIFixtures) {
-
-            //get local fixtures
-            Fixture.find({}, function (error, localFixtures) {
-                //check to see that this is date is later than from date
-
-                //for each fixture down from the api
-                //always better to have declarations at scope start, the reassign as necessary
-                var localFixture;
-                var APIFixture;
-                for (var i = 0; i < APIFixtures.length; i++) {
-                    APIFixture = APIFixtures[i];
-                    console.log("\nThe current fixture under comparison from the API is: \n" +
-                        "\tMatch date : " + (APIFixture.match_formatted_date) +
-                        "\n\tMatch time : " + (APIFixture.match_time));
-
-                    //find corresponding locally stored match in db using home and away team
-                    localFixture = underscore.findWhere(localFixtures, {
-                        homeTeam: APIFixture.match_localteam_name,
-                        awayTeam: APIFixture.match_visitorteam_name
-                    });
-
-                    var localFixDate = moment(localFixture.fixDate);
-
-                    //if none is found, throw an error
-                    if (!localFixture) {
-                        console.log("ERROR, MATCHING LOCALLY STORED FIXTURE COULD NOT BE FOUND")
-                        return "error" //LOOK up if there is a better way of doing this
-                    } else if (localFixDate.isBefore(fromDate)) {
-                        console.log("ERROR, MATCHING LOCALLY STORED FIXTURE WAS IN THE PAST, ALREADY FINISHED")
-                        return "error" //LOOK up if there is a better way of doing this
-                    } else {
-                        console.log("The matching locally stored fixture to the current API fixture being compared to is: \n" +
-                            "\tMatch date: " + localFixture.fixDate +
-                            "\n\tMatch time: " + localFixture.kickOff);
-                    }
-
-                    //now perform comparison and see if the fixture needs to be updated in our local database
-
-                    //parse date and time of the api fixture
-                    var APIFixDate = moment(APIFixture.match_formatted_date, 'DD.MM.YYYY');
-                    var APIFixTime = moment(APIFixDate); //clone date
-                    APIFixTime.hours(APIFixture.match_time.substr(0, 2));
-                    APIFixTime.minutes(APIFixture.match_time.substr(3, 4));
-
-                    //parse the date and time of the matching locally stored fixture
-                    var localFixTime = moment(localFixture.kickOff);
-
-                    //if this api fixture has different date or time to locally stored one
-                    //perform check for date and time separately/intelligently so that both get updated.
-                    //if dates are different
-                    //OR if dates are same but TIMES have changed, then update
-                    if (!APIFixDate.isSame(localFixDate)) { //then t
-
-                        console.log("STORED FIXTURE DIFFERS FROM SAME MATCH ON API - ON DIFFERENT DAY")
-                        //update the date and time of the locally stored fixture and save changes (Fixture.update)
-                        localFixture.fixDate = APIFixDate.toDate();
-
-                        //update kick off, half time and fulltime
-                        localFixture.kickOff = APIFixTime.toDate();
-                        APIFixTime.add(45, 'minutes');
-                        localFixture.halfTime = APIFixTime.toDate();
-                        APIFixTime.add(45, 'minutes');
-                        localFixture.fullTime = APIFixTime.toDate();
-
-                        //now save the changes that have been made to the fixture to the local database
-                        Fixture.update({"_id": localFixture._id}, localFixture, function (err) {
-
-                            //if there is an error, simply return straight back to the user
-                            if (err) return console.log("An error occurred: " + err);
-
-                            //fixture should now have been given the correct result
-                            console.log("The fixture with id: " + fixture.id + " has now been updated to the new date and time");
-
-                            //once the fixture has been updated, invoke the callback function
-                            console.log("The fixture has successfully been given the correct result, invoking callback");
-
-                            //Now cancel and reschedule
-
-                            var hourBeforeKickOff = moment(localFixture.kickOff);
-                            hourBeforeKickOff.subtract(1, 'hour');
-
-                            //find and cancel the scheduled job(s) for the old date and time
-                            {fixture: fixture}({"name" : "pre-match notification", "nextRunAt": hourBeforeKickOff.toDate()}, function (error, numRemoved) {
-                                if (numRemoved != 1) {
-                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                                }
-                                console.log("Cancelled the job scheduled to run at original pre-match for fixture");
-                            });
-
-                            agenda.cancel({"name" : "kick-off notification","nextRunAt": localFixture.kickOff}, function (error, numRemoved) {if (numRemoved != 1) {
-                                console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                            }
-                                console.log("Cancelled the job scheduled to run at original start of fixture");
-                            });
-
-                            agenda.cancel({"name" : "half-time notification", "nextRunAt": localFixture.halfTime}, function (error, numRemoved) {if (numRemoved != 1) {
-                                console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                            }
-                                console.log("Cancelled the job scheduled to run at original half time of fixture");
-                            });
-
-                            agenda.cancel({"name" : "score fixture predictors", "nextRunAt": localFixture.fullTime}, function (error, numRemoved) {
-                                if (numRemoved != 1) {
-                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                                }
-                                console.log("Cancelled the job scheduled to run at original end of fixture");
-                            });
-
-                            //reschedule the job(s) to score the fixture at it's new finishing time
-
-                            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-                            agenda.schedule(localFixture.kickOff, 'kick-off notification', {fixture: fixture});
-                            agenda.schedule(localFixture.halfTime, 'half-time notification', {fixture: fixture});
-                            agenda.schedule(localFixture.fullTime, 'score fixture predictors', {fixture: fixture});
-
-                            console.log("There was a scheduled change made to fixture, this change has been accounted for, fix updated.");
-
-                        });
-
-                    } else if (APIFixDate.isSame(localFixDate) && !APIFixTime.isSame(localFixTime)) { //then t
-
-                        console.log("STORED FIXTURE DIFFERS FROM SAME MATCH ON API - ON DIFFERENT TIME ON THE SAME DAY")
-
-                        //update the date and time of the locally stored fixture and save changes (Fixture.update)
-                        localFixture.fixDate = APIFixDate.toDate();
-
-                        //update kick off, half time and fulltime
-                        localFixture.kickOff = APIFixTime.toDate();
-                        APIFixTime.add(45, 'minutes');
-                        localFixture.halfTime = APIFixTime.toDate();
-                        APIFixTime.add(45, 'minutes');
-                        localFixture.fullTime = APIFixTime.toDate();
-
-                        //now save the changes that have been made to the fixture to the local database
-                        Fixture.update({"_id": localFixture._id}, localFixture, function (err) {
-
-                            //if there is an error, simply return straight back to the user
-                            if (err) return console.log("An error occurred: " + err);
-
-                            //fixture should now have been given the correct result
-                            console.log("The fixture with id: " + fixture.id + " has now been updated to the new date and time");
-
-                            //once the fixture has been updated, invoke the callback function
-                            console.log("The fixture has successfully been given the correct result, invoking callback");
-
-                            //Now cancel and reschedule
-                            //find and cancel the scheduled job(s) for the old date and time
-                            agenda.cancel({"nextRunAt": localFixture.fullTime}, function (error, numRemoved) {
-                                if (numRemoved != 1) {
-                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                                }
-                                console.log("Cancelled the job scheduled to run at original end of fixture");
-                            });
-
-                            //todo: schedule push notification for kick and half time
-
-                            var hourBeforeKickOff = moment(localFixture.kickOff);
-                            hourBeforeKickOff.subtract(1, 'hour');
-
-                            //reschedule the job(s) to score the fixture at it's new finishing time
-                            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: localFixture});
-                            agenda.schedule(localFixture.kickOff, 'kick-off notification', {fixture: localFixture});
-                            agenda.schedule(localFixture.halfTime, 'half-time notification', {fixture: localFixture});
-                            agenda.schedule(localFixture.fullTime, 'score fixture predictors', {fixture: localFixture});
-
-                            console.log("There was a scheduled change made to fixture, this change has been accounted for, fix updated.");
-
-                        });
-                    } else {
-                        console.log("LOCALLY STORED MATCH IS SAME AS THE ONE FROM API, NO UPDATE NEEDED.")
-                    }
-                }
-            });
-
-        },
-        function() {
-            console.log("An error occured when retrieving fixtures.");
-        }
-    ); //todo: add error function for promise rejection in here.
-}
+//function _compareAndUpdateFixtures() {
+//
+//    console.log("\n FUNCTION: COMPARING AND UPDATING FIXTURES \n");
+//
+//    //get all fixtures from our db FROM NOW, - 45 MINUTES AGO
+//    var fromDate = moment();
+//    fromDate.subtract(45, 'minutes'); //get games which may be altered whilst in play
+//
+//    //get fixtures from the api
+//    var fetchFixtures = _getFootballApiFixtures(fromDate);
+//
+//    fetchFixtures.then(
+//        function (APIFixtures) {
+//
+//            //get local fixtures
+//            Fixture.find({}, function (error, localFixtures) {
+//                //check to see that this is date is later than from date
+//
+//                //for each fixture down from the api
+//                //always better to have declarations at scope start, the reassign as necessary
+//                var localFixture;
+//                var APIFixture;
+//                for (var i = 0; i < APIFixtures.length; i++) {
+//                    APIFixture = APIFixtures[i];
+//                    console.log("\nThe current fixture under comparison from the API is: \n" +
+//                        "\tMatch date : " + (APIFixture.match_formatted_date) +
+//                        "\n\tMatch time : " + (APIFixture.match_time));
+//
+//                    //find corresponding locally stored match in db using home and away team
+//                    localFixture = underscore.findWhere(localFixtures, {
+//                        homeTeam: APIFixture.match_localteam_name,
+//                        awayTeam: APIFixture.match_visitorteam_name
+//                    });
+//
+//                    var localFixDate = moment(localFixture.fixDate);
+//
+//                    //if none is found, throw an error
+//                    if (!localFixture) {
+//                        console.log("ERROR, MATCHING LOCALLY STORED FIXTURE COULD NOT BE FOUND")
+//                        return "error" //LOOK up if there is a better way of doing this
+//                    } else if (localFixDate.isBefore(fromDate)) {
+//                        console.log("ERROR, MATCHING LOCALLY STORED FIXTURE WAS IN THE PAST, ALREADY FINISHED")
+//                        return "error" //LOOK up if there is a better way of doing this
+//                    } else {
+//                        console.log("The matching locally stored fixture to the current API fixture being compared to is: \n" +
+//                            "\tMatch date: " + localFixture.fixDate +
+//                            "\n\tMatch time: " + localFixture.kickOff);
+//                    }
+//
+//                    //now perform comparison and see if the fixture needs to be updated in our local database
+//
+//                    //parse date and time of the api fixture
+//                    var APIFixDate = moment(APIFixture.match_formatted_date, 'DD.MM.YYYY');
+//                    var APIFixTime = moment(APIFixDate); //clone date
+//                    APIFixTime.hours(APIFixture.match_time.substr(0, 2));
+//                    APIFixTime.minutes(APIFixture.match_time.substr(3, 4));
+//
+//                    //parse the date and time of the matching locally stored fixture
+//                    var localFixTime = moment(localFixture.kickOff);
+//
+//                    //if this api fixture has different date or time to locally stored one
+//                    //perform check for date and time separately/intelligently so that both get updated.
+//                    //if dates are different
+//                    //OR if dates are same but TIMES have changed, then update
+//                    if (!APIFixDate.isSame(localFixDate)) { //then t
+//
+//                        console.log("STORED FIXTURE DIFFERS FROM SAME MATCH ON API - ON DIFFERENT DAY")
+//                        //update the date and time of the locally stored fixture and save changes (Fixture.update)
+//                        localFixture.fixDate = APIFixDate.toDate();
+//
+//                        //update kick off, half time and fulltime
+//                        localFixture.kickOff = APIFixTime.toDate();
+//                        APIFixTime.add(45, 'minutes');
+//                        localFixture.halfTime = APIFixTime.toDate();
+//                        APIFixTime.add(45, 'minutes');
+//                        localFixture.fullTime = APIFixTime.toDate();
+//
+//                        //now save the changes that have been made to the fixture to the local database
+//                        Fixture.update({"_id": localFixture._id}, localFixture, function (err) {
+//
+//                            //if there is an error, simply return straight back to the user
+//                            if (err) return console.log("An error occurred: " + err);
+//
+//                            //fixture should now have been given the correct result
+//                            console.log("The fixture with id: " + fixture.id + " has now been updated to the new date and time");
+//
+//                            //once the fixture has been updated, invoke the callback function
+//                            console.log("The fixture has successfully been given the correct result, invoking callback");
+//
+//                            //Now cancel and reschedule
+//
+//                            var hourBeforeKickOff = moment(localFixture.kickOff);
+//                            hourBeforeKickOff.subtract(1, 'hour');
+//
+//                            //find and cancel the scheduled job(s) for the old date and time
+//                            {fixture: fixture}({"name" : "pre-match notification", "nextRunAt": hourBeforeKickOff.toDate()}, function (error, numRemoved) {
+//                                if (numRemoved != 1) {
+//                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                                }
+//                                console.log("Cancelled the job scheduled to run at original pre-match for fixture");
+//                            });
+//
+//                            agenda.cancel({"name" : "kick-off notification","nextRunAt": localFixture.kickOff}, function (error, numRemoved) {if (numRemoved != 1) {
+//                                console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                            }
+//                                console.log("Cancelled the job scheduled to run at original start of fixture");
+//                            });
+//
+//                            agenda.cancel({"name" : "half-time notification", "nextRunAt": localFixture.halfTime}, function (error, numRemoved) {if (numRemoved != 1) {
+//                                console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                            }
+//                                console.log("Cancelled the job scheduled to run at original half time of fixture");
+//                            });
+//
+//                            agenda.cancel({"name" : "score fixture predictors", "nextRunAt": localFixture.fullTime}, function (error, numRemoved) {
+//                                if (numRemoved != 1) {
+//                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                                }
+//                                console.log("Cancelled the job scheduled to run at original end of fixture");
+//                            });
+//
+//                            //reschedule the job(s) to score the fixture at it's new finishing time
+//
+//                            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+//                            agenda.schedule(localFixture.kickOff, 'kick-off notification', {fixture: fixture});
+//                            agenda.schedule(localFixture.halfTime, 'half-time notification', {fixture: fixture});
+//                            agenda.schedule(localFixture.fullTime, 'score fixture predictors', {fixture: fixture});
+//
+//                            console.log("There was a scheduled change made to fixture, this change has been accounted for, fix updated.");
+//
+//                        });
+//
+//                    } else if (APIFixDate.isSame(localFixDate) && !APIFixTime.isSame(localFixTime)) { //then t
+//
+//                        console.log("STORED FIXTURE DIFFERS FROM SAME MATCH ON API - ON DIFFERENT TIME ON THE SAME DAY")
+//
+//                        //update the date and time of the locally stored fixture and save changes (Fixture.update)
+//                        localFixture.fixDate = APIFixDate.toDate();
+//
+//                        //update kick off, half time and fulltime
+//                        localFixture.kickOff = APIFixTime.toDate();
+//                        APIFixTime.add(45, 'minutes');
+//                        localFixture.halfTime = APIFixTime.toDate();
+//                        APIFixTime.add(45, 'minutes');
+//                        localFixture.fullTime = APIFixTime.toDate();
+//
+//                        //now save the changes that have been made to the fixture to the local database
+//                        Fixture.update({"_id": localFixture._id}, localFixture, function (err) {
+//
+//                            //if there is an error, simply return straight back to the user
+//                            if (err) return console.log("An error occurred: " + err);
+//
+//                            //fixture should now have been given the correct result
+//                            console.log("The fixture with id: " + fixture.id + " has now been updated to the new date and time");
+//
+//                            //once the fixture has been updated, invoke the callback function
+//                            console.log("The fixture has successfully been given the correct result, invoking callback");
+//
+//                            //Now cancel and reschedule
+//                            //find and cancel the scheduled job(s) for the old date and time
+//                            agenda.cancel({"nextRunAt": localFixture.fullTime}, function (error, numRemoved) {
+//                                if (numRemoved != 1) {
+//                                    console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                                }
+//                                console.log("Cancelled the job scheduled to run at original end of fixture");
+//                            });
+//
+//                            //todo: schedule push notification for kick and half time
+//
+//                            var hourBeforeKickOff = moment(localFixture.kickOff);
+//                            hourBeforeKickOff.subtract(1, 'hour');
+//
+//                            //reschedule the job(s) to score the fixture at it's new finishing time
+//                            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: localFixture});
+//                            agenda.schedule(localFixture.kickOff, 'kick-off notification', {fixture: localFixture});
+//                            agenda.schedule(localFixture.halfTime, 'half-time notification', {fixture: localFixture});
+//                            agenda.schedule(localFixture.fullTime, 'score fixture predictors', {fixture: localFixture});
+//
+//                            console.log("There was a scheduled change made to fixture, this change has been accounted for, fix updated.");
+//
+//                        });
+//                    } else {
+//                        console.log("LOCALLY STORED MATCH IS SAME AS THE ONE FROM API, NO UPDATE NEEDED.")
+//                    }
+//                }
+//            });
+//
+//        },
+//        function() {
+//            console.log("An error occured when retrieving fixtures.");
+//        }
+//    ); //todo: add error function for promise rejection in here.
+//}
 
 //this function will be sheduled to run for each fixture.
 //function to take a local fixture and retrieve the live result from 3rd party football-api
@@ -1730,62 +1730,62 @@ function _getMatchResult(homeTeamResult, awayTeamResult) {
     return localFixResult;
 }
 
-function _scheduleFixtureActions(i, fixtures, callback) {
-    if (i < fixtures.length) {
-        var fixture = fixtures[i];
-        console.log("Scheduling actions for fixture: " + fixture._id);
-        console.log("i = " + i);
-
-        var hourBeforeKickOff = moment(fixture.kickOff);
-        hourBeforeKickOff.subtract(1, 'hour');
-
-        //try and find a corresponding agenda job based on kick off time of fixture.
-        console.log("Now checking to see if there are jobs scheduled for this fixture.");
-        agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
-
-            console.log("Agenda jobs are: " + JSON.stringify(jobs));
-
-            if (jobs.length == 0){
-                //then need to schedule jobs for this fixture
-
-                console.log("there were no jobs scheduled for this fixture, scheduling now");
-
-                var hourBeforeKickOff = moment(fixture.kickOff);
-                hourBeforeKickOff.subtract(1, 'hour');
-
-                //reschedule the job(s) to score the fixture at it's new finishing time
-                agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-                agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-                agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
-
-                console.log("All jobs scheduled for fixture");
-
-                var stack = new Error().stack;
-                console.log("STACK: " + stack);
-            }
-        });
-
-        //process.nextTick(_scheduleFixtureActions(i + 1, fixtures));
-        //if( i % 1000 === 0 ) {
-            setTimeout(
-            function() {
-
-                var stack = new Error().stack;
-                console.log("\n \nTIMEOUT STACK: " + stack);
-
-                _scheduleFixtureActions(i + 1, fixtures, callback);
-            }, 1000
-            );
-        //} else {
-        //    _scheduleFixtureActions(i + 1, fixtures, callback);
-        //}
-
-    } else {
-        console.log('Finished adding fixtures');
-        callback();
-    }
-}
+//function _scheduleFixtureActions(i, fixtures, callback) {
+//    if (i < fixtures.length) {
+//        var fixture = fixtures[i];
+//        console.log("Scheduling actions for fixture: " + fixture._id);
+//        console.log("i = " + i);
+//
+//        var hourBeforeKickOff = moment(fixture.kickOff);
+//        hourBeforeKickOff.subtract(1, 'hour');
+//
+//        //try and find a corresponding agenda job based on kick off time of fixture.
+//        console.log("Now checking to see if there are jobs scheduled for this fixture.");
+//        agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
+//
+//            console.log("Agenda jobs are: " + JSON.stringify(jobs));
+//
+//            if (jobs.length == 0){
+//                //then need to schedule jobs for this fixture
+//
+//                console.log("there were no jobs scheduled for this fixture, scheduling now");
+//
+//                var hourBeforeKickOff = moment(fixture.kickOff);
+//                hourBeforeKickOff.subtract(1, 'hour');
+//
+//                //reschedule the job(s) to score the fixture at it's new finishing time
+//                agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+//                agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+//                agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+//                agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+//
+//                console.log("All jobs scheduled for fixture");
+//
+//                var stack = new Error().stack;
+//                console.log("STACK: " + stack);
+//            }
+//        });
+//
+//        //process.nextTick(_scheduleFixtureActions(i + 1, fixtures));
+//        //if( i % 1000 === 0 ) {
+//            setTimeout(
+//            function() {
+//
+//                var stack = new Error().stack;
+//                console.log("\n \nTIMEOUT STACK: " + stack);
+//
+//                _scheduleFixtureActions(i + 1, fixtures, callback);
+//            }, 1000
+//            );
+//        //} else {
+//        //    _scheduleFixtureActions(i + 1, fixtures, callback);
+//        //}
+//
+//    } else {
+//        console.log('Finished adding fixtures');
+//        callback();
+//    }
+//}
 
 //function _scheduleFixtureActions(fixture) {
 //
@@ -1805,39 +1805,39 @@ function _scheduleFixtureActions(i, fixtures, callback) {
 //    return deferred.promise;
 //}
 
-function _scheduleActionsIfNotAlready(fixture) {
-    console.log('\n \n SINGULAR SCHEDULER');
-
-    var fixtureKickOff = moment(fixture.kickOff);
-    console.log("The moment.js fixture kick off of current fixture is: " + fixtureKickOff);
-
-    //try and find a corresponding agenda job based on kick off time of fixture.
-    console.log("Now checking to see if there are jobs scheduled for this fixture.");
-    agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
-
-        console.log("Agenda jobs are: " + JSON.stringify(jobs));
-
-        if (jobs.length == 0){
-            //then need to schedule jobs for this fixture
-
-            console.log("there were no jobs scheduled for this fixture, scheduling now");
-
-            var hourBeforeKickOff = moment(fixture.kickOff);
-            hourBeforeKickOff.subtract(1, 'hour');
-
-            //reschedule the job(s) to score the fixture at it's new finishing time
-            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
-
-            //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
-            //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
-            //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
-
-            //console.log("All jobs scheduled for fixture");
-        }
-    });
-
-    return;
-}
+//function _scheduleActionsIfNotAlready(fixture) {
+//    console.log('\n \n SINGULAR SCHEDULER');
+//
+//    var fixtureKickOff = moment(fixture.kickOff);
+//    console.log("The moment.js fixture kick off of current fixture is: " + fixtureKickOff);
+//
+//    //try and find a corresponding agenda job based on kick off time of fixture.
+//    console.log("Now checking to see if there are jobs scheduled for this fixture.");
+//    agenda.jobs({"name" : "kick-off notification", "nextRunAt": fixture.kickOff}, function (error, jobs) {
+//
+//        console.log("Agenda jobs are: " + JSON.stringify(jobs));
+//
+//        if (jobs.length == 0){
+//            //then need to schedule jobs for this fixture
+//
+//            console.log("there were no jobs scheduled for this fixture, scheduling now");
+//
+//            var hourBeforeKickOff = moment(fixture.kickOff);
+//            hourBeforeKickOff.subtract(1, 'hour');
+//
+//            //reschedule the job(s) to score the fixture at it's new finishing time
+//            agenda.schedule(hourBeforeKickOff.toDate(), 'pre-match notification', {fixture: fixture});
+//
+//            //agenda.schedule(fixture.kickOff, 'kick-off notification', {fixture: fixture});
+//            //agenda.schedule(fixture.halfTime, 'half-time notification', {fixture: fixture});
+//            //agenda.schedule(fixture.fullTime, 'score fixture predictors', {fixture: fixture});
+//
+//            //console.log("All jobs scheduled for fixture");
+//        }
+//    });
+//
+//    return;
+//}
 
 function _schduleTasksForUpdatedFixtures() {
     //retrieve all fixtures from datavase
@@ -1871,49 +1871,49 @@ function _schduleTasksForUpdatedFixtures() {
     });
 };
 
-function _clearUnneededJobs() {
-    agenda.jobs({}, function(err, jobs) {
-        // Work with jobs (see below)
-        console.log(JSON.stringify(jobs));
-
-        for (var i = 0; i < jobs.length; i++) {
-
-            console.log("\n\nNow deciding wheter or not to cancel job:");
-
-            console.log("\n" + JSON.stringify(jobs[i]));
-
-            console.log("\n\nJOB NAME IS: " + jobs[i][1]);
-
-            if (jobs[i].name == 'score fixture predictors' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'pre-match notification' || jobs[i].name == 'half-time notification' ){
-
-                //try and find the corresponding fixture, if none exists, delete the job
-                //todo: query the fixture id
-
-                console.log("Attempting to cast job fixture data id to id object: " + jobs[i].data.fixture._id);
-                var fixtureId = mongoose.Types.ObjectId(jobs[i].data.fixture._id);
-                Fixture.findOne({'_id' : fixtureId}, function(error, foundFixture){
-                    if (error) {
-                        console.log("error finding fixture associated with job");
-                    }
-                    else if (foundFixture == null) {
-                        console.log("No fixture found associated with this job, cancelling job");
-
-                        //todo: cancel the job here
-                        console.log("Attempting to cancel the job with id : " + jobs[i]._id);
-
-                        agenda.cancel({"_id" : mongoskin.helper.toObjectId(jobs[i]._id)}, function (error, numRemoved) {if (numRemoved != 1) {
-                            console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
-                        }
-                            console.log("Cancelled the job ");
-                        });
-                    }
-                });
-
-            } else {
-                console.log("Not interested in this job");
-            }
-        }
-    });
-};
+//function _clearUnneededJobs() {
+//    agenda.jobs({}, function(err, jobs) {
+//        // Work with jobs (see below)
+//        console.log(JSON.stringify(jobs));
+//
+//        for (var i = 0; i < jobs.length; i++) {
+//
+//            console.log("\n\nNow deciding wheter or not to cancel job:");
+//
+//            console.log("\n" + JSON.stringify(jobs[i]));
+//
+//            console.log("\n\nJOB NAME IS: " + jobs[i][1]);
+//
+//            if (jobs[i].name == 'score fixture predictors' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'kick-off notification' || jobs[i].name == 'pre-match notification' || jobs[i].name == 'half-time notification' ){
+//
+//                //try and find the corresponding fixture, if none exists, delete the job
+//                //todo: query the fixture id
+//
+//                console.log("Attempting to cast job fixture data id to id object: " + jobs[i].data.fixture._id);
+//                var fixtureId = mongoose.Types.ObjectId(jobs[i].data.fixture._id);
+//                Fixture.findOne({'_id' : fixtureId}, function(error, foundFixture){
+//                    if (error) {
+//                        console.log("error finding fixture associated with job");
+//                    }
+//                    else if (foundFixture == null) {
+//                        console.log("No fixture found associated with this job, cancelling job");
+//
+//                        //todo: cancel the job here
+//                        console.log("Attempting to cancel the job with id : " + jobs[i]._id);
+//
+//                        agenda.cancel({"_id" : mongoskin.helper.toObjectId(jobs[i]._id)}, function (error, numRemoved) {if (numRemoved != 1) {
+//                            console.log("ERROR: " + numRemoved + " jobs were cancelled, only 1 was supposed to be cancelled.");
+//                        }
+//                            console.log("Cancelled the job ");
+//                        });
+//                    }
+//                });
+//
+//            } else {
+//                console.log("Not interested in this job");
+//            }
+//        }
+//    });
+//};
 
 //todo: function to take password and fixture id and manually score it and give scores to users.

@@ -9,8 +9,8 @@ var express = require('express');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var cors = require('cors');
-var Agenda = require('agenda');
-var agendaUI = require('agenda-ui');
+//var Agenda = require('agenda');
+//var agendaUI = require('agenda-ui');
 var app = express();
 var mongoConnection = 'mongodb://'+IPADDRESS+'/nodejs';
 var jwt = require('express-jwt'); //configure auth0
@@ -18,7 +18,7 @@ var jwtCheck = jwt({ //configure this server for use with Auth0 server, to authe
     secret: new Buffer('fpQpckeWWFKr444cvgx3ImOrnBQkjESj57QEkIsMxEWcjalZX8FVNxEFC_DeE8rk', 'base64'),
     audience: 'Ny44FwyaGBQvKOV9FxIRDX6JvogUm80j'
 });
-var agenda = new Agenda({db: {address: mongoConnection}}); //instantiate agenda;
+//var agenda = new Agenda({db: {address: mongoConnection}}); //instantiate agenda;
 
 //used to connect to the mongoDB on the openshift server. Overwrite only if running on production server.
 if(process.env.OPENSHIFT_MONGODB_DB_PASSWORD){
@@ -64,7 +64,7 @@ app.get('/', function(req, res) {
   res.send('Yes!GetIn!');
 });
 
-app.use('/agenda-ui', agendaUI(agenda, {poll: 1000}));
+//app.use('/agenda-ui', agendaUI(agenda, {poll: 1000}));
 
 //Fire up the server
 app.listen(PORT, IPADDRESS, function() {

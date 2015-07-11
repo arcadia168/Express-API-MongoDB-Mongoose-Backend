@@ -1,3 +1,6 @@
+////BHAV'S KEY FOOTBALL API KEY: 6c5ccef5-3d91-ab94-5c9dcd7bb1b6
+//DEV FOOTBALL API KEY: - change to bhav's key once approved 2760810b-be47-82d7-db48d00daa1c
+
 var mongoose = require('mongoose'),
     http = require('http'),
     https = require('https'),
@@ -229,7 +232,8 @@ exports.getStandings = function (req, res) {
     //set the option settings which will always be the same here
     var options = {
         host: 'football-api.com',
-        path: '/api/?Action=standings&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204',
+        path: '/api/?Action=standings&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=1204',
+        //path: '/api/?Action=standings&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204',
         headers: {
             'Content-Type': 'application/json'
         }
@@ -841,7 +845,7 @@ function _getFootballApiFixtures(fromDate, toDate, specificDate) {
 
     var options = {
         host: 'football-api.com',
-        path: '/api/?Action=fixtures&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=' + competitionCode +
+        path: '/api/?Action=fixtures&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=' + competitionCode +
         '&from_date=' + callFromDate + '&to_date=' + callToDate,
         headers: {
             'Content-Type': 'application/json'
@@ -1327,7 +1331,7 @@ function _getFixtureResult(fixture, callback) {
 
     var options = {
         host: 'football-api.com',
-        path: '/api/?Action=fixtures&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204&match_date=' + fixtureDate,
+        path: '/api/?Action=fixtures&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=1204&match_date=' + fixtureDate,
         headers: {
             'Content-Type': 'application/json'
         }
@@ -1456,7 +1460,7 @@ function _getHalfTimeFixtureResult(fixtureData, callback) {
 
     var options = {
         host: 'football-api.com',
-        path: '/api/?Action=fixtures&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204&match_date=' + fixtureDate,
+        path: '/api/?Action=fixtures&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=1204&match_date=' + fixtureDate,
         headers: {
             'Content-Type': 'application/json'
         }

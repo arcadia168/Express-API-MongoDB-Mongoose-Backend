@@ -392,16 +392,43 @@ function _sendFixtureFinishedPushNotification(fixture) {
 
                     if (user.predictions[i].fixture = fixture._id){
                         console.log("User prediction for just finished fixture found!");
-
                         thisFixturePrediction = user.predictions[i];
 
                         var userPrediction = predictionMap[thisFixturePrediction.prediction];
+                        console.log("User prediction for latest scored fixture is: " + userPrediction);
+
+                        //prepend correct article to user prediction
+                        //prepend the right article ('a' or 'an')
+                        if (userPrediction == 'home win' || userPrediction == 'draw') {
+                            userPrediction = 'a ' + userPrediction;
+                        } else if (userPrediction == 'away win'){
+                            userPrediction = 'an ' + userPrediction;
+                        }
 
                         //Variable to check if the user is correct or incorrect
                         var userOutcome;
 
+                        console.log("Result of fixture is: " + fixture.fixResult.fixResult);
+
+                        //get actual result in text
+                        var actualResult = predictionMap[fixture.fixResult.fixResult];
+                        console.log("The actual result of the fixture has been translated from: " + fixture.fixResult.fixResult + " to: " + actualResult);
+
+                        //prepend the right article ('a' or 'an')
+                        if (actualResult == 'home win' || actualResult == 'draw') {
+                            actualResult = 'a ' + actualResult;
+                        } else if (actualResult == 'away win'){
+                            actualResult = 'an ' + actualResult;
+                        }
+
+                        //Append user prediction to the message.
+                        var predictionMessage = vsprintf('They think it\'s all over, it is now! The whistle\'s blown on the %s vs. %s match! You predicted %s. It was %s!',
+                            [fixture.homeTeam, fixture.awayTeam, userPrediction, actualResult]);
+
+
+                        //Now work out and tell users if they were correct or not
                         //figure out if the user was correct or not!
-                        if (userPrediction == fixture.fixResult.fixResult){
+                        if (thisFixturePrediction == fixture.fixResult.fixResult){
                             userOutcome = 'correct';
                         } else {
                             userOutcome = 'incorrect';
@@ -409,17 +436,20 @@ function _sendFixtureFinishedPushNotification(fixture) {
 
                         var outcomeMessage = '';
 
+                        //set push notificaion message saying how many points user won lost and if they were correct!
                         if (userOutcome == 'correct'){
                             outcomeMessage = 'Yes! Get In! You were correct! Enjoy your ' + thisFixturePrediction.predictValue.correctPoints + ' points!';
                         } else if (userOutcome == 'incorrect'){
-                            outcomeMessage = 'Gutted! You were wrong! You\'ve lost ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Win them back!';
+                            outcomeMessage = 'Oh no! You were wrong! You lost ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Get back in the game to win them back!';
                         }
 
-                        //Append user prediction to the message.
-                        var predictionMessage = vsprintf('They think it\'s all over, it is now! The whistle\'s blown on the %s vs. %s match! \n You predicted a %s',
-                            [fixture.homeTeam, fixture.awayTeam, userPrediction]);
+                        console.log("Second half of push notification message is: ");
+                        console.log(outcomeMessage);
 
-                        predictionMessage.concat(outcomeMessage);
+                        predictionMessage = predictionMessage + outcomeMessage;
+
+                        console.log("The message being sent in the push notification to the user is: ");
+                        console.log(predictionMessage);
 
                         // Build the post string from an object
                         var post_data = JSON.stringify({

@@ -370,6 +370,57 @@ exports.scorePredictingUsersForFixture = function(req,res){
     }
 };
 
+exports.scorePredictingHalfTimeUsersForFixture = function(req,res){
+    //get password, if wrong exit
+    var password = req.params.admin_password;
+
+    //get fixture id
+    var fixture_id = mongoose.Types.ObjectId(req.params.fixture_id);
+
+    //get current result
+    var homeScore = req.params.home_score;
+    var awayScore = req.params.away_score;
+
+    var halfTimeResult = req.params.half_time_result;
+
+    if (password != 'roC5arv1Av3oK3eAng0Aj9Teaw6J') {
+        console.log("Incorrect password supplied, please use proper admin password.");
+        res.jsonp(402);
+    } else if ((halfTimeResult < 1) || (halfTimeResult > 3)){
+        console.log("Not a valid result for games.");
+        res.jsonp(503);
+    } else if ((homeScore < 0) || (result > 15)){
+        console.log("Not a valid result for games.");
+        res.jsonp(503);
+    } else if ((awayScore < 0) || (result > 15)){
+        console.log("Not a valid result for games.");
+        res.jsonp(503);
+    } else {
+
+        //find the fixture
+        Fixture.findOne({"_id" : fixture_id}, function(error, foundFixture){
+            if(error){
+                console.log("Error when admin update tried to find fixture");
+                res.jsonp(503);
+            } else if (foundFixture == null) {
+                console.log("Error when admin update: Could not find fixture with specified id");
+                res.jsonp(404);
+            } else {
+                console.log("Now assigning the result to the fixture.");
+
+                //foundFixture.fixResult.fixResult = result;
+
+
+                //IN PARALLEL send out push notification to tell users HOW MUCH they will be scoring!
+                _sendFixtureHalfTimePushNotification(foundFixture, halfTimeResult, homeScore, awayScore);
+
+
+                res.jsonp(200);
+            }
+        });
+    }
+};
+
 //after game scored sends pushed to predicting users
 function _sendFixtureFinishedPushNotification(fixture) {
     User.find({'predictions.fixture': fixture._id}, function (error, users) {
@@ -445,6 +496,144 @@ function _sendFixtureFinishedPushNotification(fixture) {
                             outcomeMessage = 'Yes! Get In! You were correct! Enjoy your ' + thisFixturePrediction.predictValue.correctPoints + ' points!';
                         } else if (userOutcome == 'incorrect'){
                             outcomeMessage = 'Oh no! You were wrong! You lost ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Get back in the game to win them back!';
+                        }
+
+                        console.log("Second half of push notification message is: ");
+                        console.log(outcomeMessage);
+
+                        predictionMessage = predictionMessage + outcomeMessage;
+
+                        console.log("The message being sent in the push notification to the user is: ");
+                        console.log(predictionMessage);
+
+                        // Build the post string from an object
+                        var post_data = JSON.stringify({
+                            tokens: user.userDeviceTokens,
+                            notification: {
+                                alert: predictionMessage,
+                                ios: {
+                                    badge: 1,
+                                    sound: "ping.aiff",
+                                    payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                                },
+                                android: {
+                                    payload: {$state: 'tab.round-detail', $stateParams: {"roundId": fixture.round}}
+                                }
+                            }
+                        });
+                        console.log('Seding post body: ' + post_data);
+
+                        // An object of options to indicate where to post to
+                        var post_options = {
+                            host: 'push.ionic.io',
+                            //port: '80',
+                            path: '/api/v1/push',
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Ionic-Application-Id': '17ad87a3',
+                                'Authorization': 'Basic ' + new Buffer('d0a862e5f4f2633898602f8be332e55557a1d62f83b8d591' + ':' + '').toString('base64')
+                            }
+                        };
+
+                        console.log("Attempting to send the post request");
+                        // Set up the request
+                        var post_req = https.request(post_options, function (res) {
+                            res.setEncoding('utf8');
+                            res.on('data', function (chunk) {
+                                console.log('Response: ' + chunk);
+                            });
+                        });
+
+                        // post the data
+                        post_req.write(post_data);
+                        post_req.end();
+
+                        //exit this loop and look at next user as users can only have one prediction per fixture!
+                        break;
+                    }
+                }
+            });
+
+            //done(); //fire event to tell agenda job that this job has finished running
+        }
+    });
+}
+
+function _sendFixtureHalfTimePushNotification(fixture, halfTimeResult, homeScore, awayScore) {
+    User.find({'predictions.fixture': fixture._id}, function (error, users) {
+        //for each of these user's and each of their devices, send out a push notification
+        if (error) {
+            console.log("Error trying to send push notifications, when retrieving users: " + error);
+        } else if (users == null) {
+            console.log("No users were found to have made predictions for the given fixture.");
+        } else {
+            //console.log("Now attempting to send a push notification.");
+            //console.log("Iterating over each user.");
+
+            underscore.each(users, function (user) {
+                //make the http post request setting all of the appropriate settings
+
+                //find the prediction that was made for this fixture DOESN'T WORK
+                //var thisFixturePrediction = underscore.findWhere(user.predictions, {fixture: fixture._id});
+
+                var thisFixturePrediction = null;
+                console.log("Now finding the corresponding prediction in current user with fixture id of fixture just finished");
+                for (var i = 0; i < user.predictions.length; i++){
+
+                    console.log("Inspecting prediction: " + JSON.stringify(user.predictions[i]));
+
+                    if (user.predictions[i].fixture = fixture._id){
+                        console.log("User prediction for just finished fixture found!");
+                        thisFixturePrediction = user.predictions[i];
+
+                        var userPrediction = predictionMap[thisFixturePrediction.prediction];
+                        console.log("User prediction for latest scored fixture is: " + userPrediction);
+
+                        //prepend correct article to user prediction
+                        //prepend the right article ('a' or 'an')
+                        if (userPrediction == 'home win' || userPrediction == 'draw') {
+                            userPrediction = 'a ' + userPrediction;
+                        } else if (userPrediction == 'away win'){
+                            userPrediction = 'an ' + userPrediction;
+                        }
+
+                        //Variable to check if the user is correct or incorrect
+                        var userOutcome;
+
+                        //console.log("Result of fixture is: " + fixture.fixResult.fixResult);
+
+                        //get actual result in text
+                        var actualResult = predictionMap[halfTimeResult];
+                        //console.log("The actual result of the fixture has been translated from: " + fixture.fixResult.fixResult + " to: " + actualResult);
+
+                        //prepend the right article ('a' or 'an')
+                        if (actualResult == 'home win' || actualResult == 'draw') {
+                            actualResult = 'a ' + actualResult;
+                        } else if (actualResult == 'away win'){
+                            actualResult = 'an ' + actualResult;
+                        }
+
+                        //Append user prediction to the message.
+                        var predictionMessage = vsprintf('Half time for the %s vs. %s match! You predicted %s. Current score is %s - %s, looks like it\'s going to be a %s!',
+                            [fixture.homeTeam, fixture.awayTeam, userPrediction, homeScore, awayScore, actualResult]);
+
+
+                        //Now work out and tell users if they were correct or not
+                        //figure out if the user was correct or not!
+                        if (thisFixturePrediction == halfTimeResult){
+                            userOutcome = 'correct';
+                        } else {
+                            userOutcome = 'incorrect';
+                        }
+
+                        var outcomeMessage = '';
+
+                        //set push notificaion message saying how many points user won lost and if they were correct!
+                        if (userOutcome == 'correct'){
+                            outcomeMessage = 'Looks your prediction is accurate so far! You\'re on track to win ' + thisFixturePrediction.predictValue.correctPoints + ' points! Feel like changing your prediction?';
+                        } else if (userOutcome == 'incorrect'){
+                            outcomeMessage = 'Looks like your prediction was wrong so far! You\'re on track to lose ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Feel like changing your prediction?';
                         }
 
                         console.log("Second half of push notification message is: ");

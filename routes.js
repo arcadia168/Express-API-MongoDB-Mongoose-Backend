@@ -28,6 +28,7 @@ module.exports = function(app){
     app.delete('/api/users/predictions/clear/:user_id/:round', users.clearRoundPredictions); //protect
     app.get('/api/users/devices/register/:user_id/:new_device_token', users.registerDeviceToken); //protect
     app.get('/admin/manualresultset/:admin_password/:fixture_id/:fixture_result', fixtures.scorePredictingUsersForFixture); //protect via password;
+    app.get('/admin/manualresultset/halftime/:admin_password/:fixture_id/:home_score/:away_score/:half_time_result', fixtures.scorePredictingHalfTimeUsersForFixture); //protect via password;
 
     //below API functionalities are not user dependent (don't need to be JWT protected)
     //DON'T NEED TO BE LOGGED IN TO ACCESS THESE

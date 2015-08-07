@@ -317,7 +317,7 @@ exports.userSync = function(req, res) {
                 overallSeasonScore       :   0,
                 roundScores : [],
                 currentRoundScore : 0,
-                userTeam: 'Arsenal',
+                userTeam: '-----Select-----',
                 userDeviceTokens: []
             };
 

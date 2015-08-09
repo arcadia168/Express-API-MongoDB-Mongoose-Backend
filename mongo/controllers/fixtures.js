@@ -15,7 +15,7 @@ var mongoose = require('mongoose'),
     Fixture = mongoose.model('Fixture'),
     User = mongoose.model('User'),
     vsprintf = require("sprintf-js").vsprintf,
-    IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',
+    IPADDRESS = process.env.OPENSHIFT_INTERNAL_IP || process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1',//54.90.161.115//127.2.36.132
     mongoConnection = 'mongodb://' + IPADDRESS + '/nodejs',
     predictionMap = {
         0: 'no prediction',
@@ -477,8 +477,8 @@ function _sendFixtureFinishedPushNotification(fixture) {
                         }
 
                         //Append user prediction to the message.
-                        var predictionMessage = vsprintf('They think it\'s all over, it is now! The whistle\'s blown on the %s vs. %s match! You predicted %s. It was %s!',
-                            [fixture.homeTeam, fixture.awayTeam, userPrediction, actualResult]);
+                        var predictionMessage = vsprintf('FT: %s vs. %s! Result: %s! Your prediction: %s.',
+                            [fixture.homeTeam, fixture.awayTeam, actualResult, userPrediction]);
 
 
                         //Now work out and tell users if they were correct or not
@@ -493,7 +493,7 @@ function _sendFixtureFinishedPushNotification(fixture) {
 
                         //set push notificaion message saying how many points user won lost and if they were correct!
                         if (userOutcome == 'correct'){
-                            outcomeMessage = 'Yes! Get In! You were correct! Enjoy your ' + thisFixturePrediction.predictValue.correctPoints + ' points!';
+                            outcomeMessage = 'Yes! Get In! You were right & won ' + thisFixturePrediction.predictValue.correctPoints + ' points!';
                         } else if (userOutcome == 'incorrect'){
                             outcomeMessage = 'Oh no! You were wrong! You lost ' + thisFixturePrediction.predictValue.incorrectPoints + ' points. Get back in the game to win them back!';
                         }

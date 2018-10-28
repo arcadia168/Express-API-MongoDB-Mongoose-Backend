@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
 });
 
 //baton down the hatches
-app.use('/api/', jwtCheck); //does indeed protect all sub-routes, this is the only statement needed.
+//app.use('/api/', jwtCheck); //does indeed protect all sub-routes, this is the only statement needed.
 
 //Load in all of the mongoose data models
 require('./mongo/models/usermodel');

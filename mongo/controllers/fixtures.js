@@ -142,6 +142,7 @@ exports.getRound = function (req, res) {
     });
 };
 
+//returns all of the fixtures grouped by rounds.
 exports.getGroupedFixtures = function (req, res) {
 
     //console.log('Getting rounds');
@@ -232,8 +233,8 @@ exports.getStandings = function (req, res) {
     //set the option settings which will always be the same here
     var options = {
         host: 'football-api.com',
-        path: '/api/?Action=standings&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=1204',
-        //path: '/api/?Action=standings&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204',
+        //path: '/api/?Action=standings&APIKey=6c5ccef5-3d91-ab94-5c9dcd7bb1b6&comp_id=1204',
+        path: '/api/?Action=standings&APIKey=2760810b-be47-82d7-db48d00daa1c&comp_id=1204',
         headers: {
             'Content-Type': 'application/json'
         }

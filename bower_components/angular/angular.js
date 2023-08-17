@@ -1656,7 +1656,7 @@ function getBlockNodes(nodes) {
  * Creates a new object without a prototype. This object is useful for lookup without having to
  * guard against prototypically inherited properties via hasOwnProperty.
  *
- * Related micro-***REMOVED***chmarks:
+ * Related micro-benchmarks:
  * - http://jsperf.com/object-create2
  * - http://jsperf.com/proto-map-lookup/2
  * - http://jsperf.com/for-in-vs-object-keys2
@@ -2655,7 +2655,7 @@ function jqLiteAddClass(element, cssClasses) {
 
 
 function jqLiteAddNodes(root, elements) {
-  // THIS CODE IS VERY HOT. Don't make changes without ***REMOVED***chmarking.
+  // THIS CODE IS VERY HOT. Don't make changes without benchmarking.
 
   if (elements) {
 
@@ -6134,7 +6134,7 @@ function $TemplateCacheProvider() {
  *
  * Transclusion is used (often with {@link ngTransclude}) to insert the
  * original contents of a directive's element into a specified place in the template of the directive.
- * The ***REMOVED***efit of transclusion, over simply moving the DOM elements manually, is that the transcluded
+ * The benefit of transclusion, over simply moving the DOM elements manually, is that the transcluded
  * content has access to the properties on the scope from which it was taken, even if the directive
  * has isolated scope.
  * See the {@link guide/directive#creating-a-directive-that-wraps-other-elements Directives Guide}.
@@ -15501,7 +15501,7 @@ function $SceDelegateProvider() {
  *
  * ## Can I disable SCE completely?
  *
- * Yes, you can.  However, this is strongly discouraged.  SCE gives you a lot of security ***REMOVED***efits
+ * Yes, you can.  However, this is strongly discouraged.  SCE gives you a lot of security benefits
  * for little coding overhead.  It will be much harder to take an SCE disabled application and
  * either secure it on your own or enable SCE at a later stage.  It might make sense to disable SCE
  * for cases where you have a lot of existing code that was written before SCE was introduced and
@@ -25255,7 +25255,7 @@ var ngOptionsMinErr = minErr('ngOptions');
  * `ngOptions` comprehension expression.
  *
  * In many cases, `ngRepeat` can be used on `<option>` elements instead of `ngOptions` to achieve a
- * similar result. However, `ngOptions` provides some ***REMOVED***efits such as reducing memory and
+ * similar result. However, `ngOptions` provides some benefits such as reducing memory and
  * increasing speed by not creating a new scope for each repeated instance, as well as providing
  * more flexibility in how the `<select>`'s model is assigned via the `select` **`as`** part of the
  * comprehension expression. `ngOptions` should be used when the `<select>` model needs to be bound

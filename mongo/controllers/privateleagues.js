@@ -1,5 +1,5 @@
 /**
- * Created by ***REMOVED*** on 19/04/15.
+ * Created by Erin on 19/04/15.
  */
 var mongoose = require('mongoose');
 var http = require('http');

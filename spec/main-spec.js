@@ -1,5 +1,5 @@
 /**
- * Created by ***REMOVED*** on 21/05/15.
+ * Created by Erin on 21/05/15.
  */
 var should = require('should');
 var assert = require('assert');
